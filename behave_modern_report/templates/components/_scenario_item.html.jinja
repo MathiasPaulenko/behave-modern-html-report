@@ -2,6 +2,7 @@
     data-name="{{ scenario.name|lower }}"
     data-tags="{{ scenario.tags|join(',')|lower }}"
     data-feature="{{ scenario.feature_name|lower }}">
+{% set repro_cmd = "behave " ~ scenario.location if scenario.location else "behave -t @" ~ scenario.tags|join(' -t @') if scenario.tags else 'behave' %}
   <button class="scenario-head" aria-expanded="false">
     <svg class="ico chev"><use href="#i-chevron"/></svg>
     <span class="status-badge status-{{ scenario.status }}">
@@ -15,10 +16,15 @@
     <div class="tags">
       {% for tag in scenario.tags %}<span class="tag">@{{ tag }}</span>{% endfor %}
     </div>
+    <button class="icon-btn copy-btn" title="Copy reproduce command" aria-label="Copy reproduce command"
+            data-copy-text="{{ repro_cmd }}" type="button">
+      <svg class="ico"><use href="#i-terminal"/></svg>
+    </button>
   </button>
   <div class="scenario-body" hidden>
     {% if scenario.description %}<p class="desc">{{ scenario.description }}</p>{% endif %}
     {% if scenario.location %}<p class="muted small">{{ scenario.location }}</p>{% endif %}
+    {% set max_step_duration = scenario.steps|map(attribute='duration')|max|default(0.0) %}
     <ol class="steps">
       {% for step in scenario.steps %}
         {% include "components/step.html.jinja" %}

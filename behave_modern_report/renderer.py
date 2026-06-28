@@ -30,6 +30,7 @@ class RenderOptions:
     logo_url: str = ""
     theme: str = "auto"  # auto | dark | light
     embed_assets: bool = True
+    json_sidecar: bool = False
     custom_css: str = ""
     custom_js: str = ""
     extra: dict[str, str] = field(default_factory=dict)
@@ -57,16 +58,19 @@ class Renderer:
         data = as_dict(execution)
         slowest = [as_dict(s) for s in stats_mod.slowest_scenarios(execution, limit=10)]
         buckets = stats_mod.duration_buckets(execution)
+        tags = stats_mod.tag_ranking(execution)
 
         template = self.env.get_template("report.html.jinja")
         return template.render(
             execution=execution,
             data=data,
+            tags=tags,
             data_json=json.dumps(
                 {
                     "execution": data,
                     "slowest": slowest,
                     "buckets": buckets,
+                    "tags": tags,
                 },
                 default=str,
             ),
@@ -81,7 +85,28 @@ class Renderer:
         out = Path(path)
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(html, encoding="utf-8")
+        if self.options.json_sidecar:
+            self._write_json_sidecar(execution, out)
         return out
+
+    def render_json(self, execution: Execution) -> str:
+        """Return a JSON representation of the execution and derived stats."""
+        stats_mod.compute(execution)
+        data = as_dict(execution)
+        return json.dumps(
+            {
+                "execution": data,
+                "slowest": [as_dict(s) for s in stats_mod.slowest_scenarios(execution, limit=10)],
+                "buckets": stats_mod.duration_buckets(execution),
+                "tags": stats_mod.tag_ranking(execution),
+            },
+            default=str,
+            indent=2,
+        )
+
+    def _write_json_sidecar(self, execution: Execution, html_path: Path) -> None:
+        json_path = html_path.with_suffix(".json")
+        json_path.write_text(self.render_json(execution), encoding="utf-8")
 
 
 # ---------------------------------------------------------------------------

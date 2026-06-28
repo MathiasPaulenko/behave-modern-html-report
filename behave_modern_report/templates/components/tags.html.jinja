@@ -1,0 +1,62 @@
+{# Tag analytics page #}
+<section class="view" data-view="tags" hidden>
+  <h2 class="section-title">Tags</h2>
+  <p class="section-subtitle">Per-tag scenario counts, pass rate, and accumulated duration.</p>
+
+  <div class="grid-3">
+    <div class="card">
+      <div class="card-header">
+        <h3>Tag pass rate</h3>
+        <span class="card-muted">Top tags by pass rate</span>
+      </div>
+      <div class="card-body">
+        <canvas id="chart-tag-pass" class="chart-canvas"></canvas>
+      </div>
+    </div>
+    <div class="card span-2">
+      <div class="card-header">
+        <h3>Tag details</h3>
+        <span class="card-muted">Sorted by failures, then count</span>
+      </div>
+      <div class="card-body">
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Tag</th>
+                <th>Scenarios</th>
+                <th>Passed</th>
+                <th>Failed</th>
+                <th>Skip/Undef/Pend</th>
+                <th>Pass rate</th>
+                <th>Duration</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for t in tags %}
+                <tr>
+                  <td><span class="tag-pill">@{{ t.name }}</span></td>
+                  <td>{{ t.count }}</td>
+                  <td class="num-pass">{{ t.passed }}</td>
+                  <td class="num-fail">{{ t.failed }}</td>
+                  <td>{{ t.skipped + t.undefined + t.pending }}</td>
+                  <td>
+                    <div class="progress-bar">
+                      <span class="progress-fill" style="width: {{ t.pass_rate }}%"></span>
+                      <span class="progress-label">{{ t.pass_rate|round(1) }}%</span>
+                    </div>
+                  </td>
+                  <td>{{ t.duration|duration }}</td>
+                </tr>
+              {% else %}
+                <tr>
+                  <td colspan="7" class="empty">No tags found in this execution.</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

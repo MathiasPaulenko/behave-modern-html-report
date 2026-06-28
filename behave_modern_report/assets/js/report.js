@@ -52,7 +52,7 @@
   function showView(route) {
     navItems.forEach(function (b) { b.classList.toggle("is-active", b.dataset.route === route); });
     views.forEach(function (v) { v.hidden = v.dataset.view !== route; });
-    if (route === "statistics" || route === "dashboard") renderCharts();
+    if (route === "statistics" || route === "dashboard" || route === "tags") renderCharts();
   }
   navItems.forEach(function (b) {
     b.addEventListener("click", function () { showView(b.dataset.route); });
@@ -68,13 +68,18 @@
     if (body) body.hidden = expanded;
   });
 
-  // ---- Copy traceback ----------------------------------------
+  // ---- Copy to clipboard -------------------------------------
   document.addEventListener("click", function (e) {
     var btn = e.target.closest(".copy-btn");
     if (!btn) return;
-    var target = document.querySelector(btn.dataset.copyTarget);
-    if (!target) return;
-    var text = target.innerText || target.textContent || "";
+    var text;
+    if (btn.dataset.copyText) {
+      text = btn.dataset.copyText;
+    } else {
+      var target = document.querySelector(btn.dataset.copyTarget);
+      if (!target) return;
+      text = target.innerText || target.textContent || "";
+    }
     var done = function () {
       var prev = btn.innerHTML;
       btn.innerHTML = '<svg class="ico"><use href="#i-check"/></svg>Copied';
@@ -212,6 +217,18 @@
         labels: slow.map(function (s) { return s.name || "(unnamed)"; }),
         values: slow.map(function (s) { return s.duration || 0; }),
         color: PALETTE.failed,
+      });
+    }
+
+    var tg = document.getElementById("chart-tag-pass");
+    if (tg) {
+      var topTags = (DATA.tags || [])
+        .sort(function (a, b) { return b.count - a.count; })
+        .slice(0, 8);
+      BMRChart.bar(tg, {
+        labels: topTags.map(function (t) { return "@" + t.name; }),
+        values: topTags.map(function (t) { return t.pass_rate || 0; }),
+        color: PALETTE.passed,
       });
     }
   }

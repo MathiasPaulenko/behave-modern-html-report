@@ -5,6 +5,7 @@
     </span>
     <span class="kw">{{ step.keyword }}</span>
     <span class="step-text">{{ step.name }}</span>
+    <span class="step-duration-bar" aria-hidden="true" style="width: {{ (step.duration / max_step_duration * 100) if max_step_duration else 0 }}%"></span>
     <span class="muted small step-duration">{{ step.duration|duration }}</span>
   </div>
 

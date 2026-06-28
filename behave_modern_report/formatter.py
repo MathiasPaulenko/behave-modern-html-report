@@ -45,6 +45,7 @@ class ModernHTMLFormatter(Formatter):  # type: ignore[misc,valid-type]
             logo_url=userdata.get("bmr.logo", ""),
             theme=userdata.get("bmr.theme", "auto"),
             embed_assets=userdata.get("bmr.embed", "true").lower() != "false",
+            json_sidecar=userdata.get("bmr.json_sidecar", "false").lower() == "true",
             custom_css=_read_optional(userdata.get("bmr.custom_css")),
             custom_js=_read_optional(userdata.get("bmr.custom_js")),
         )

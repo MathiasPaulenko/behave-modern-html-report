@@ -31,6 +31,18 @@ def _derive_feature_status(feature: Feature) -> str:
     return statuses[0] if statuses else "untested"
 
 
+def _tag_stats() -> dict[str, Any]:
+    return {
+        "count": 0,
+        "passed": 0,
+        "failed": 0,
+        "skipped": 0,
+        "undefined": 0,
+        "pending": 0,
+        "duration": 0.0,
+    }
+
+
 def _scenario_duration(scenario: Scenario) -> float:
     if scenario.duration:
         return scenario.duration
@@ -51,6 +63,13 @@ def compute(execution: Execution) -> Statistics:
             feature_duration += scenario.duration
             stats.by_status[scenario.status] = stats.by_status.get(scenario.status, 0) + 1
             stats.total_steps += len(scenario.steps)
+
+            for tag in scenario.tags:
+                tag_data = stats.by_tag.setdefault(tag, _tag_stats())
+                tag_data["count"] += 1
+                tag_data["duration"] += scenario.duration
+                if scenario.status in tag_data:
+                    tag_data[scenario.status] += 1
 
         feature.duration = feature_duration
         feature.status = _derive_feature_status(feature)
@@ -73,6 +92,32 @@ def slowest_scenarios(execution: Execution, limit: int = 10) -> list[Scenario]:
     """Return the slowest scenarios across the whole execution."""
     all_scenarios = [s for f in execution.features for s in f.scenarios]
     return sorted(all_scenarios, key=lambda s: s.duration, reverse=True)[:limit]
+
+
+def tag_ranking(execution: Execution) -> list[dict[str, Any]]:
+    """Return tags sorted by failures (desc) then count (desc) and duration."""
+    stats = execution.statistics.by_tag
+    rows = []
+    for name, data in stats.items():
+        count = data["count"]
+        passed = data["passed"]
+        failed = data["failed"]
+        duration = data["duration"]
+        pass_rate = (passed / count * 100.0) if count else 0.0
+        rows.append(
+            {
+                "name": name,
+                "count": count,
+                "passed": passed,
+                "failed": failed,
+                "skipped": data["skipped"],
+                "undefined": data["undefined"],
+                "pending": data["pending"],
+                "duration": duration,
+                "pass_rate": pass_rate,
+            }
+        )
+    return sorted(rows, key=lambda r: (-r["failed"], -r["count"], r["duration"]), reverse=False)
 
 
 def duration_buckets(execution: Execution) -> dict[str, int]:

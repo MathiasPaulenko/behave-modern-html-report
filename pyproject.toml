@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "behave-modern-report"
-version = "0.1.0"
+version = "0.2.0"
 description = "The modern, beautiful, single-file HTML report formatter for Behave."
 readme = "README.md"
 license = { text = "MIT" }
@@ -13,7 +13,7 @@ authors = [{ name = "Mathias Paulenko", email = "mathias.paulenko@outlook.com" }
 maintainers = [{ name = "Mathias Paulenko", email = "mathias.paulenko@outlook.com" }]
 keywords = ["behave", "bdd", "html", "report", "formatter", "testing"]
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",

@@ -168,6 +168,7 @@ class Statistics:
     total_scenarios: int = 0
     total_steps: int = 0
     by_status: dict[str, int] = field(default_factory=dict)
+    by_tag: dict[str, dict[str, Any]] = field(default_factory=dict)
     duration: float = 0.0
     start_time: datetime | None = None
     end_time: datetime | None = None

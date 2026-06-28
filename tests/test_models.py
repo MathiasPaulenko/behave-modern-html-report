@@ -38,3 +38,10 @@ def test_as_dict_is_json_safe(sample_execution):
     assert d["title"] == "Sample Suite"
     assert isinstance(d["features"], list)
     assert d["features"][0]["scenarios"][0]["steps"][0]["keyword"] == "Given"
+
+
+def test_package_version():
+    import behave_modern_report as bmr
+
+    assert bmr.__version__ == "0.2.0"
+    assert "attach_screenshot" in bmr.__all__

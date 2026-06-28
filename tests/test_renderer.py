@@ -33,3 +33,26 @@ def test_renderer_handles_empty_execution(tmp_path):
 
     html = Renderer().render(Execution())
     assert "<!doctype html>" in html
+
+
+def test_renderer_includes_tags_page(sample_execution):
+    html = Renderer().render(sample_execution)
+    assert "Tags" in html
+    assert "chart-tag-pass" in html
+    assert "data-view=\"tags\"" in html
+
+
+def test_renderer_json_sidecar(sample_execution, tmp_path):
+    r = Renderer(RenderOptions(json_sidecar=True))
+    out = r.render_to_file(sample_execution, tmp_path / "report.html")
+    json_path = out.with_suffix(".json")
+    assert json_path.exists()
+    text = json_path.read_text(encoding="utf-8")
+    assert "execution" in text
+    assert "tags" in text
+
+
+def test_renderer_json_method(sample_execution):
+    json_text = Renderer().render_json(sample_execution)
+    assert "\"tags\"" in json_text
+    assert "\"execution\"" in json_text
