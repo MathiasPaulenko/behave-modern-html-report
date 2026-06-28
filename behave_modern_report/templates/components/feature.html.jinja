@@ -1,0 +1,40 @@
+<section class="view" data-view="features" hidden>
+  <header class="view-header">
+    <h1 class="view-title">Features</h1>
+    <p class="view-sub">{{ execution.features|length }} features · {{ execution.statistics.total_scenarios }} scenarios</p>
+  </header>
+
+  <div id="features-list" class="stack">
+    {# Features are server-rendered for SEO/printability; JS handles filtering and search. #}
+    {% for feature in execution.features %}
+      <article class="feature card" data-status="{{ feature.status }}"
+               data-name="{{ feature.name|lower }}"
+               data-tags="{{ feature.tags|join(',')|lower }}">
+        <button class="feature-head" aria-expanded="false">
+          <svg class="ico chev"><use href="#i-chevron"/></svg>
+          <span class="status-dot status-{{ feature.status }}"></span>
+          <div class="feature-meta">
+            <h2 class="feature-title">{{ feature.name or "(unnamed feature)" }}</h2>
+            <div class="feature-sub">
+              <span>{{ feature.scenario_count }} scenarios</span>
+              <span>·</span>
+              <span>{{ feature.duration|duration }}</span>
+              {% if feature.location %}<span>·</span><span class="muted">{{ feature.location }}</span>{% endif %}
+            </div>
+          </div>
+          <div class="tags">
+            {% for tag in feature.tags %}<span class="tag">@{{ tag }}</span>{% endfor %}
+          </div>
+        </button>
+        <div class="feature-body" hidden>
+          {% if feature.description %}<p class="desc">{{ feature.description }}</p>{% endif %}
+          <ol class="scenarios">
+            {% for scenario in feature.scenarios %}
+              {% include "components/_scenario_item.html.jinja" %}
+            {% endfor %}
+          </ol>
+        </div>
+      </article>
+    {% endfor %}
+  </div>
+</section>

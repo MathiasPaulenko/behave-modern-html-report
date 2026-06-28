@@ -1,0 +1,26 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+.env
+.tox/
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Generated artifacts
+examples/demo-report.html
+report.html
+*.html.bak
+
+# IDE
+.vscode/
+.idea/
+*.swp

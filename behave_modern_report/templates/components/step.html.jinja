@@ -1,0 +1,70 @@
+<li class="step status-{{ step.status }}">
+  <div class="step-head">
+    <span class="status-badge status-{{ step.status }}" aria-label="{{ step.status|status_label }}">
+      <svg class="ico"><use href="#i-{{ step.status|status_icon }}"/></svg>
+    </span>
+    <span class="kw">{{ step.keyword }}</span>
+    <span class="step-text">{{ step.name }}</span>
+    <span class="muted small step-duration">{{ step.duration|duration }}</span>
+  </div>
+
+  {% if step.text %}
+    <pre class="docstring"><code>{{ step.text }}</code></pre>
+  {% endif %}
+
+  {% if step.table %}
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr>{% for h in step.table.headings %}<th>{{ h }}</th>{% endfor %}</tr></thead>
+        <tbody>
+          {% for row in step.table.rows %}
+            <tr>{% for cell in row %}<td>{{ cell }}</td>{% endfor %}</tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
+
+  {% if step.logs %}
+    <details class="logs">
+      <summary>Logs ({{ step.logs|length }})</summary>
+      <pre><code>{% for line in step.logs %}{{ line }}
+{% endfor %}</code></pre>
+    </details>
+  {% endif %}
+
+  {% if step.attachments %}
+    <div class="attachments">
+      {% for att in step.attachments %}
+        {% if att.is_image %}
+          <button class="thumb" data-attach-img="data:{{ att.mime_type }};base64,{{ att.data_base64 }}" title="{{ att.name }}">
+            <img alt="{{ att.name }}" src="data:{{ att.mime_type }};base64,{{ att.data_base64 }}" loading="lazy" />
+          </button>
+        {% elif att.is_text and att.text %}
+          <details class="attach-text">
+            <summary>{{ att.name }} ({{ att.mime_type }})</summary>
+            <pre><code>{{ att.text }}</code></pre>
+          </details>
+        {% else %}
+          <a class="attach-link" download="{{ att.name }}"
+             href="data:{{ att.mime_type }};base64,{{ att.data_base64 }}">
+            <svg class="ico"><use href="#i-download"/></svg>{{ att.name }}
+          </a>
+        {% endif %}
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {% if step.error %}
+    {% set err_id = 'err-' ~ (step.location ~ step.name)|replace(':','-')|replace('/','-')|replace('\\','-')|replace(' ','-')|replace('.','-') %}
+    <div class="error-block">
+      <div class="error-head">
+        <strong>{{ step.error.exception_type or "Error" }}</strong>
+        <button class="copy-btn" data-copy-target="#{{ err_id }}">
+          <svg class="ico"><use href="#i-copy"/></svg>Copy
+        </button>
+      </div>
+      <pre id="{{ err_id }}" class="traceback"><code>{{ step.error.traceback or step.error.message }}</code></pre>
+    </div>
+  {% endif %}
+</li>

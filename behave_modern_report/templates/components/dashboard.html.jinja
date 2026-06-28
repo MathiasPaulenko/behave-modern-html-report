@@ -1,0 +1,60 @@
+{% set stats = execution.statistics %}
+<section class="view" data-view="dashboard">
+  <header class="view-header">
+    <div>
+      <h1 class="view-title">{{ options.title }}</h1>
+      <p class="view-sub">
+        {% if stats.start_time %}Started {{ stats.start_time.strftime('%Y-%m-%d %H:%M:%S') }} · {% endif %}
+        Duration {{ stats.duration|duration }}
+      </p>
+    </div>
+    <div class="status-pill status-{{ execution.overall_status }}">
+      <svg class="ico"><use href="#i-{{ execution.overall_status|status_icon }}"/></svg>
+      <span>{{ execution.overall_status|status_label }}</span>
+    </div>
+  </header>
+
+  <div class="cards">
+    <div class="card stat-card stat-passed">
+      <div class="stat-label">Passed</div>
+      <div class="stat-value">{{ stats.passed }}</div>
+      <div class="stat-foot">{{ '%.1f'|format(stats.pass_rate) }}% pass rate</div>
+    </div>
+    <div class="card stat-card stat-failed">
+      <div class="stat-label">Failed</div>
+      <div class="stat-value">{{ stats.failed }}</div>
+      <div class="stat-foot">scenarios</div>
+    </div>
+    <div class="card stat-card stat-skipped">
+      <div class="stat-label">Skipped</div>
+      <div class="stat-value">{{ stats.skipped }}</div>
+      <div class="stat-foot">scenarios</div>
+    </div>
+    <div class="card stat-card stat-undefined">
+      <div class="stat-label">Undefined</div>
+      <div class="stat-value">{{ stats.undefined }}</div>
+      <div class="stat-foot">scenarios</div>
+    </div>
+    <div class="card stat-card stat-pending">
+      <div class="stat-label">Pending</div>
+      <div class="stat-value">{{ stats.pending }}</div>
+      <div class="stat-foot">scenarios</div>
+    </div>
+    <div class="card stat-card stat-total">
+      <div class="stat-label">Total</div>
+      <div class="stat-value">{{ stats.total_scenarios }}</div>
+      <div class="stat-foot">{{ stats.total_features }} features · {{ stats.total_steps }} steps</div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card chart-card">
+      <h3 class="card-title">Status distribution</h3>
+      <canvas id="chart-status" height="220" aria-label="Status pie chart"></canvas>
+    </div>
+    <div class="card chart-card">
+      <h3 class="card-title">Scenarios over time</h3>
+      <canvas id="chart-timeline" height="220" aria-label="Timeline chart"></canvas>
+    </div>
+  </div>
+</section>

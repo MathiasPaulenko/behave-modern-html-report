@@ -1,0 +1,13 @@
+<section class="view" data-view="scenarios" hidden>
+  <header class="view-header">
+    <h1 class="view-title">Scenarios</h1>
+    <p class="view-sub">All scenarios across all features.</p>
+  </header>
+  <ol class="scenarios stack" id="scenarios-list">
+    {% for feature in execution.features %}
+      {% for scenario in feature.scenarios %}
+        {% include "components/_scenario_item.html.jinja" %}
+      {% endfor %}
+    {% endfor %}
+  </ol>
+</section>
