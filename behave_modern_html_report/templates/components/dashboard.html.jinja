@@ -96,10 +96,23 @@
       <svg class="ico"><use href="#i-copy"/></svg>
       Copy summary
     </button>
-    <textarea id="summary-text" class="summary-text" readonly aria-hidden="true">{{ options.title }}
-{{ stats.total_scenarios }} scenarios ({{ stats.passed }} passed, {{ stats.failed }} failed, {{ stats.skipped }} skipped, {{ stats.undefined }} undefined, {{ stats.pending }} pending)
-{{ stats.total_features }} features · {{ stats.total_steps }} steps · duration {{ stats.duration|duration }}
-Pass rate: {{ '%.1f'|format(stats.pass_rate) }}%</textarea>
+    <textarea id="summary-text" class="summary-text" readonly aria-hidden="true">{% if execution.overall_status == 'passed' %}✅{% elif execution.overall_status == 'failed' %}❌{% else %}⚠️{% endif %} *{{ options.title }}*
+{% if execution.overall_status == 'passed' %}*All passed*{% elif execution.overall_status == 'failed' %}*{{ stats.error_count }} scenario(s) failed*{% else %}*{{ execution.overall_status|status_label }}*{% endif %}
+
+📊 {{ stats.total_scenarios }} scenarios · {{ stats.total_features }} features · {{ stats.total_steps }} steps
+⏱️ Duration {{ stats.duration|duration }} · Avg {{ stats.avg_scenario_duration|duration }}
+📈 Pass rate {{ '%.1f'|format(stats.pass_rate) }}%
+
+{% if stats.failed %}🔴 Failed: {{ stats.failed }}
+{% endif %}{% if stats.passed %}🟢 Passed: {{ stats.passed }}
+{% endif %}{% if stats.skipped %}⚪ Skipped: {{ stats.skipped }}
+{% endif %}{% if stats.undefined %}🟡 Undefined: {{ stats.undefined }}
+{% endif %}{% if stats.pending %}🟣 Pending: {{ stats.pending }}
+{% endif %}{% if stats.common_exception_type %}
+💥 Most common error: {{ stats.common_exception_type }}
+{% endif %}{% if stats.rule_count %}
+📜 Rules: {{ stats.rule_count }} ({{ stats.rule_failed_count }} failed)
+{% endif %}</textarea>
   </div>
 
   <div class="grid-3">
