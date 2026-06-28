@@ -34,6 +34,9 @@
       <button class="nav-item" data-route="features">
         <svg class="ico"><use href="#i-folder"/></svg><span>Features</span>
       </button>
+      <button class="nav-item" data-route="rules">
+        <svg class="ico"><use href="#i-rules"/></svg><span>Rules</span>
+      </button>
       <button class="nav-item" data-route="scenarios">
         <svg class="ico"><use href="#i-list"/></svg><span>Scenarios</span>
       </button>
@@ -97,6 +100,7 @@
 
     {% include "components/dashboard.html.jinja" %}
     {% include "components/feature.html.jinja" %}
+    {% include "components/rules.html.jinja" %}
     {% include "components/scenario.html.jinja" %}
     {% include "components/tags.html.jinja" %}
     {% include "components/statistics.html.jinja" %}

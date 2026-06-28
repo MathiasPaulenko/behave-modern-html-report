@@ -325,6 +325,13 @@ pre { margin: 0; }
 .rule-body { padding: 8px 8px 0; }
 .rule.is-hidden { display: none; }
 
+.rule.card { background: var(--bg-elev); border: 1px solid var(--border); border-radius: var(--radius-lg); margin: 0; }
+.rule.card .rule-head { background: transparent; border-radius: var(--radius-lg); padding: 14px 16px; }
+.rule.card .rule-meta { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.rule.card .rule-sub { font-size: 12px; color: var(--text-faint); }
+.rule.card .rule-body { padding: 4px 16px 16px; border-top: 1px solid var(--border); }
+.rule.card .rule-body .scenarios { margin-top: 0; }
+
 .scenario {
   background: var(--bg-elev-2); border: 1px solid var(--border);
   border-radius: var(--radius);

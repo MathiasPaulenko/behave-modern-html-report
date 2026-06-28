@@ -186,8 +186,18 @@
     document.querySelectorAll(".scenario-row").forEach(function (el) {
       el.classList.toggle("is-hidden", !matchesScenario(el, q, tagFilter, minDuration, searchError));
     });
-    // Hide rules whose scenarios are all hidden.
-    document.querySelectorAll(".rule").forEach(function (r) {
+    // Hide rule cards whose scenarios are all hidden.
+    document.querySelectorAll(".rule.card").forEach(function (r) {
+      var any = r.querySelectorAll(".scenario:not(.is-hidden)").length > 0;
+      var ruleName = r.dataset.rule || "";
+      var featName = r.dataset.feature || "";
+      var ruleTags = r.dataset.tags || "";
+      var matchRuleQuery = !q || ruleName.indexOf(q) >= 0 || featName.indexOf(q) >= 0 || ruleTags.indexOf(q) >= 0;
+      var matchRuleTags = !tagFilter.length || tagFilter.every(function (t) { return ruleTags.indexOf(t) >= 0; });
+      r.classList.toggle("is-hidden", !(any && matchRuleQuery && matchRuleTags));
+    });
+    // Hide nested rule containers whose scenarios are all hidden (features view).
+    document.querySelectorAll(".rule:not(.card)").forEach(function (r) {
       var any = r.querySelectorAll(".scenario:not(.is-hidden)").length > 0;
       r.classList.toggle("is-hidden", !any);
     });

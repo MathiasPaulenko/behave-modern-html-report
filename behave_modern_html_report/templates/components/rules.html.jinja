@@ -1,0 +1,39 @@
+<section class="view" data-view="rules" hidden>
+  <header class="view-header">
+    <h1 class="view-title">Rules</h1>
+    <p class="view-sub">All Gherkin Rules grouped by feature.</p>
+  </header>
+
+  <div id="rules-list" class="stack">
+    {% for feature in execution.features %}
+      {% for rule_name, rule_scenarios in feature.scenarios|groupby('rule_name') %}
+        {% if rule_name %}
+          <article class="rule card" data-rule="{{ rule_name|lower }}"
+                   data-feature="{{ feature.name|lower }}"
+                   data-tags="{{ rule_scenarios|map(attribute='tags')|sum(start=[])|unique|join(',')|lower }}">
+            <button class="rule-head" aria-expanded="false">
+              <svg class="ico chev"><use href="#i-chevron"/></svg>
+              <span class="rule-label">Rule</span>
+              <div class="rule-meta">
+                <span class="rule-title">{{ rule_name }}</span>
+                <span class="rule-sub">{{ feature.name }} · {{ rule_scenarios|length }} scenario{{ 's' if rule_scenarios|length > 1 else '' }}</span>
+              </div>
+              <div class="tags">
+                {% for tag in rule_scenarios|map(attribute='tags')|sum(start=[])|unique %}
+                  <span class="tag">@{{ tag }}</span>
+                {% endfor %}
+              </div>
+            </button>
+            <div class="rule-body" hidden>
+              <ol class="scenarios">
+                {% for scenario in rule_scenarios %}
+                  {% include "components/_scenario_item.html.jinja" %}
+                {% endfor %}
+              </ol>
+            </div>
+          </article>
+        {% endif %}
+      {% endfor %}
+    {% endfor %}
+  </div>
+</section>
