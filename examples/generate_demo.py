@@ -62,8 +62,8 @@ def _random_step(i: int, force: str | None = None) -> Step:
     return step
 
 
-def _random_scenario(idx: int, feature_name: str) -> Scenario:
-    """Create a synthetic scenario with random steps and tags."""
+def _random_scenario(idx: int, feature_name: str, rule_name: str = "", tags: list[str] | None = None) -> Scenario:
+    """Create a synthetic scenario with random steps, tags and optional Rule name."""
     n_steps = random.randint(3, 6)
     failing = random.random() < 0.12
     steps = [_random_step(i, "failed" if failing and i == n_steps - 2 else None) for i in range(n_steps)]
@@ -77,9 +77,10 @@ def _random_scenario(idx: int, feature_name: str) -> Scenario:
         status=status,
         description="",
         location=f"features/{feature_name}.feature:{idx * 4}",
-        tags=random.sample(["smoke", "regression", "ui", "api", "nightly", "wip"], k=random.randint(0, 3)),
+        tags=tags if tags is not None else random.sample(["smoke", "regression", "ui", "api", "nightly", "wip"], k=random.randint(0, 3)),
         steps=steps,
         feature_name=feature_name,
+        rule_name=rule_name,
     )
 
 
@@ -88,7 +89,24 @@ def build_demo_execution() -> Execution:
     random.seed(42)
     start = datetime.now() - timedelta(seconds=42)
     features = []
-    for fname in ["Checkout", "Authentication", "Reporting", "Settings"]:
+
+    # Feature with Gherkin Rules to exercise rule grouping.
+    checkout = Feature(
+        name="Checkout",
+        description="Behavior of the checkout subsystem including rules.",
+        location="features/checkout.feature:1",
+        tags=["checkout"],
+    )
+    checkout.scenarios = [
+        _random_scenario(1, "Checkout", rule_name="Payment required", tags=["payment"]),
+        _random_scenario(2, "Checkout", rule_name="Payment required", tags=["payment"]),
+        _random_scenario(3, "Checkout", rule_name="Shipping options", tags=["shipping"]),
+        _random_scenario(4, "Checkout", rule_name="Shipping options", tags=["shipping"]),
+        _random_scenario(5, "Checkout"),
+    ]
+    features.append(checkout)
+
+    for fname in ["Authentication", "Reporting", "Settings"]:
         feat = Feature(
             name=fname,
             description=f"Behavior of the {fname.lower()} subsystem.",

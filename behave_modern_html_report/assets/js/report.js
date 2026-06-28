@@ -60,7 +60,7 @@
 
   // ---- Expand / collapse -------------------------------------
   document.addEventListener("click", function (e) {
-    var head = e.target.closest(".feature-head, .scenario-head");
+    var head = e.target.closest(".feature-head, .rule-head, .scenario-head");
     if (!head) return;
     var body = head.nextElementSibling;
     var expanded = head.getAttribute("aria-expanded") === "true";
@@ -123,6 +123,33 @@
   var searchInput = document.getElementById("global-search");
   var filterChips = document.querySelectorAll("[data-filter-status]");
   var activeStatuses = new Set(Array.prototype.map.call(filterChips, function (c) { return c.dataset.filterStatus; }));
+  var filtersToggle = document.getElementById("filters-toggle");
+  var advancedFilters = document.getElementById("advanced-filters");
+  var filterTags = document.getElementById("filter-tags");
+  var filterMinDuration = document.getElementById("filter-min-duration");
+  var filterErrorText = document.getElementById("filter-error-text");
+
+  if (filtersToggle && advancedFilters) {
+    filtersToggle.addEventListener("click", function () {
+      var hidden = advancedFilters.hidden;
+      advancedFilters.hidden = !hidden;
+      filtersToggle.setAttribute("aria-expanded", String(hidden));
+    });
+  }
+
+  function addFilterInput(el) {
+    if (!el) return;
+    el.addEventListener("input", function () { clearTimeout(t); t = setTimeout(applyFilters, 80); });
+    if (el.type === "checkbox") {
+      el.addEventListener("change", function () { clearTimeout(t); t = setTimeout(applyFilters, 80); });
+    }
+  }
+  var t;
+  addFilterInput(searchInput);
+  addFilterInput(filterTags);
+  addFilterInput(filterMinDuration);
+  addFilterInput(filterErrorText);
+
   filterChips.forEach(function (chip) {
     chip.addEventListener("click", function () {
       var s = chip.dataset.filterStatus;
@@ -131,33 +158,62 @@
       applyFilters();
     });
   });
-  if (searchInput) {
-    var t;
-    searchInput.addEventListener("input", function () {
-      clearTimeout(t); t = setTimeout(applyFilters, 80);
-    });
+
+  function matchesScenario(el, q, tagFilter, minDuration, searchError) {
+    var status = el.dataset.status;
+    var name = el.dataset.name || "";
+    var tags = el.dataset.tags || "";
+    var feat = el.dataset.feature || "";
+    var rule = el.dataset.rule || "";
+    var duration = parseFloat(el.dataset.duration || "0") || 0;
+    var error = el.dataset.error || "";
+    var matchStatus = activeStatuses.has(status);
+    var matchQuery = !q || name.indexOf(q) >= 0 || tags.indexOf(q) >= 0 || feat.indexOf(q) >= 0 || rule.indexOf(q) >= 0;
+    if (searchError && q) matchQuery = matchQuery || error.indexOf(q) >= 0;
+    var matchTags = !tagFilter.length || tagFilter.every(function (t) { return tags.indexOf(t) >= 0; });
+    var matchDuration = duration >= minDuration;
+    return matchStatus && matchQuery && matchTags && matchDuration;
   }
+
   function applyFilters() {
     var q = (searchInput ? searchInput.value : "").toLowerCase().trim();
-    var scenarios = document.querySelectorAll(".scenario");
-    scenarios.forEach(function (el) {
-      var status = el.dataset.status;
-      var name = el.dataset.name || "";
-      var tags = el.dataset.tags || "";
-      var feat = el.dataset.feature || "";
-      var matchStatus = activeStatuses.has(status);
-      var matchQuery = !q || name.indexOf(q) >= 0 || tags.indexOf(q) >= 0 || feat.indexOf(q) >= 0;
-      el.classList.toggle("is-hidden", !(matchStatus && matchQuery));
+    var tagFilter = (filterTags ? filterTags.value : "").toLowerCase().replace(/\s+/g, "").split(",").filter(Boolean);
+    var minDuration = parseFloat(filterMinDuration ? filterMinDuration.value : "0") || 0;
+    var searchError = filterErrorText && filterErrorText.checked;
+    document.querySelectorAll(".scenario").forEach(function (el) {
+      el.classList.toggle("is-hidden", !matchesScenario(el, q, tagFilter, minDuration, searchError));
     });
-    // Hide features whose scenarios are all hidden (when filtering).
+    document.querySelectorAll(".scenario-row").forEach(function (el) {
+      el.classList.toggle("is-hidden", !matchesScenario(el, q, tagFilter, minDuration, searchError));
+    });
+    // Hide rules whose scenarios are all hidden.
+    document.querySelectorAll(".rule").forEach(function (r) {
+      var any = r.querySelectorAll(".scenario:not(.is-hidden)").length > 0;
+      r.classList.toggle("is-hidden", !any);
+    });
+    // Hide features whose scenarios/rules are all hidden.
     document.querySelectorAll(".feature").forEach(function (f) {
-      var any = f.querySelectorAll(".scenario:not(.is-hidden)").length > 0;
+      var anyScenario = f.querySelectorAll(".scenario:not(.is-hidden)").length > 0;
+      var anyRule = f.querySelectorAll(".rule:not(.is-hidden)").length > 0;
       var status = f.dataset.status;
       var name = f.dataset.name || "";
       var tags = f.dataset.tags || "";
       var matchStatus = activeStatuses.has(status);
       var matchQuery = !q || name.indexOf(q) >= 0 || tags.indexOf(q) >= 0;
-      f.classList.toggle("is-hidden", !(any || (matchStatus && matchQuery)));
+      f.classList.toggle("is-hidden", !(anyScenario || anyRule || (matchStatus && matchQuery)));
+    });
+  }
+
+  // ---- Compact view toggle -----------------------------------
+  var compactToggle = document.getElementById("compact-toggle");
+  var scenariosList = document.getElementById("scenarios-list");
+  var scenariosTable = document.getElementById("scenarios-table");
+  if (compactToggle && scenariosList && scenariosTable) {
+    compactToggle.addEventListener("click", function () {
+      var compact = scenariosTable.hidden;
+      scenariosTable.hidden = !compact;
+      scenariosList.hidden = compact;
+      compactToggle.setAttribute("aria-pressed", String(compact));
     });
   }
 

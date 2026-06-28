@@ -1,7 +1,10 @@
 <li class="scenario" data-status="{{ scenario.status }}"
     data-name="{{ scenario.name|lower }}"
     data-tags="{{ scenario.tags|join(',')|lower }}"
-    data-feature="{{ scenario.feature_name|lower }}">
+    data-feature="{{ scenario.feature_name|lower }}"
+    data-rule="{{ scenario.rule_name|lower }}"
+    data-duration="{{ scenario.duration }}"
+    data-error="{{ (scenario.error.message|lower) if scenario.error else '' }}">
 {% set repro_cmd = "behave " ~ scenario.location if scenario.location else "behave -t @" ~ scenario.tags|join(' -t @') if scenario.tags else 'behave' %}
   <button class="scenario-head" aria-expanded="false">
     <svg class="ico chev"><use href="#i-chevron"/></svg>

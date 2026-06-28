@@ -2,6 +2,9 @@
   <header class="view-header">
     <h1 class="view-title">Scenarios</h1>
     <p class="view-sub">All scenarios across all features.</p>
+    <button id="compact-toggle" class="icon-btn" aria-label="Toggle compact view" title="Compact view" type="button" aria-pressed="false">
+      <svg class="ico"><use href="#i-table"/></svg>
+    </button>
   </header>
   <ol class="scenarios stack" id="scenarios-list">
     {% for feature in execution.features %}
@@ -10,4 +13,45 @@
       {% endfor %}
     {% endfor %}
   </ol>
+  <table class="scenarios-table" id="scenarios-table" hidden>
+    <thead>
+      <tr>
+        <th>Status</th>
+        <th>Feature</th>
+        <th>Rule</th>
+        <th>Scenario</th>
+        <th>Duration</th>
+        <th>Tags</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for feature in execution.features %}
+        {% for scenario in feature.scenarios %}
+          <tr class="scenario-row" data-status="{{ scenario.status }}"
+              data-name="{{ scenario.name|lower }}"
+              data-tags="{{ scenario.tags|join(',')|lower }}"
+              data-feature="{{ scenario.feature_name|lower }}"
+              data-rule="{{ scenario.rule_name|lower }}"
+              data-duration="{{ scenario.duration }}"
+              data-error="{{ (scenario.error.message|lower) if scenario.error else '' }}">
+            <td>
+              <span class="status-badge status-{{ scenario.status }}">
+                <svg class="ico"><use href="#i-{{ scenario.status|status_icon }}"/></svg>
+                {{ scenario.status|status_label }}
+              </span>
+            </td>
+            <td>{{ scenario.feature_name }}</td>
+            <td>{{ scenario.rule_name or '-' }}</td>
+            <td>{{ scenario.name or "(unnamed scenario)" }}</td>
+            <td>{{ scenario.duration|duration }}</td>
+            <td>
+              <div class="tags">
+                {% for tag in scenario.tags %}<span class="tag">@{{ tag }}</span>{% endfor %}
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      {% endfor %}
+    </tbody>
+  </table>
 </section>

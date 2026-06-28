@@ -28,11 +28,31 @@
         </button>
         <div class="feature-body" hidden>
           {% if feature.description %}<p class="desc">{{ feature.description }}</p>{% endif %}
-          <ol class="scenarios">
-            {% for scenario in feature.scenarios %}
-              {% include "components/_scenario_item.html.jinja" %}
-            {% endfor %}
-          </ol>
+          {% for rule_name, rule_scenarios in feature.scenarios|groupby('rule_name') %}
+            {% if rule_name %}
+              <div class="rule" data-rule="{{ rule_name|lower }}">
+                <button class="rule-head" aria-expanded="false">
+                  <svg class="ico chev"><use href="#i-chevron"/></svg>
+                  <span class="rule-label">Rule</span>
+                  <span class="rule-title">{{ rule_name }}</span>
+                  <span class="rule-count">{{ rule_scenarios|length }} scenario{{ 's' if rule_scenarios|length > 1 else '' }}</span>
+                </button>
+                <div class="rule-body" hidden>
+                  <ol class="scenarios">
+                    {% for scenario in rule_scenarios %}
+                      {% include "components/_scenario_item.html.jinja" %}
+                    {% endfor %}
+                  </ol>
+                </div>
+              </div>
+            {% else %}
+              <ol class="scenarios">
+                {% for scenario in rule_scenarios %}
+                  {% include "components/_scenario_item.html.jinja" %}
+                {% endfor %}
+              </ol>
+            {% endif %}
+          {% endfor %}
         </div>
       </article>
     {% endfor %}

@@ -74,7 +74,26 @@
           </button>
         {% endfor %}
       </div>
+      <button id="filters-toggle" class="icon-btn" aria-label="Toggle advanced filters" title="Advanced filters" type="button">
+        <svg class="ico"><use href="#i-filter"/></svg>
+      </button>
     </header>
+    <div id="advanced-filters" class="advanced-filters" hidden>
+      <div class="filter-row">
+        <label class="filter-field">
+          <span>Tags</span>
+          <input id="filter-tags" type="text" placeholder="payment, smoke…" aria-label="Filter by tags" />
+        </label>
+        <label class="filter-field">
+          <span>Min duration (s)</span>
+          <input id="filter-min-duration" type="number" min="0" step="0.1" placeholder="0" aria-label="Minimum duration in seconds" />
+        </label>
+        <label class="filter-field filter-checkbox">
+          <input id="filter-error-text" type="checkbox" aria-label="Search in error text" />
+          <span>Search in error text</span>
+        </label>
+      </div>
+    </div>
 
     {% include "components/dashboard.html.jinja" %}
     {% include "components/feature.html.jinja" %}
