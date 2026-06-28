@@ -12,6 +12,20 @@ python -m venv .venv
 pip install -e ".[dev]"
 ```
 
+## Releasing
+
+Releases are **fully automatic**. To cut a new version:
+
+1. Bump the `version` field in `pyproject.toml`.
+2. Update `CHANGELOG.md`.
+3. Commit and push to `main`.
+
+The `Release` GitHub Actions workflow detects the version bump, creates the
+matching `vX.Y.Z` tag, builds the distribution, publishes to PyPI via
+Trusted Publishing, and creates a GitHub Release with auto-generated notes.
+
+If the version was not changed, the workflow exits cleanly without releasing.
+
 ## Running checks
 
 ```bash
