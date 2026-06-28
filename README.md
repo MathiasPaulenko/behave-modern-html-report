@@ -17,7 +17,8 @@ embedded so the report works offline, on any machine, forever.
 - 🌓 **Dark / Light / Auto** themes, modern Material-3 inspired UI
 - 📊 **Interactive charts** (status pie, duration histogram, slowest scenarios, tag pass rate, timeline) — pure vanilla JS, no Chart.js CDN
 - 🏷️ **Tag analytics** page: per-tag counts, pass rate, duration, and a dedicated chart
-- 🔍 **Instant client-side search** across features, scenarios, steps and tags
+- � **Gherkin Rules** support: scenarios under a `Rule` are grouped and tagged correctly (Behave 1.3.x)
+- �🔍 **Instant client-side search** across features, scenarios, steps and tags
 - 🎚️ **Filter by status** with one click
 - 📁 **Expandable** features → scenarios → steps with rich metadata
 - 🧯 **Modern error viewer** with copy-to-clipboard tracebacks
@@ -67,6 +68,25 @@ bmr.custom_css    = path/to/extra.css
 bmr.custom_js     = path/to/extra.js
 ```
 
+## Behave 1.3.x and Gherkin Rules compatibility
+
+`behave-modern-html-report` is tested against Behave 1.3.x and fully supports the Gherkin `Rule` keyword.
+
+- Scenarios under a `Rule` keep their parent rule name and inherit their Rule tags correctly.
+- Extended final statuses (`error`, `hook_error`, `cleanup_error`, `xfailed`, `xpassed`, `pending_warn`) are normalised and displayed in the UI.
+- Error-like statuses are grouped as failures for feature status and tag analytics.
+
+```gherkin
+Feature: Checkout
+
+  Rule: Payment required
+    @payment
+    Scenario: Card payment succeeds
+      Given the user has items in cart
+      When they pay with a valid card
+      Then the order is confirmed
+```
+
 ## Attachments from your `environment.py`
 
 Use the public helper API — no need to reach into the formatter:
@@ -104,7 +124,8 @@ behave events
  collector.py ── builds the model tree
     │
     ▼
-   models.py  ── pure dataclasses (Execution → Feature → Scenario → Step)
+   models.py  ── pure dataclasses
+                (Execution → Feature → Rule-aware Scenario → Step)
     │
     ▼
  statistics.py ── aggregates counters, durations, buckets
