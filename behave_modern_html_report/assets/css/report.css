@@ -374,8 +374,24 @@ pre { margin: 0; }
   position: relative; height: 22px; border-radius: 999px; background: var(--bg-elev-2);
   border: 1px solid var(--border); overflow: hidden; min-width: 80px;
 }
-.progress-fill { position: absolute; inset: 0 auto 0 0; background: var(--c-passed); transition: width var(--transition); }
-.progress-label { position: relative; z-index: 1; padding: 0 8px; font-size: 12px; line-height: 22px; color: var(--text); font-weight: 500; }
+.progress-bar.stacked { display: flex; }
+.progress-segment { height: 100%; transition: width var(--transition); }
+.progress-segment:first-child { border-radius: 999px 0 0 999px; }
+.progress-segment:last-child { border-radius: 0 999px 999px 0; }
+.progress-segment.status-passed   { background: var(--c-passed); }
+.progress-segment.status-failed   { background: var(--c-failed); }
+.progress-segment.status-skipped  { background: var(--c-skipped); }
+.progress-segment.status-undefined{ background: var(--c-undefined); }
+.progress-segment.status-pending  { background: var(--c-pending); }
+
+.progress-legend {
+  display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
+  margin-top: 10px; font-size: 12px; color: var(--text-dim);
+}
+.progress-legend-item { display: inline-flex; align-items: center; gap: 6px; }
+.progress-legend-item .status-dot { width: 8px; height: 8px; }
+.progress-pass-rate { margin-left: auto; font-weight: 600; color: var(--text); }
+
 .progress-card { padding: 16px; margin-bottom: 16px; }
 
 .dashboard-actions {
