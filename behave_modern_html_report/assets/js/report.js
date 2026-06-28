@@ -10,14 +10,17 @@
   var DATA = {};
   try { DATA = JSON.parse(dataNode.textContent || "{}"); } catch (e) { DATA = {}; }
 
-  var PALETTE = {
-    passed:    getCss("--c-passed",    "#22c55e"),
-    failed:    getCss("--c-failed",    "#ef4444"),
-    skipped:   getCss("--c-skipped",   "#94a3b8"),
-    undefined: getCss("--c-undefined", "#f59e0b"),
-    pending:   getCss("--c-pending",   "#8b5cf6"),
-    untested:  getCss("--c-untested",  "#64748b"),
-  };
+  var PALETTE = {};
+  function refreshPalette() {
+    PALETTE = {
+      passed:    getCss("--c-passed",    "#22c55e"),
+      failed:    getCss("--c-failed",    "#ef4444"),
+      skipped:   getCss("--c-skipped",   "#94a3b8"),
+      undefined: getCss("--c-undefined", "#f59e0b"),
+      pending:   getCss("--c-pending",   "#8b5cf6"),
+      untested:  getCss("--c-untested",  "#64748b"),
+    };
+  }
 
   function getCss(name, fallback) {
     var v = getComputedStyle(document.documentElement).getPropertyValue(name);
@@ -34,14 +37,18 @@
     var saved = null;
     try { saved = localStorage.getItem(THEME_KEY); } catch (_) {}
     if (saved) applyTheme(saved);
+    refreshPalette();
     var btn = document.getElementById("theme-toggle");
     if (btn) {
       btn.addEventListener("click", function () {
         var cur = document.documentElement.getAttribute("data-theme") || "auto";
         var next = cur === "dark" ? "light" : cur === "light" ? "auto" : "dark";
         applyTheme(next);
-        // redraw charts on theme change
-        renderCharts();
+        // Wait one frame so CSS variables settle before redrawing charts.
+        requestAnimationFrame(function () {
+          refreshPalette();
+          renderCharts();
+        });
       });
     }
   })();
