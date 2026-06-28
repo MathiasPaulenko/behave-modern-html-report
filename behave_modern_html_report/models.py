@@ -61,10 +61,12 @@ class Attachment:
 
     @property
     def is_image(self) -> bool:
+        """Return True if the attachment is an image."""
         return self.mime_type.startswith("image/")
 
     @property
     def is_text(self) -> bool:
+        """Return True if the attachment is a text-based type."""
         return self.mime_type.startswith("text/") or self.mime_type in {
             "application/json",
             "application/xml",
@@ -123,6 +125,7 @@ class Scenario:
 
     @property
     def step_count(self) -> int:
+        """Return the number of steps in the scenario."""
         return len(self.steps)
 
 
@@ -140,6 +143,7 @@ class Feature:
 
     @property
     def scenario_count(self) -> int:
+        """Return the number of scenarios in the feature."""
         return len(self.scenarios)
 
 
@@ -175,26 +179,32 @@ class Statistics:
 
     @property
     def passed(self) -> int:
+        """Number of passed scenarios."""
         return self.by_status.get(STATUS_PASSED, 0)
 
     @property
     def failed(self) -> int:
+        """Number of failed scenarios."""
         return self.by_status.get(STATUS_FAILED, 0)
 
     @property
     def skipped(self) -> int:
+        """Number of skipped scenarios."""
         return self.by_status.get(STATUS_SKIPPED, 0)
 
     @property
     def undefined(self) -> int:
+        """Number of undefined scenarios."""
         return self.by_status.get(STATUS_UNDEFINED, 0)
 
     @property
     def pending(self) -> int:
+        """Number of pending scenarios."""
         return self.by_status.get(STATUS_PENDING, 0)
 
     @property
     def pass_rate(self) -> float:
+        """Pass rate as a percentage of total scenarios."""
         total = self.total_scenarios
         return (self.passed / total * 100.0) if total else 0.0
 

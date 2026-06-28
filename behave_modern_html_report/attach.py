@@ -29,7 +29,10 @@ from .utils import guess_mime
 
 
 def _find_formatter(context: Any) -> Any:
-    """Locate the ModernHTMLFormatter instance on the Behave context."""
+    """Locate the ModernHTMLFormatter instance on the Behave context.
+
+    Returns None if the formatter is not available (e.g. outside Behave).
+    """
     if context is None:
         return None
     # Behave 1.2.x / 1.3.x keeps the runner and formatters here.
@@ -53,6 +56,7 @@ def attach_file(context: Any, path: str | Path, name: str | None = None) -> None
         context: Behave context object passed to the hook.
         path: Path to the file to attach.
         name: Optional display name. If omitted, the file name is used.
+
     """
     formatter = _find_formatter(context)
     if formatter is None:
@@ -72,6 +76,7 @@ def attach_text(context: Any, text: str, name: str = "note.txt") -> None:
         context: Behave context object passed to the hook.
         text: Raw text to embed.
         name: Display name for the attachment (default ``note.txt``).
+
     """
     formatter = _find_formatter(context)
     if formatter is None:
@@ -88,6 +93,7 @@ def attach_json(context: Any, data: Any, name: str = "data.json") -> None:
         context: Behave context object passed to the hook.
         data: Any object that can be passed to ``json.dumps``.
         name: Display name for the attachment (default ``data.json``).
+
     """
     import json
 
@@ -114,6 +120,7 @@ def attach_screenshot(context: Any, source: Any, name: str = "screenshot.png") -
         context: Behave context object passed to the hook.
         source: Screenshot source (see above).
         name: Display name for the attachment (default ``screenshot.png``).
+
     """
     formatter = _find_formatter(context)
     if formatter is None:
@@ -169,6 +176,7 @@ def log(context: Any, message: str) -> None:
     Args:
         context: Behave context object passed to the hook.
         message: Free-form text line to attach.
+
     """
     formatter = _find_formatter(context)
     if formatter is None:

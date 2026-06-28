@@ -1,7 +1,10 @@
+"""Tests for the Jinja2 HTML renderer."""
+
 from behave_modern_html_report.renderer import Renderer, RenderOptions
 
 
 def test_renderer_produces_single_html_file(tmp_path, sample_execution):
+    """The renderer produces a single-file, self-contained HTML report."""
     r = Renderer(RenderOptions(title="Demo", company="Acme", theme="dark"))
     out = r.render_to_file(sample_execution, tmp_path / "report.html")
 
@@ -22,6 +25,7 @@ def test_renderer_produces_single_html_file(tmp_path, sample_execution):
 
 
 def test_renderer_supports_custom_css_js(tmp_path, sample_execution):
+    """Custom CSS and JS are inlined into the generated HTML."""
     r = Renderer(RenderOptions(custom_css=".bmr-x{color:red}", custom_js="window.__bmr=1;"))
     html = r.render(sample_execution)
     assert ".bmr-x{color:red}" in html
@@ -29,6 +33,7 @@ def test_renderer_supports_custom_css_js(tmp_path, sample_execution):
 
 
 def test_renderer_handles_empty_execution(tmp_path):
+    """The renderer produces a valid HTML report even for an empty execution."""
     from behave_modern_html_report.models import Execution
 
     html = Renderer().render(Execution())
@@ -36,6 +41,7 @@ def test_renderer_handles_empty_execution(tmp_path):
 
 
 def test_renderer_includes_tags_page(sample_execution):
+    """The rendered HTML includes the Tags analytics page."""
     html = Renderer().render(sample_execution)
     assert "Tags" in html
     assert "chart-tag-pass" in html
@@ -43,6 +49,7 @@ def test_renderer_includes_tags_page(sample_execution):
 
 
 def test_renderer_json_sidecar(sample_execution, tmp_path):
+    """A JSON sidecar is written next to the HTML report when enabled."""
     r = Renderer(RenderOptions(json_sidecar=True))
     out = r.render_to_file(sample_execution, tmp_path / "report.html")
     json_path = out.with_suffix(".json")
@@ -53,6 +60,7 @@ def test_renderer_json_sidecar(sample_execution, tmp_path):
 
 
 def test_renderer_json_method(sample_execution):
+    """render_json returns a JSON string with execution and derived stats."""
     json_text = Renderer().render_json(sample_execution)
     assert "\"tags\"" in json_text
     assert "\"execution\"" in json_text

@@ -14,6 +14,7 @@ ASSETS_DIR = Path(__file__).parent / "assets"
 
 @cache
 def _read(path: Path) -> str:
+    """Read a text file from disk and cache the result."""
     return path.read_text(encoding="utf-8")
 
 

@@ -36,6 +36,7 @@ class ModernHTMLFormatter(Formatter):  # type: ignore[misc,valid-type]
     description = "Modern single-file HTML report"
 
     def __init__(self, stream_opener: Any, config: Any) -> None:
+        """Initialize the formatter with user options and a collector/renderer."""
         super().__init__(stream_opener, config)
 
         userdata = getattr(config, "userdata", {}) or {}
@@ -60,26 +61,33 @@ class ModernHTMLFormatter(Formatter):  # type: ignore[misc,valid-type]
     # ------------------------------------------------------------------
 
     def feature(self, feature: Any) -> None:  # noqa: D401 - behave signature
+        """Behave hook: a feature has started."""
         self._collector.start_feature(feature)
 
     def background(self, background: Any) -> None:
+        """Behave hook: background steps are handled via the scenario."""
         # Background steps are surfaced via the scenario's own steps in Behave.
         pass
 
     def scenario(self, scenario: Any) -> None:
+        """Behave hook: a scenario has started."""
         self._collector.start_scenario(scenario)
 
     def step(self, step: Any) -> None:
+        """Behave hook: step queued; final state arrives in ``result``."""
         # Called when a step is queued; the final state arrives in `result`.
         pass
 
     def match(self, match: Any) -> None:
+        """Behave hook: step matched to a step implementation."""
         pass
 
     def result(self, step: Any) -> None:
+        """Behave hook: a step result is available."""
         self._collector.add_step(step)
 
     def eof(self) -> None:
+        """Behave hook: end of feature; finalize current feature/scenario."""
         # End of file = end of feature in Behave.
         feature = self._collector._current_feature  # noqa: SLF001 - intentional
         if feature is not None:
@@ -91,6 +99,7 @@ class ModernHTMLFormatter(Formatter):  # type: ignore[misc,valid-type]
             self._collector.end_scenario(_FakeFinal(scenario))
 
     def close(self) -> None:
+        """Behave hook: finalize the execution and write the HTML report."""
         execution = self._collector.finalize()
         html = self._renderer.render(execution)
         self._output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -115,9 +124,11 @@ class ModernHTMLFormatter(Formatter):  # type: ignore[misc,valid-type]
         )
 
     def attach_text(self, text: str, name: str = "log.txt", mime: str = "text/plain") -> None:
+        """Attach a text snippet to the current step."""
         self._collector.attach(Attachment(name=name, mime_type=mime, text=text))
 
     def log(self, message: str) -> None:
+        """Append a log line to the current step."""
         self._collector.log(message)
 
     # ------------------------------------------------------------------
@@ -126,6 +137,7 @@ class ModernHTMLFormatter(Formatter):  # type: ignore[misc,valid-type]
 
     @staticmethod
     def _resolve_output_path(stream_opener: Any, config: Any) -> Path:
+        """Resolve the output HTML path from Behave's stream opener or config."""
         candidate = getattr(stream_opener, "name", None) or getattr(stream_opener, "filename", None)
         if candidate:
             return Path(candidate)
@@ -141,11 +153,13 @@ class _FakeFinal:
     """Wrap a Behave object so the collector's `end_*` reads its final status."""
 
     def __init__(self, source: Any) -> None:
+        """Wrap a Behave object to expose its final status and duration."""
         self.status = getattr(source, "status", None)
         self.duration = getattr(source, "duration", 0.0)
 
 
 def _read_optional(path: str | None) -> str:
+    """Read a user-provided file path or return an empty string."""
     if not path:
         return ""
     try:

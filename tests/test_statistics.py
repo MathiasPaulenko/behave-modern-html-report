@@ -1,7 +1,10 @@
+"""Tests for execution statistics computation."""
+
 from behave_modern_html_report import statistics as stats_mod
 
 
 def test_compute_aggregates_counts_and_durations(sample_execution):
+    """Compute aggregates feature/scenario/step counts and durations."""
     stats = stats_mod.compute(sample_execution)
 
     assert stats.total_features == 2
@@ -14,11 +17,13 @@ def test_compute_aggregates_counts_and_durations(sample_execution):
 
 
 def test_pass_rate(sample_execution):
+    """pass_rate is a percentage between 0 and 100."""
     stats = stats_mod.compute(sample_execution)
     assert 0.0 <= stats.pass_rate <= 100.0
 
 
 def test_slowest_scenarios(sample_execution):
+    """slowest_scenarios returns scenarios ordered by duration descending."""
     stats_mod.compute(sample_execution)
     slow = stats_mod.slowest_scenarios(sample_execution, limit=2)
     assert len(slow) == 2
@@ -26,12 +31,14 @@ def test_slowest_scenarios(sample_execution):
 
 
 def test_duration_buckets_total_matches_scenarios(sample_execution):
+    """duration_buckets groups every scenario into a duration range."""
     stats_mod.compute(sample_execution)
     b = stats_mod.duration_buckets(sample_execution)
     assert sum(b.values()) == 4
 
 
 def test_by_tag_aggregates(sample_execution):
+    """Tags are aggregated per scenario, including feature-level tags."""
     stats_mod.compute(sample_execution)
     assert "smoke" in sample_execution.statistics.by_tag
     assert "happy" in sample_execution.statistics.by_tag
@@ -43,6 +50,7 @@ def test_by_tag_aggregates(sample_execution):
 
 
 def test_tag_ranking_sorts_failed_first(sample_execution):
+    """tag_ranking sorts tags by failures, then count, then duration."""
     stats_mod.compute(sample_execution)
     ranking = stats_mod.tag_ranking(sample_execution)
     # smoke (feature tag) has 2 scenarios, 1 failed; payment has 1 failed scenario.

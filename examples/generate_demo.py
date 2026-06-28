@@ -33,6 +33,7 @@ STATUSES = ["passed"] * 14 + ["failed"] * 2 + ["skipped"] * 2 + ["undefined"]
 
 
 def _random_step(i: int, force: str | None = None) -> Step:
+    """Create a single synthetic step with a random status and duration."""
     status = force or random.choice(STATUSES)
     step = Step(
         keyword=random.choice(["Given", "When", "Then", "And"]),
@@ -62,6 +63,7 @@ def _random_step(i: int, force: str | None = None) -> Step:
 
 
 def _random_scenario(idx: int, feature_name: str) -> Scenario:
+    """Create a synthetic scenario with random steps and tags."""
     n_steps = random.randint(3, 6)
     failing = random.random() < 0.12
     steps = [_random_step(i, "failed" if failing and i == n_steps - 2 else None) for i in range(n_steps)]
@@ -82,6 +84,7 @@ def _random_scenario(idx: int, feature_name: str) -> Scenario:
 
 
 def build_demo_execution() -> Execution:
+    """Build a deterministic demo execution tree for screenshots and previews."""
     random.seed(42)
     start = datetime.now() - timedelta(seconds=42)
     features = []
@@ -111,6 +114,7 @@ def build_demo_execution() -> Execution:
 
 
 def main() -> None:
+    """Generate the demo report and open it in the default browser."""
     execution = build_demo_execution()
     renderer = Renderer(RenderOptions(
         title="Behave Modern Report — Demo",

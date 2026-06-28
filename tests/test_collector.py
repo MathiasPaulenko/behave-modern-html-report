@@ -9,6 +9,7 @@ from behave_modern_html_report.models import Attachment
 
 
 def _feature(name, tags=()):
+    """Return a minimal Behave-like feature stub."""
     return SimpleNamespace(
         name=name, description=["A feature"], location=f"{name}.feature:1",
         tags=list(tags), status="passed", duration=0.0,
@@ -16,6 +17,7 @@ def _feature(name, tags=()):
 
 
 def _scenario(name, tags=()):
+    """Return a minimal Behave-like scenario stub."""
     return SimpleNamespace(
         name=name, description=[], location=f"{name}.feature:3",
         tags=list(tags), status="passed", duration=0.0,
@@ -23,6 +25,7 @@ def _scenario(name, tags=()):
 
 
 def _step(keyword, name, status="passed", duration=0.01, error=None):
+    """Return a minimal Behave-like step stub."""
     return SimpleNamespace(
         keyword=keyword, name=name, status=status, duration=duration,
         location=f"{name}.py:1", text=None, table=None,
@@ -31,6 +34,7 @@ def _step(keyword, name, status="passed", duration=0.01, error=None):
 
 
 def test_collector_builds_tree():
+    """The collector builds a feature/scenario/step tree and aggregates counts."""
     c = Collector(title="X")
     c.start_feature(_feature("F"))
     c.start_scenario(_scenario("S", tags=["smoke"]))
@@ -48,6 +52,7 @@ def test_collector_builds_tree():
 
 
 def test_collector_captures_error():
+    """The collector captures step error details."""
     c = Collector()
     c.start_feature(_feature("F"))
     c.start_scenario(_scenario("S"))
@@ -62,6 +67,7 @@ def test_collector_captures_error():
 
 
 def test_collector_attach_and_log():
+    """The collector records attachments and log lines on the current step."""
     c = Collector()
     c.start_feature(_feature("F"))
     c.start_scenario(_scenario("S"))

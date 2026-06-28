@@ -23,6 +23,7 @@ def format_duration(seconds: float) -> str:
 
 
 def guess_mime(path: str | Path) -> str:
+    """Guess the MIME type of a file path, falling back to octet-stream."""
     mime, _ = mimetypes.guess_type(str(path))
     return mime or "application/octet-stream"
 

@@ -19,6 +19,7 @@ from .models import (
 
 
 def _derive_feature_status(feature: Feature) -> str:
+    """Derive a feature's overall status from its scenario statuses."""
     statuses = [s.status for s in feature.scenarios]
     if any(s == STATUS_FAILED for s in statuses):
         return STATUS_FAILED
@@ -34,6 +35,7 @@ def _derive_feature_status(feature: Feature) -> str:
 
 
 def _tag_stats() -> dict[str, Any]:
+    """Return a fresh counters dict for a single tag."""
     return {
         "count": 0,
         "passed": 0,
@@ -46,6 +48,7 @@ def _tag_stats() -> dict[str, Any]:
 
 
 def _scenario_duration(scenario: Scenario) -> float:
+    """Return the total duration of a scenario, summing its steps if needed."""
     if scenario.duration:
         return scenario.duration
     return sum(step.duration or 0.0 for step in scenario.steps)
