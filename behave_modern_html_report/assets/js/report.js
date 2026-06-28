@@ -43,8 +43,14 @@
       btn.addEventListener("click", function () {
         var cur = document.documentElement.getAttribute("data-theme") || "auto";
         var next = cur === "dark" ? "light" : cur === "light" ? "auto" : "dark";
+        var html = document.documentElement;
+        // Disable transitions briefly so the theme switch is instant and charts measure a stable layout.
+        html.classList.add("bmr-no-transition");
         applyTheme(next);
-        // Wait one frame so CSS variables settle before redrawing charts.
+        // Force a synchronous reflow so the new theme is applied before removing the class.
+        void html.offsetHeight;
+        html.classList.remove("bmr-no-transition");
+        // Redraw after the next paint once the layout has settled.
         requestAnimationFrame(function () {
           refreshPalette();
           renderCharts();

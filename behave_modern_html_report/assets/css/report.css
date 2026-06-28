@@ -470,3 +470,9 @@ pre { margin: 0; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+/* Applied transiently by JS when switching themes so charts measure a stable layout. */
+.bmr-no-transition, .bmr-no-transition *, .bmr-no-transition *::before, .bmr-no-transition *::after {
+  transition: none !important;
+  animation: none !important;
+}
