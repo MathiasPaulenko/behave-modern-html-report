@@ -5,7 +5,7 @@
       <h1 class="view-title">{{ options.title }}</h1>
       <p class="view-sub">
         {% if stats.start_time %}Started {{ stats.start_time.strftime('%Y-%m-%d %H:%M:%S') }} · {% endif %}
-        Duration {{ stats.duration|duration }}
+        Duration {{ stats.duration|duration }} · {{ stats.total_features }} features · {{ stats.total_scenarios }} scenarios
       </p>
     </div>
     <div class="status-pill status-{{ execution.overall_status }}">
@@ -23,7 +23,7 @@
     <div class="card stat-card stat-failed">
       <div class="stat-label">Failed</div>
       <div class="stat-value">{{ stats.failed }}</div>
-      <div class="stat-foot">scenarios</div>
+      <div class="stat-foot">{{ stats.error_count }} with error</div>
     </div>
     <div class="card stat-card stat-skipped">
       <div class="stat-label">Skipped</div>
@@ -45,16 +45,70 @@
       <div class="stat-value">{{ stats.total_scenarios }}</div>
       <div class="stat-foot">{{ stats.total_features }} features · {{ stats.total_steps }} steps</div>
     </div>
+    <div class="card stat-card stat-total">
+      <div class="stat-label">Rules</div>
+      <div class="stat-value">{{ stats.rule_count }}</div>
+      <div class="stat-foot">{{ stats.rule_failed_count }} failed</div>
+    </div>
+    <div class="card stat-card stat-total">
+      <div class="stat-label">Avg duration</div>
+      <div class="stat-value">{{ stats.avg_scenario_duration|duration }}</div>
+      <div class="stat-foot">slowest step {{ stats.slowest_step_duration|duration }}</div>
+    </div>
+    <div class="card stat-card stat-total">
+      <div class="stat-label">Attachments</div>
+      <div class="stat-value">{{ stats.total_attachments }}</div>
+      <div class="stat-foot">{{ stats.total_logs }} logs</div>
+    </div>
+    <div class="card stat-card stat-total">
+      <div class="stat-label">Errors</div>
+      <div class="stat-value">{{ stats.error_count }}</div>
+      <div class="stat-foot">{{ stats.common_exception_type or 'none' }}</div>
+    </div>
   </div>
 
-  <div class="grid-2">
+  <div class="card progress-card">
+    <div class="progress-bar" aria-label="Execution status progress">
+      <div class="progress-fill" style="width: {{ stats.pass_rate }}%;"></div>
+      <div class="progress-label">{{ '%.1f'|format(stats.pass_rate) }}% passed</div>
+    </div>
+  </div>
+
+  <div class="dashboard-actions">
+    <button class="copy-btn" id="copy-summary" data-copy-target="#summary-text" type="button">
+      <svg class="ico"><use href="#i-copy"/></svg>
+      Copy summary
+    </button>
+    <textarea id="summary-text" class="summary-text" readonly aria-hidden="true">{{ options.title }}
+{{ stats.total_scenarios }} scenarios ({{ stats.passed }} passed, {{ stats.failed }} failed, {{ stats.skipped }} skipped, {{ stats.undefined }} undefined, {{ stats.pending }} pending)
+{{ stats.total_features }} features · {{ stats.total_steps }} steps · duration {{ stats.duration|duration }}
+Pass rate: {{ '%.1f'|format(stats.pass_rate) }}%</textarea>
+  </div>
+
+  <div class="grid-3">
     <div class="card chart-card">
       <h3 class="card-title">Status distribution</h3>
-      <canvas id="chart-status" height="220" aria-label="Status pie chart"></canvas>
+      <canvas id="chart-status" height="200" aria-label="Status pie chart"></canvas>
     </div>
     <div class="card chart-card">
       <h3 class="card-title">Scenarios over time</h3>
-      <canvas id="chart-timeline" height="220" aria-label="Timeline chart"></canvas>
+      <canvas id="chart-timeline" height="200" aria-label="Timeline chart"></canvas>
+    </div>
+    <div class="card chart-card">
+      <h3 class="card-title">Duration histogram</h3>
+      <canvas id="chart-buckets" height="200" aria-label="Duration histogram chart"></canvas>
+    </div>
+    <div class="card chart-card">
+      <h3 class="card-title">Slowest scenarios</h3>
+      <canvas id="chart-slowest" height="200" aria-label="Slowest scenarios chart"></canvas>
+    </div>
+    <div class="card chart-card">
+      <h3 class="card-title">Tags with worst pass rate</h3>
+      <canvas id="chart-tag-pass" height="200" aria-label="Tag pass rate chart"></canvas>
+    </div>
+    <div class="card chart-card">
+      <h3 class="card-title">Error distribution</h3>
+      <canvas id="chart-errors" height="200" aria-label="Error distribution chart"></canvas>
     </div>
   </div>
 </section>

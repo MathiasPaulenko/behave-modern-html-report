@@ -195,6 +195,14 @@ class Statistics:
     duration: float = 0.0
     start_time: datetime | None = None
     end_time: datetime | None = None
+    error_count: int = 0
+    rule_count: int = 0
+    rule_failed_count: int = 0
+    total_attachments: int = 0
+    total_logs: int = 0
+    slowest_step_duration: float = 0.0
+    avg_scenario_duration: float = 0.0
+    common_exception_type: str = ""
 
     @property
     def passed(self) -> int:

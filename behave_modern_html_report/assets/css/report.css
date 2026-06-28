@@ -371,11 +371,24 @@ pre { margin: 0; }
 .tag-pill { font-size: 12px; padding: 2px 8px; border-radius: 999px; background: var(--bg-elev-2); border: 1px solid var(--border); }
 
 .progress-bar {
-  position: relative; height: 18px; border-radius: 999px; background: var(--bg-elev-2);
+  position: relative; height: 22px; border-radius: 999px; background: var(--bg-elev-2);
   border: 1px solid var(--border); overflow: hidden; min-width: 80px;
 }
 .progress-fill { position: absolute; inset: 0 auto 0 0; background: var(--c-passed); transition: width var(--transition); }
-.progress-label { position: relative; z-index: 1; padding: 0 6px; font-size: 11px; color: var(--text); }
+.progress-label { position: relative; z-index: 1; padding: 0 8px; font-size: 12px; line-height: 22px; color: var(--text); font-weight: 500; }
+.progress-card { padding: 16px; margin-bottom: 16px; }
+
+.dashboard-actions {
+  display: flex; justify-content: flex-end; margin-bottom: 16px;
+}
+.dashboard-actions .copy-btn {
+  display: inline-flex; align-items: center; gap: 6px; font-size: 13px;
+  padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border); color: var(--text-dim);
+}
+.dashboard-actions .copy-btn:hover { background: var(--bg-elev-2); color: var(--text); }
+.summary-text {
+  position: absolute; left: -1000px; width: 1px; height: 1px; opacity: 0; pointer-events: none;
+}
 
 .section-subtitle { color: var(--text-dim); margin: 2px 0 14px; font-size: 13.5px; }
 

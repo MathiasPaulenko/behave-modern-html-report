@@ -295,7 +295,7 @@
 
     var sl = document.getElementById("chart-slowest");
     if (sl) {
-      var slow = (DATA.slowest || []).slice(0, 10);
+      var slow = (DATA.slowest || []).slice(0, 5);
       BMRChart.hbar(sl, {
         labels: slow.map(function (s) { return s.name || "(unnamed)"; }),
         values: slow.map(function (s) { return s.duration || 0; }),
@@ -305,13 +305,26 @@
 
     var tg = document.getElementById("chart-tag-pass");
     if (tg) {
-      var topTags = (DATA.tags || [])
-        .sort(function (a, b) { return b.count - a.count; })
-        .slice(0, 8);
+      var worstTags = (DATA.tags || [])
+        .filter(function (t) { return t.count >= 1; })
+        .sort(function (a, b) { return a.pass_rate - b.pass_rate; })
+        .slice(0, 6);
       BMRChart.bar(tg, {
-        labels: topTags.map(function (t) { return "@" + t.name; }),
-        values: topTags.map(function (t) { return t.pass_rate || 0; }),
-        color: PALETTE.passed,
+        labels: worstTags.map(function (t) { return "@" + t.name; }),
+        values: worstTags.map(function (t) { return t.pass_rate || 0; }),
+        colors: worstTags.map(function (t) { return t.pass_rate === 100 ? PALETTE.passed : PALETTE.failed; }),
+      });
+    }
+
+    var er = document.getElementById("chart-errors");
+    if (er) {
+      var err = DATA.errors || {};
+      var errLabels = Object.keys(err);
+      var errValues = errLabels.map(function (k) { return err[k]; });
+      BMRChart.bar(er, {
+        labels: errLabels.map(function (k) { return k.length > 12 ? k.slice(0, 11) + "…" : k; }),
+        values: errValues,
+        color: PALETTE.failed,
       });
     }
   }

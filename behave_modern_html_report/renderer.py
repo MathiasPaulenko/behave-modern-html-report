@@ -75,18 +75,23 @@ class Renderer:
         slowest = [as_dict(s) for s in stats_mod.slowest_scenarios(execution, limit=10)]
         buckets = stats_mod.duration_buckets(execution)
         tags = stats_mod.tag_ranking(execution)
+        errors = stats_mod.error_distribution(execution)
 
         template = self.env.get_template("report.html.jinja")
         return template.render(
             execution=execution,
             data=data,
             tags=tags,
+            buckets=buckets,
+            errors=errors,
+            slowest=slowest,
             data_json=json.dumps(
                 {
                     "execution": data,
                     "slowest": slowest,
                     "buckets": buckets,
                     "tags": tags,
+                    "errors": errors,
                 },
                 default=str,
             ),

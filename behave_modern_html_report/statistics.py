@@ -95,6 +95,9 @@ def compute(execution: Execution) -> Statistics:
 
     """
     stats = Statistics(by_status=dict.fromkeys(ALL_STATUSES, 0))
+    exception_counts: dict[str, int] = {}
+    all_durations: list[float] = []
+    rules: dict[tuple[str, str], list[Scenario]] = {}
 
     for feature in execution.features:
         stats.total_features += 1
@@ -103,9 +106,22 @@ def compute(execution: Execution) -> Statistics:
         for scenario in feature.scenarios:
             stats.total_scenarios += 1
             scenario.duration = _scenario_duration(scenario)
+            all_durations.append(scenario.duration)
             feature_duration += scenario.duration
             stats.by_status[scenario.status] = stats.by_status.get(scenario.status, 0) + 1
+            if scenario.status in _FAILED_STATUSES:
+                stats.error_count += 1
             stats.total_steps += len(scenario.steps)
+
+            for step in scenario.steps:
+                stats.total_attachments += len(step.attachments)
+                stats.total_logs += len(step.logs)
+                if step.error and step.error.exception_type:
+                    exception_counts[step.error.exception_type] = exception_counts.get(step.error.exception_type, 0) + 1
+                stats.slowest_step_duration = max(stats.slowest_step_duration, step.duration)
+
+            if scenario.rule_name:
+                rules.setdefault((feature.name, scenario.rule_name), []).append(scenario)
 
             for tag in set(scenario.tags) | set(feature.tags):
                 tag_data = stats.by_tag.setdefault(tag, _tag_stats())
@@ -117,6 +133,15 @@ def compute(execution: Execution) -> Statistics:
         feature.duration = feature_duration
         feature.status = _derive_feature_status(feature)
         stats.duration += feature_duration
+
+    stats.rule_count = len(rules)
+    stats.rule_failed_count = sum(
+        1 for scenarios in rules.values() if any(s.status in _FAILED_STATUSES for s in scenarios)
+    )
+    if all_durations:
+        stats.avg_scenario_duration = sum(all_durations) / len(all_durations)
+    if exception_counts:
+        stats.common_exception_type = max(exception_counts, key=exception_counts.get)
 
     if execution.statistics.start_time:
         stats.start_time = execution.statistics.start_time
@@ -216,3 +241,23 @@ def duration_buckets(execution: Execution) -> dict[str, int]:
             else:
                 buckets[">30s"] += 1
     return buckets
+
+
+def error_distribution(execution: Execution) -> dict[str, int]:
+    """Count failed steps by exception type.
+
+    Args:
+        execution (Execution): Execution tree to analyse.
+
+    Returns:
+        dict[str, int]: Mapping of exception type names to occurrence counts.
+
+    """
+    counts: dict[str, int] = {}
+    for feature in execution.features:
+        for scenario in feature.scenarios:
+            for step in scenario.steps:
+                if step.error and step.error.exception_type:
+                    exc = step.error.exception_type
+                    counts[exc] = counts.get(exc, 0) + 1
+    return counts
