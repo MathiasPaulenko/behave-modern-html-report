@@ -57,3 +57,36 @@ def test_tag_ranking_sorts_failed_first(sample_execution):
     # Both have failed=1, so smoke wins on count.
     assert ranking[0]["name"] == "smoke"
     assert ranking[1]["name"] == "payment"
+
+
+def test_error_statuses_derive_feature_status(sample_execution):
+    """error, hook_error and cleanup_error are treated as failed for the feature status."""
+    sample_execution.features[0].scenarios[0].status = "error"
+    stats = stats_mod.compute(sample_execution)
+    assert sample_execution.features[0].status == "failed"
+    assert stats.by_status["error"] >= 1
+
+
+def test_tag_stats_count_all_statuses():
+    """Tag counters include all Behave 1.3.x statuses, not just the original five."""
+    from behave_modern_html_report.models import Execution, Feature, Scenario, Statistics
+
+    execution = Execution(
+        statistics=Statistics(),
+        features=[
+            Feature(
+                name="F",
+                tags=["regression"],
+                scenarios=[
+                    Scenario(name="S1", status="hook_error", tags=["regression"]),
+                    Scenario(name="S2", status="cleanup_error", tags=["regression"]),
+                    Scenario(name="S3", status="xpassed", tags=["regression"]),
+                ],
+            )
+        ],
+    )
+    stats = stats_mod.compute(execution)
+    tag_data = stats.by_tag["regression"]
+    assert tag_data["hook_error"] == 1
+    assert tag_data["cleanup_error"] == 1
+    assert tag_data["xpassed"] == 1

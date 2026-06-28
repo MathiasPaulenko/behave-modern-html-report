@@ -23,6 +23,11 @@ STATUS_UNTESTED = "untested"
 STATUS_UNDEFINED = "undefined"
 STATUS_PENDING = "pending"
 STATUS_ERROR = "error"
+STATUS_HOOK_ERROR = "hook_error"
+STATUS_CLEANUP_ERROR = "cleanup_error"
+STATUS_XFAILED = "xfailed"
+STATUS_XPASSED = "xpassed"
+STATUS_PENDING_WARN = "pending_warn"
 
 ALL_STATUSES = (
     STATUS_PASSED,
@@ -30,8 +35,13 @@ ALL_STATUSES = (
     STATUS_SKIPPED,
     STATUS_UNDEFINED,
     STATUS_PENDING,
+    STATUS_PENDING_WARN,
     STATUS_UNTESTED,
     STATUS_ERROR,
+    STATUS_HOOK_ERROR,
+    STATUS_CLEANUP_ERROR,
+    STATUS_XFAILED,
+    STATUS_XPASSED,
 )
 
 
@@ -130,6 +140,7 @@ class Scenario:
     tags: list[str] = field(default_factory=list)
     steps: list[Step] = field(default_factory=list)
     feature_name: str = ""
+    rule_name: str = ""
 
     @property
     def step_count(self) -> int:

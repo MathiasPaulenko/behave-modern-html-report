@@ -75,6 +75,10 @@ class ModernHTMLFormatter(Formatter):  # type: ignore[misc,valid-type]
         # Background steps are surfaced via the scenario's own steps in Behave.
         pass
 
+    def rule(self, rule: Any) -> None:
+        """Behave hook: a rule has started (Gherkin v6, Behave 1.3.x)."""
+        self._collector.start_rule(rule)
+
     def scenario(self, scenario: Any) -> None:
         """Behave hook: a scenario has started."""
         self._collector.start_scenario(scenario)

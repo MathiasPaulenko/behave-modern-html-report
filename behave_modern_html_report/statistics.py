@@ -6,15 +6,28 @@ from typing import Any
 
 from .models import (
     ALL_STATUSES,
+    STATUS_CLEANUP_ERROR,
+    STATUS_ERROR,
     STATUS_FAILED,
+    STATUS_HOOK_ERROR,
     STATUS_PASSED,
     STATUS_PENDING,
     STATUS_SKIPPED,
     STATUS_UNDEFINED,
+    STATUS_UNTESTED,
+    STATUS_XFAILED,
     Execution,
     Feature,
     Scenario,
     Statistics,
+)
+
+_FAILED_STATUSES = (
+    STATUS_FAILED,
+    STATUS_ERROR,
+    STATUS_HOOK_ERROR,
+    STATUS_CLEANUP_ERROR,
+    STATUS_XFAILED,
 )
 
 
@@ -29,7 +42,7 @@ def _derive_feature_status(feature: Feature) -> str:
 
     """
     statuses = [s.status for s in feature.scenarios]
-    if any(s == STATUS_FAILED for s in statuses):
+    if any(s in _FAILED_STATUSES for s in statuses):
         return STATUS_FAILED
     if statuses and all(s == STATUS_PASSED for s in statuses):
         return STATUS_PASSED
@@ -39,20 +52,19 @@ def _derive_feature_status(feature: Feature) -> str:
         return STATUS_PENDING
     if statuses and all(s == STATUS_SKIPPED for s in statuses):
         return STATUS_SKIPPED
-    return statuses[0] if statuses else "untested"
+    return statuses[0] if statuses else STATUS_UNTESTED
 
 
 def _tag_stats() -> dict[str, Any]:
     """Return a fresh counters dict for a single tag."""
-    return {
-        "count": 0,
-        "passed": 0,
-        "failed": 0,
-        "skipped": 0,
-        "undefined": 0,
-        "pending": 0,
-        "duration": 0.0,
-    }
+    stats = {"count": 0, "duration": 0.0}
+    stats.update(dict.fromkeys(ALL_STATUSES, 0))
+    return stats
+
+
+def _failed_count(data: dict[str, Any]) -> int:
+    """Return the total number of failure-like statuses in a counter dict."""
+    return sum(data.get(status, 0) for status in _FAILED_STATUSES)
 
 
 def _scenario_duration(scenario: Scenario) -> float:
@@ -150,7 +162,7 @@ def tag_ranking(execution: Execution) -> list[dict[str, Any]]:
     for name, data in stats.items():
         count = data["count"]
         passed = data["passed"]
-        failed = data["failed"]
+        failed = _failed_count(data)
         duration = data["duration"]
         pass_rate = (passed / count * 100.0) if count else 0.0
         rows.append(
@@ -162,6 +174,7 @@ def tag_ranking(execution: Execution) -> list[dict[str, Any]]:
                 "skipped": data["skipped"],
                 "undefined": data["undefined"],
                 "pending": data["pending"],
+                "error": data["error"],
                 "duration": duration,
                 "pass_rate": pass_rate,
             }

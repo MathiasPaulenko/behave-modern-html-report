@@ -24,6 +24,11 @@ def _scenario(name, tags=()):
     )
 
 
+def _rule(name):
+    """Return a minimal Behave-like rule stub."""
+    return SimpleNamespace(name=name, description=[], location=f"{name}.feature:2")
+
+
 def _step(keyword, name, status="passed", duration=0.01, error=None):
     """Return a minimal Behave-like step stub."""
     return SimpleNamespace(
@@ -78,3 +83,58 @@ def test_collector_attach_and_log():
     step = c._current_scenario.steps[-1]  # noqa: SLF001
     assert step.attachments[0].text == "hi"
     assert step.logs == ["hello world"]
+
+
+def test_collector_tracks_rule_name():
+    """The collector records the rule name for scenarios under a Gherkin v6 rule."""
+    c = Collector()
+    c.start_feature(_feature("F"))
+    c.start_rule(_rule("R1"))
+    c.start_scenario(_scenario("S1"))
+    c.end_scenario(SimpleNamespace(status="passed", duration=0.0))
+    c.start_scenario(_scenario("S2"))
+    c.end_scenario(SimpleNamespace(status="passed", duration=0.0))
+    c.end_rule()
+    c.end_feature(SimpleNamespace(status="passed", duration=0.0))
+
+    execution = c.finalize()
+    feature = execution.features[0]
+    assert feature.scenarios[0].rule_name == "R1"
+    assert feature.scenarios[1].rule_name == "R1"
+
+
+def test_collector_resets_rule_after_feature():
+    """The current rule is cleared when a feature ends."""
+    c = Collector()
+    c.start_feature(_feature("F1"))
+    c.start_rule(_rule("R1"))
+    c.start_scenario(_scenario("S1"))
+    c.end_scenario(SimpleNamespace(status="passed", duration=0.0))
+    c.end_feature(SimpleNamespace(status="passed", duration=0.0))
+
+    c.start_feature(_feature("F2"))
+    c.start_scenario(_scenario("S2"))
+    c.end_scenario(SimpleNamespace(status="passed", duration=0.0))
+    c.end_feature(SimpleNamespace(status="passed", duration=0.0))
+
+    execution = c.finalize()
+    assert execution.features[0].scenarios[0].rule_name == "R1"
+    assert execution.features[1].scenarios[0].rule_name == ""
+
+
+def test_collector_normalizes_extended_statuses():
+    """The collector normalizes Behave 1.3.x extended statuses to canonical names."""
+    c = Collector()
+    c.start_feature(_feature("F"))
+    for status in ("error", "hook_error", "cleanup_error", "xfailed"):
+        c.start_scenario(_scenario(f"S-{status}"))
+        c.end_scenario(SimpleNamespace(status=status, duration=0.0))
+    c.end_feature(SimpleNamespace(status="failed", duration=0.0))
+
+    execution = c.finalize()
+    statuses = [s.status for s in execution.features[0].scenarios]
+    assert "error" in statuses
+    assert "hook_error" in statuses
+    assert "cleanup_error" in statuses
+    assert "xfailed" in statuses
+    assert execution.features[0].status == "failed"

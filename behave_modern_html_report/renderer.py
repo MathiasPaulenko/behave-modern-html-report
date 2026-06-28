@@ -162,8 +162,13 @@ _STATUS_ICONS = {
     "skipped": "skip",
     "undefined": "help",
     "pending": "clock",
+    "pending_warn": "clock",
     "untested": "dot",
     "error": "alert",
+    "hook_error": "alert",
+    "cleanup_error": "alert",
+    "xfailed": "x",
+    "xpassed": "check",
 }
 
 _STATUS_LABELS = {
@@ -172,8 +177,13 @@ _STATUS_LABELS = {
     "skipped": "Skipped",
     "undefined": "Undefined",
     "pending": "Pending",
+    "pending_warn": "Pending",
     "untested": "Untested",
     "error": "Error",
+    "hook_error": "Hook Error",
+    "cleanup_error": "Cleanup Error",
+    "xfailed": "Expected Failure",
+    "xpassed": "Unexpected Pass",
 }
 
 

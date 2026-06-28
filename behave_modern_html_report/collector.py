@@ -33,7 +33,8 @@ class Collector:
     """Builds an :class:`Execution` from formatter events.
 
     The collector keeps minimal state: the root :class:`Execution`, the
-    current feature and the current scenario.
+    current feature, the current rule (Gherkin v6 / Behave 1.3.x) and the
+    current scenario.
     """
 
     def __init__(self, title: str = "Behave Modern Report") -> None:
@@ -48,6 +49,7 @@ class Collector:
         self.execution.environment = self._capture_environment()
         self.execution.statistics = Statistics(start_time=datetime.now())
         self._current_feature: Feature | None = None
+        self._current_rule_name: str = ""
         self._current_scenario: Scenario | None = None
 
     # ------------------------------------------------------------------
@@ -111,6 +113,24 @@ class Collector:
         self._current_feature.status = normalize_status(getattr(behave_feature, "status", None))
         self._current_feature.duration = float(getattr(behave_feature, "duration", 0.0) or 0.0)
         self._current_feature = None
+        self._current_rule_name = ""
+
+    # ------------------------------------------------------------------
+    # Rule
+    # ------------------------------------------------------------------
+
+    def start_rule(self, behave_rule: Any) -> None:
+        """Start a new rule under the current feature.
+
+        Args:
+            behave_rule (Any): Behave rule object.
+
+        """
+        self._current_rule_name = getattr(behave_rule, "name", "") or ""
+
+    def end_rule(self) -> None:
+        """Finalize the current rule."""
+        self._current_rule_name = ""
 
     # ------------------------------------------------------------------
     # Scenario
@@ -132,6 +152,7 @@ class Collector:
             location=safe_str(getattr(behave_scenario, "location", "")),
             tags=[safe_str(t) for t in getattr(behave_scenario, "tags", []) or []],
             feature_name=self._current_feature.name if self._current_feature else "",
+            rule_name=self._current_rule_name,
         )
         self._current_scenario = scenario
         if self._current_feature is not None:
