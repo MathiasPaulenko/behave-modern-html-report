@@ -1,14 +1,14 @@
-# Behave Modern Report
+# Behave Modern HTML Report
 
 > The modern, beautiful, single-file HTML report formatter for [Behave](https://behave.readthedocs.io/).
 > Dark mode, charts, instant search, attachments, zero external requests.
 
-[![PyPI](https://img.shields.io/pypi/v/behave-modern-report.svg)](https://pypi.org/project/behave-modern-report/)
-[![Python](https://img.shields.io/pypi/pyversions/behave-modern-report.svg)](https://pypi.org/project/behave-modern-report/)
+[![PyPI](https://img.shields.io/pypi/v/behave-modern-html-report.svg)](https://pypi.org/project/behave-modern-html-report/)
+[![Python](https://img.shields.io/pypi/pyversions/behave-modern-html-report.svg)](https://pypi.org/project/behave-modern-html-report/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![CI](https://github.com/MathiasPaulenko/behave-modern-report/actions/workflows/ci.yml/badge.svg)](https://github.com/MathiasPaulenko/behave-modern-report/actions/workflows/ci.yml)
+[![CI](https://github.com/MathiasPaulenko/behave-modern-html-report/actions/workflows/ci.yml/badge.svg)](https://github.com/MathiasPaulenko/behave-modern-html-report/actions/workflows/ci.yml)
 
-`behave-modern-report` is a drop-in formatter for Behave that produces a single,
+`behave-modern-html-report` is a drop-in formatter for Behave that produces a single,
 self-contained HTML file — everything (CSS, JS, fonts, icons, attachments) is
 embedded so the report works offline, on any machine, forever.
 
@@ -32,7 +32,7 @@ embedded so the report works offline, on any machine, forever.
 ## Installation
 
 ```bash
-pip install behave-modern-report
+pip install behave-modern-html-report
 ```
 
 ## Quick start
@@ -41,7 +41,7 @@ In your project's `behave.ini` (or `setup.cfg`):
 
 ```ini
 [behave.formatters]
-modern = behave_modern_report.formatter:ModernHTMLFormatter
+modern = behave_modern_html_report.formatter:ModernHTMLFormatter
 ```
 
 Then run:
@@ -72,7 +72,7 @@ bmr.custom_js     = path/to/extra.js
 Use the public helper API — no need to reach into the formatter:
 
 ```python
-from behave_modern_report import attach_screenshot, attach_text, log
+from behave_modern_html_report import attach_screenshot, attach_text, log
 
 def after_step(context, step):
     if step.status == "failed":

@@ -21,7 +21,7 @@ on:
     branches: [main]
     paths:
       - "pyproject.toml"
-      - "behave_modern_report/**"
+      - "behave_modern_html_report/**"
       - ".github/workflows/release.yml"
   workflow_dispatch:
 
@@ -139,7 +139,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: pypi
-      url: https://pypi.org/p/behave-modern-report
+      url: https://pypi.org/p/behave-modern-html-report
     permissions:
       id-token: write
     steps:

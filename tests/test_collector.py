@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from types import SimpleNamespace
 
-from behave_modern_report.collector import Collector
-from behave_modern_report.models import Attachment
+from behave_modern_html_report.collector import Collector
+from behave_modern_html_report.models import Attachment
 
 
 def _feature(name, tags=()):

@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - New **Tags** page with per-tag scenario counts, pass rate, duration, and a pass-rate chart.
-- `behave_modern_report.attach` helper API: `attach_screenshot`, `attach_file`, `attach_text`, `attach_json`, `log` for easy `environment.py` integration.
+- `behave_modern_html_report.attach` helper API: `attach_screenshot`, `attach_file`, `attach_text`, `attach_json`, `log` for easy `environment.py` integration.
 - **JSON sidecar output** (`bmr.json_sidecar = true`) writes `report.json` next to the HTML report.
 - Inline step duration bar showing each step's relative cost within the scenario.
 - Copy-reproduce-command button on every scenario (`behave features/example.feature:3`).

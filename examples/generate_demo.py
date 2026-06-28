@@ -17,8 +17,8 @@ import webbrowser
 from datetime import datetime, timedelta
 from pathlib import Path
 
-from behave_modern_report import Renderer
-from behave_modern_report.models import (
+from behave_modern_html_report import Renderer
+from behave_modern_html_report.models import (
     Environment,
     ErrorInfo,
     Execution,
@@ -27,7 +27,7 @@ from behave_modern_report.models import (
     Statistics,
     Step,
 )
-from behave_modern_report.renderer import RenderOptions
+from behave_modern_html_report.renderer import RenderOptions
 
 STATUSES = ["passed"] * 14 + ["failed"] * 2 + ["skipped"] * 2 + ["undefined"]
 

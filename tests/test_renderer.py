@@ -1,4 +1,4 @@
-from behave_modern_report.renderer import Renderer, RenderOptions
+from behave_modern_html_report.renderer import Renderer, RenderOptions
 
 
 def test_renderer_produces_single_html_file(tmp_path, sample_execution):
@@ -29,7 +29,7 @@ def test_renderer_supports_custom_css_js(tmp_path, sample_execution):
 
 
 def test_renderer_handles_empty_execution(tmp_path):
-    from behave_modern_report.models import Execution
+    from behave_modern_html_report.models import Execution
 
     html = Renderer().render(Execution())
     assert "<!doctype html>" in html

@@ -1,5 +1,5 @@
-from behave_modern_report import statistics as stats_mod
-from behave_modern_report.models import (
+from behave_modern_html_report import statistics as stats_mod
+from behave_modern_html_report.models import (
     STATUS_FAILED,
     STATUS_PASSED,
     STATUS_UNTESTED,
@@ -41,7 +41,7 @@ def test_as_dict_is_json_safe(sample_execution):
 
 
 def test_package_version():
-    import behave_modern_report as bmr
+    import behave_modern_html_report as bmr
 
     assert bmr.__version__ == "0.2.0"
     assert "attach_screenshot" in bmr.__all__

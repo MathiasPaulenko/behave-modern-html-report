@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from types import SimpleNamespace
 
-from behave_modern_report import attach_file, attach_json, attach_screenshot, attach_text, log
-from behave_modern_report.models import Attachment
+from behave_modern_html_report import attach_file, attach_json, attach_screenshot, attach_text, log
+from behave_modern_html_report.models import Attachment
 
 
 class _FakeFormatter:

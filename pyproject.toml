@@ -3,7 +3,7 @@ requires = ["hatchling>=1.21"]
 build-backend = "hatchling.build"
 
 [project]
-name = "behave-modern-report"
+name = "behave-modern-html-report"
 version = "0.2.0"
 description = "The modern, beautiful, single-file HTML report formatter for Behave."
 readme = "README.md"
@@ -35,21 +35,21 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/MathiasPaulenko/behave-modern-report"
-Repository = "https://github.com/MathiasPaulenko/behave-modern-report"
-Issues = "https://github.com/MathiasPaulenko/behave-modern-report/issues"
+Homepage = "https://github.com/MathiasPaulenko/behave-modern-html-report"
+Repository = "https://github.com/MathiasPaulenko/behave-modern-html-report"
+Issues = "https://github.com/MathiasPaulenko/behave-modern-html-report/issues"
 
 [project.entry-points."behave.formatters"]
-modern = "behave_modern_report.formatter:ModernHTMLFormatter"
+modern = "behave_modern_html_report.formatter:ModernHTMLFormatter"
 
 [tool.hatch.build.targets.wheel]
 # `packages` already ships every file (Python, .css, .js, .jinja, .svg, …) inside
 # the package directory — no `force-include` needed.
-packages = ["behave_modern_report"]
+packages = ["behave_modern_html_report"]
 
 [tool.hatch.build.targets.sdist]
 include = [
-    "behave_modern_report",
+    "behave_modern_html_report",
     "tests",
     "examples",
     "docs",

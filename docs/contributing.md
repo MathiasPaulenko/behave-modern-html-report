@@ -5,8 +5,8 @@ Thanks for your interest in making **Behave Modern Report** better!
 ## Local setup
 
 ```bash
-git clone https://github.com/MathiasPaulenko/behave-modern-report.git
-cd behave-modern-report
+git clone https://github.com/MathiasPaulenko/behave-modern-html-report.git
+cd behave-modern-html-report
 python -m venv .venv
 . .venv/Scripts/activate   # PowerShell: .venv\Scripts\Activate.ps1
 pip install -e ".[dev]"
@@ -54,7 +54,7 @@ Open `examples/demo-report.html` in your browser and refresh after each change.
 
 ## Adding a new chart
 
-1. Add a helper to `behave_modern_report/assets/js/charts.js` (small Canvas API).
+1. Add a helper to `behave_modern_html_report/assets/js/charts.js` (small Canvas API).
 2. Add a `<canvas>` to the relevant template component.
 3. Wire it up inside `renderCharts()` in `assets/js/report.js`.
 

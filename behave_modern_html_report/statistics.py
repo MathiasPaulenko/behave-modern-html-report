@@ -66,7 +66,7 @@ def compute(execution: Execution) -> Statistics:
             stats.by_status[scenario.status] = stats.by_status.get(scenario.status, 0) + 1
             stats.total_steps += len(scenario.steps)
 
-            for tag in scenario.tags:
+            for tag in set(scenario.tags) | set(feature.tags):
                 tag_data = stats.by_tag.setdefault(tag, _tag_stats())
                 tag_data["count"] += 1
                 tag_data["duration"] += scenario.duration

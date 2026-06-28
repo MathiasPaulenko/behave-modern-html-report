@@ -3,7 +3,7 @@
 Register in `behave.ini`::
 
     [behave.formatters]
-    modern = behave_modern_report.formatter:ModernHTMLFormatter
+    modern = behave_modern_html_report.formatter:ModernHTMLFormatter
 
 Then run::
 
@@ -134,7 +134,7 @@ class ModernHTMLFormatter(Formatter):  # type: ignore[misc,valid-type]
             name = getattr(output, "name", None)
             if name and name not in ("<stdout>", "<stderr>"):
                 return Path(name)
-        return Path("behave-modern-report.html")
+        return Path("behave-modern-html-report.html")
 
 
 class _FakeFinal:

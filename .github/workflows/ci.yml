@@ -32,7 +32,7 @@ jobs:
         run: ruff check .
 
       - name: Tests
-        run: pytest -ra --cov=behave_modern_report --cov-report=term-missing
+        run: pytest -ra --cov=behave_modern_html_report --cov-report=term-missing
 
   build:
     name: Build distribution

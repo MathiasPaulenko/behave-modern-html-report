@@ -6,7 +6,7 @@ or log messages to the current step. They automatically find the active
 
 Usage in ``environment.py``::
 
-    from behave_modern_report import attach_screenshot, log
+    from behave_modern_html_report import attach_screenshot, log
 
     def after_step(context, step):
         if step.status == "failed":

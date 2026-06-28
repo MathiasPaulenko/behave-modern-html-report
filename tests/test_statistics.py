@@ -1,4 +1,4 @@
-from behave_modern_report import statistics as stats_mod
+from behave_modern_html_report import statistics as stats_mod
 
 
 def test_compute_aggregates_counts_and_durations(sample_execution):
@@ -45,4 +45,7 @@ def test_by_tag_aggregates(sample_execution):
 def test_tag_ranking_sorts_failed_first(sample_execution):
     stats_mod.compute(sample_execution)
     ranking = stats_mod.tag_ranking(sample_execution)
-    assert ranking[0]["name"] == "payment"  # payment tag has the only failed scenario
+    # smoke (feature tag) has 2 scenarios, 1 failed; payment has 1 failed scenario.
+    # Both have failed=1, so smoke wins on count.
+    assert ranking[0]["name"] == "smoke"
+    assert ranking[1]["name"] == "payment"

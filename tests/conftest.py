@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 
 import pytest
 
-from behave_modern_report.models import (
+from behave_modern_html_report.models import (
     Environment,
     ErrorInfo,
     Execution,

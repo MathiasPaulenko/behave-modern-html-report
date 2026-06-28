@@ -1,6 +1,6 @@
 # Architecture
 
-`behave-modern-report` follows a strict layered architecture.
+`behave-modern-html-report` follows a strict layered architecture.
 Each layer has a single responsibility and depends only on the layers above it.
 
 ```text

@@ -1,4 +1,4 @@
-from behave_modern_report.utils import format_duration, guess_mime
+from behave_modern_html_report.utils import format_duration, guess_mime
 
 
 def test_format_duration():
