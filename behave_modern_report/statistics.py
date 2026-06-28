@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from .models import (
     ALL_STATUSES,
     STATUS_FAILED,

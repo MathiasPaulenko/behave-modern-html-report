@@ -4,8 +4,6 @@ from __future__ import annotations
 
 from types import SimpleNamespace
 
-import pytest
-
 from behave_modern_report import attach_file, attach_json, attach_screenshot, attach_text, log
 from behave_modern_report.models import Attachment
 
