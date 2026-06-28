@@ -38,11 +38,15 @@
     try { saved = localStorage.getItem(THEME_KEY); } catch (_) {}
     if (saved) applyTheme(saved);
     refreshPalette();
+    function effectiveTheme() {
+      var theme = document.documentElement.getAttribute("data-theme") || "auto";
+      if (theme !== "auto") return theme;
+      return window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+    }
     var btn = document.getElementById("theme-toggle");
     if (btn) {
       btn.addEventListener("click", function () {
-        var cur = document.documentElement.getAttribute("data-theme") || "auto";
-        var next = cur === "dark" ? "light" : cur === "light" ? "auto" : "dark";
+        var next = effectiveTheme() === "dark" ? "light" : "dark";
         var html = document.documentElement;
         // Disable transitions briefly so the theme switch is instant and charts measure a stable layout.
         html.classList.add("bmr-no-transition");
