@@ -36,7 +36,13 @@ class ModernHTMLFormatter(Formatter):  # type: ignore[misc,valid-type]
     description = "Modern single-file HTML report"
 
     def __init__(self, stream_opener: Any, config: Any) -> None:
-        """Initialize the formatter with user options and a collector/renderer."""
+        """Initialize the formatter with user options and a collector/renderer.
+
+        Args:
+            stream_opener (Any): Behave stream opener for the report output.
+            config (Any): Behave configuration object.
+
+        """
         super().__init__(stream_opener, config)
 
         userdata = getattr(config, "userdata", {}) or {}
@@ -112,7 +118,13 @@ class ModernHTMLFormatter(Formatter):  # type: ignore[misc,valid-type]
     # ------------------------------------------------------------------
 
     def attach_file(self, path: str | Path, name: str | None = None) -> None:
-        """Attach a file (will be base64-embedded in the report)."""
+        """Attach a file (will be base64-embedded in the report).
+
+        Args:
+            path (str | Path): Path to the file to attach.
+            name (str | None, optional): Display name. Defaults to the file name.
+
+        """
         p = Path(path)
         data = base64.b64encode(p.read_bytes()).decode("ascii")
         self._collector.attach(
@@ -124,11 +136,23 @@ class ModernHTMLFormatter(Formatter):  # type: ignore[misc,valid-type]
         )
 
     def attach_text(self, text: str, name: str = "log.txt", mime: str = "text/plain") -> None:
-        """Attach a text snippet to the current step."""
+        """Attach a text snippet to the current step.
+
+        Args:
+            text (str): Text content to attach.
+            name (str, optional): Display name. Defaults to ``log.txt``.
+            mime (str, optional): MIME type. Defaults to ``text/plain``.
+
+        """
         self._collector.attach(Attachment(name=name, mime_type=mime, text=text))
 
     def log(self, message: str) -> None:
-        """Append a log line to the current step."""
+        """Append a log line to the current step.
+
+        Args:
+            message (str): Log message to store.
+
+        """
         self._collector.log(message)
 
     # ------------------------------------------------------------------
@@ -137,7 +161,16 @@ class ModernHTMLFormatter(Formatter):  # type: ignore[misc,valid-type]
 
     @staticmethod
     def _resolve_output_path(stream_opener: Any, config: Any) -> Path:
-        """Resolve the output HTML path from Behave's stream opener or config."""
+        """Resolve the output HTML path from Behave's stream opener or config.
+
+        Args:
+            stream_opener (Any): Behave stream opener.
+            config (Any): Behave configuration object.
+
+        Returns:
+            Path: Output path for the HTML report.
+
+        """
         candidate = getattr(stream_opener, "name", None) or getattr(stream_opener, "filename", None)
         if candidate:
             return Path(candidate)
@@ -153,13 +186,26 @@ class _FakeFinal:
     """Wrap a Behave object so the collector's `end_*` reads its final status."""
 
     def __init__(self, source: Any) -> None:
-        """Wrap a Behave object to expose its final status and duration."""
+        """Wrap a Behave object to expose its final status and duration.
+
+        Args:
+            source (Any): Behave object to wrap.
+
+        """
         self.status = getattr(source, "status", None)
         self.duration = getattr(source, "duration", 0.0)
 
 
 def _read_optional(path: str | None) -> str:
-    """Read a user-provided file path or return an empty string."""
+    """Read a user-provided file path or return an empty string.
+
+    Args:
+        path (str | None): File path to read.
+
+    Returns:
+        str: File contents, or an empty string if the path is missing or invalid.
+
+    """
     if not path:
         return ""
     try:

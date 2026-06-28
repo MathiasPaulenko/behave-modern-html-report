@@ -40,7 +40,13 @@ class Renderer:
     """Renders an :class:`Execution` into a single-file HTML document."""
 
     def __init__(self, options: RenderOptions | None = None) -> None:
-        """Initialize the renderer with options and Jinja environment."""
+        """Initialize the renderer with options and Jinja environment.
+
+        Args:
+            options (RenderOptions | None, optional): Rendering options.
+                Defaults to a fresh RenderOptions instance.
+
+        """
         self.options = options or RenderOptions()
         self.env = Environment(
             loader=FileSystemLoader(str(TEMPLATES_DIR)),
@@ -53,7 +59,15 @@ class Renderer:
         self.env.filters["status_label"] = _status_label
 
     def render(self, execution: Execution) -> str:
-        """Render an execution into a single-file HTML report."""
+        """Render an execution into a single-file HTML report.
+
+        Args:
+            execution (Execution): Execution tree to render.
+
+        Returns:
+            str: Self-contained HTML document.
+
+        """
         # Make sure statistics are up to date even if the caller skipped it.
         stats_mod.compute(execution)
 
@@ -86,6 +100,14 @@ class Renderer:
         """Render the report and write it to the given path.
 
         Also writes a JSON sidecar if the option is enabled.
+
+        Args:
+            execution (Execution): Execution tree to render.
+            path (str | Path): Output path for the HTML report.
+
+        Returns:
+            Path: Path to the written HTML report.
+
         """
         html = self.render(execution)
         out = Path(path)
@@ -96,7 +118,15 @@ class Renderer:
         return out
 
     def render_json(self, execution: Execution) -> str:
-        """Return a JSON representation of the execution and derived stats."""
+        """Return a JSON representation of the execution and derived stats.
+
+        Args:
+            execution (Execution): Execution tree to serialize.
+
+        Returns:
+            str: Pretty-printed JSON document.
+
+        """
         stats_mod.compute(execution)
         data = as_dict(execution)
         return json.dumps(
@@ -111,7 +141,13 @@ class Renderer:
         )
 
     def _write_json_sidecar(self, execution: Execution, html_path: Path) -> None:
-        """Write a JSON sidecar next to the HTML report path."""
+        """Write a JSON sidecar next to the HTML report path.
+
+        Args:
+            execution (Execution): Execution tree to serialize.
+            html_path (Path): Path of the HTML report; ``.json`` is appended.
+
+        """
         json_path = html_path.with_suffix(".json")
         json_path.write_text(self.render_json(execution), encoding="utf-8")
 
@@ -142,10 +178,26 @@ _STATUS_LABELS = {
 
 
 def _status_icon(status: str) -> str:
-    """Return the SVG icon id for a given status."""
+    """Return the SVG icon id for a given status.
+
+    Args:
+        status (str): Canonical status name.
+
+    Returns:
+        str: SVG icon id.
+
+    """
     return _STATUS_ICONS.get(status, "dot")
 
 
 def _status_label(status: str) -> str:
-    """Return a human-readable label for a given status."""
+    """Return a human-readable label for a given status.
+
+    Args:
+        status (str): Canonical status name.
+
+    Returns:
+        str: Human-readable label.
+
+    """
     return _STATUS_LABELS.get(status, status.title())

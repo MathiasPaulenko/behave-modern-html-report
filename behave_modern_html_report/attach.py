@@ -31,7 +31,13 @@ from .utils import guess_mime
 def _find_formatter(context: Any) -> Any:
     """Locate the ModernHTMLFormatter instance on the Behave context.
 
-    Returns None if the formatter is not available (e.g. outside Behave).
+    Args:
+        context (Any): Behave context object passed to the hook.
+
+    Returns:
+        Any: The formatter instance, or None if it is not available
+            (e.g. outside Behave).
+
     """
     if context is None:
         return None
@@ -53,9 +59,10 @@ def attach_file(context: Any, path: str | Path, name: str | None = None) -> None
     """Attach a file from disk to the current step.
 
     Args:
-        context: Behave context object passed to the hook.
-        path: Path to the file to attach.
-        name: Optional display name. If omitted, the file name is used.
+        context (Any): Behave context object passed to the hook.
+        path (str | Path): Path to the file to attach.
+        name (str | None, optional): Optional display name. If omitted, the file
+            name is used.
 
     """
     formatter = _find_formatter(context)
@@ -73,9 +80,10 @@ def attach_text(context: Any, text: str, name: str = "note.txt") -> None:
     """Attach a plain text snippet to the current step.
 
     Args:
-        context: Behave context object passed to the hook.
-        text: Raw text to embed.
-        name: Display name for the attachment (default ``note.txt``).
+        context (Any): Behave context object passed to the hook.
+        text (str): Raw text to embed.
+        name (str, optional): Display name for the attachment. Defaults to
+            ``note.txt``.
 
     """
     formatter = _find_formatter(context)
@@ -90,9 +98,10 @@ def attach_json(context: Any, data: Any, name: str = "data.json") -> None:
     """Attach a JSON-serializable object to the current step.
 
     Args:
-        context: Behave context object passed to the hook.
-        data: Any object that can be passed to ``json.dumps``.
-        name: Display name for the attachment (default ``data.json``).
+        context (Any): Behave context object passed to the hook.
+        data (Any): Any object that can be passed to ``json.dumps``.
+        name (str, optional): Display name for the attachment. Defaults to
+            ``data.json``.
 
     """
     import json
@@ -110,16 +119,17 @@ def attach_screenshot(context: Any, source: Any, name: str = "screenshot.png") -
 
     The ``source`` argument can be:
 
-    - ``bytes`` or ``bytearray`` -> used as raw PNG data
-    - A path-like string -> read from disk
-    - A Selenium WebDriver instance -> ``driver.get_screenshot_as_png()`` is called
-    - A Playwright Page instance -> ``page.screenshot()`` is called
-    - A PIL Image -> saved to a PNG buffer
+    - ``bytes`` or ``bytearray`` -> used as raw PNG data.
+    - A path-like string -> read from disk.
+    - A Selenium WebDriver instance -> ``driver.get_screenshot_as_png()`` is called.
+    - A Playwright Page instance -> ``page.screenshot()`` is called.
+    - A PIL Image -> saved to a PNG buffer.
 
     Args:
-        context: Behave context object passed to the hook.
-        source: Screenshot source (see above).
-        name: Display name for the attachment (default ``screenshot.png``).
+        context (Any): Behave context object passed to the hook.
+        source (Any): Screenshot source (see above).
+        name (str, optional): Display name for the attachment. Defaults to
+            ``screenshot.png``.
 
     """
     formatter = _find_formatter(context)
@@ -174,8 +184,8 @@ def log(context: Any, message: str) -> None:
     """Append a text log line to the current step.
 
     Args:
-        context: Behave context object passed to the hook.
-        message: Free-form text line to attach.
+        context (Any): Behave context object passed to the hook.
+        message (str): Free-form text line to attach.
 
     """
     formatter = _find_formatter(context)

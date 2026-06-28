@@ -19,7 +19,15 @@ from .models import (
 
 
 def _derive_feature_status(feature: Feature) -> str:
-    """Derive a feature's overall status from its scenario statuses."""
+    """Derive a feature's overall status from its scenario statuses.
+
+    Args:
+        feature (Feature): Feature to evaluate.
+
+    Returns:
+        str: Canonical status derived from the feature's scenarios.
+
+    """
     statuses = [s.status for s in feature.scenarios]
     if any(s == STATUS_FAILED for s in statuses):
         return STATUS_FAILED
@@ -48,14 +56,32 @@ def _tag_stats() -> dict[str, Any]:
 
 
 def _scenario_duration(scenario: Scenario) -> float:
-    """Return the total duration of a scenario, summing its steps if needed."""
+    """Return the total duration of a scenario.
+
+    Uses the scenario's own duration when available, otherwise sums its steps.
+
+    Args:
+        scenario (Scenario): Scenario to measure.
+
+    Returns:
+        float: Total duration in seconds.
+
+    """
     if scenario.duration:
         return scenario.duration
     return sum(step.duration or 0.0 for step in scenario.steps)
 
 
 def compute(execution: Execution) -> Statistics:
-    """Recompute statistics and propagate durations / statuses."""
+    """Recompute statistics and propagate durations / statuses.
+
+    Args:
+        execution (Execution): Execution tree to analyse.
+
+    Returns:
+        Statistics: Updated statistics object, also assigned to the execution.
+
+    """
     stats = Statistics(by_status=dict.fromkeys(ALL_STATUSES, 0))
 
     for feature in execution.features:
@@ -94,13 +120,31 @@ def compute(execution: Execution) -> Statistics:
 
 
 def slowest_scenarios(execution: Execution, limit: int = 10) -> list[Scenario]:
-    """Return the slowest scenarios across the whole execution."""
+    """Return the slowest scenarios across the whole execution.
+
+    Args:
+        execution (Execution): Execution tree to analyse.
+        limit (int, optional): Maximum number of scenarios to return.
+            Defaults to 10.
+
+    Returns:
+        list[Scenario]: Scenarios ordered by duration descending.
+
+    """
     all_scenarios = [s for f in execution.features for s in f.scenarios]
     return sorted(all_scenarios, key=lambda s: s.duration, reverse=True)[:limit]
 
 
 def tag_ranking(execution: Execution) -> list[dict[str, Any]]:
-    """Return tags sorted by failures (desc) then count (desc) and duration."""
+    """Return tags sorted by failures, then count, then duration.
+
+    Args:
+        execution (Execution): Execution tree to analyse.
+
+    Returns:
+        list[dict[str, Any]]: Tag rows with counts, statuses and pass rate.
+
+    """
     stats = execution.statistics.by_tag
     rows = []
     for name, data in stats.items():
@@ -126,7 +170,15 @@ def tag_ranking(execution: Execution) -> list[dict[str, Any]]:
 
 
 def duration_buckets(execution: Execution) -> dict[str, int]:
-    """Group scenarios into duration buckets for the histogram chart."""
+    """Group scenarios into duration buckets for the histogram chart.
+
+    Args:
+        execution (Execution): Execution tree to analyse.
+
+    Returns:
+        dict[str, int]: Mapping of bucket labels to scenario counts.
+
+    """
     buckets = {
         "<100ms": 0,
         "100ms-500ms": 0,

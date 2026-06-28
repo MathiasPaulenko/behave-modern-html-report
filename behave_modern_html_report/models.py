@@ -36,7 +36,15 @@ ALL_STATUSES = (
 
 
 def normalize_status(value: Any) -> str:
-    """Normalize a Behave status (enum or string) to a canonical lowercase string."""
+    """Normalize a Behave status (enum or string) to a canonical lowercase string.
+
+    Args:
+        value (Any): Raw status value from Behave.
+
+    Returns:
+        str: Canonical lowercase status, or ``untested`` when unknown.
+
+    """
     if value is None:
         return STATUS_UNTESTED
     name = getattr(value, "name", None) or str(value)
@@ -237,7 +245,15 @@ class Execution:
 
 
 def as_dict(obj: Any) -> Any:
-    """Recursively convert dataclass instances to plain dicts (for JSON)."""
+    """Recursively convert dataclass instances to plain dicts (for JSON).
+
+    Args:
+        obj (Any): Dataclass instance, list, dict or primitive value.
+
+    Returns:
+        Any: JSON-serializable representation of the input.
+
+    """
     if dataclasses.is_dataclass(obj):
         return {f.name: as_dict(getattr(obj, f.name)) for f in dataclasses.fields(obj)}
     if isinstance(obj, list):

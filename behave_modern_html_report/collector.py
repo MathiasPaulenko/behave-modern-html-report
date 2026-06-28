@@ -37,7 +37,13 @@ class Collector:
     """
 
     def __init__(self, title: str = "Behave Modern Report") -> None:
-        """Initialize a collector with an empty execution tree."""
+        """Initialize a collector with an empty execution tree.
+
+        Args:
+            title (str, optional): Execution title. Defaults to
+                "Behave Modern Report".
+
+        """
         self.execution = Execution(title=title)
         self.execution.environment = self._capture_environment()
         self.execution.statistics = Statistics(start_time=datetime.now())
@@ -50,7 +56,12 @@ class Collector:
 
     @staticmethod
     def _capture_environment() -> Environment:
-        """Capture runtime environment metadata (Python, Behave, host)."""
+        """Capture runtime environment metadata (Python, Behave, host).
+
+        Returns:
+            Environment: Populated environment record.
+
+        """
         try:
             from behave import __version__ as behave_version  # type: ignore
         except Exception:  # pragma: no cover
@@ -69,7 +80,15 @@ class Collector:
     # ------------------------------------------------------------------
 
     def start_feature(self, behave_feature: Any) -> Feature:
-        """Start a new feature and add it to the execution tree."""
+        """Start a new feature and add it to the execution tree.
+
+        Args:
+            behave_feature (Any): Behave feature object.
+
+        Returns:
+            Feature: Created feature model.
+
+        """
         feature = Feature(
             name=getattr(behave_feature, "name", "") or "",
             description="\n".join(getattr(behave_feature, "description", []) or []),
@@ -81,7 +100,12 @@ class Collector:
         return feature
 
     def end_feature(self, behave_feature: Any) -> None:
-        """Finalize the current feature with its final status and duration."""
+        """Finalize the current feature with its final status and duration.
+
+        Args:
+            behave_feature (Any): Behave feature object with final state.
+
+        """
         if self._current_feature is None:
             return
         self._current_feature.status = normalize_status(getattr(behave_feature, "status", None))
@@ -93,7 +117,15 @@ class Collector:
     # ------------------------------------------------------------------
 
     def start_scenario(self, behave_scenario: Any) -> Scenario:
-        """Start a new scenario under the current feature."""
+        """Start a new scenario under the current feature.
+
+        Args:
+            behave_scenario (Any): Behave scenario object.
+
+        Returns:
+            Scenario: Created scenario model.
+
+        """
         scenario = Scenario(
             name=getattr(behave_scenario, "name", "") or "",
             description="\n".join(getattr(behave_scenario, "description", []) or []),
@@ -107,7 +139,12 @@ class Collector:
         return scenario
 
     def end_scenario(self, behave_scenario: Any) -> None:
-        """Finalize the current scenario with its final status and duration."""
+        """Finalize the current scenario with its final status and duration.
+
+        Args:
+            behave_scenario (Any): Behave scenario object with final state.
+
+        """
         if self._current_scenario is None:
             return
         self._current_scenario.status = normalize_status(getattr(behave_scenario, "status", None))
@@ -119,7 +156,15 @@ class Collector:
     # ------------------------------------------------------------------
 
     def add_step(self, behave_step: Any) -> Step | None:
-        """Add a step result to the current scenario."""
+        """Add a step result to the current scenario.
+
+        Args:
+            behave_step (Any): Behave step object with final state.
+
+        Returns:
+            Step | None: Created step model, or None if no scenario is active.
+
+        """
         if self._current_scenario is None:
             return None
         step = Step(
@@ -158,7 +203,12 @@ class Collector:
     # ------------------------------------------------------------------
 
     def attach(self, attachment: Attachment) -> None:
-        """Attach a file to the current step (last step) or scenario."""
+        """Attach a file to the current step (last step) or scenario.
+
+        Args:
+            attachment (Attachment): Attachment to store.
+
+        """
         if self._current_scenario is None:
             return
         if self._current_scenario.steps:
@@ -170,7 +220,12 @@ class Collector:
             )
 
     def log(self, message: str) -> None:
-        """Append a log line to the current step."""
+        """Append a log line to the current step.
+
+        Args:
+            message (str): Log message to store.
+
+        """
         if self._current_scenario and self._current_scenario.steps:
             self._current_scenario.steps[-1].logs.append(message)
 
@@ -179,7 +234,12 @@ class Collector:
     # ------------------------------------------------------------------
 
     def finalize(self) -> Execution:
-        """Finalize the execution tree and compute statistics."""
+        """Finalize the execution tree and compute statistics.
+
+        Returns:
+            Execution: Fully populated execution model.
+
+        """
         self.execution.statistics.end_time = datetime.now()
         stats_mod.compute(self.execution)
         return self.execution
