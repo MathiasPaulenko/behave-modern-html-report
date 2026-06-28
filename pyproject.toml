@@ -43,11 +43,21 @@ Issues = "https://github.com/MathiasPaulenko/behave-modern-report/issues"
 modern = "behave_modern_report.formatter:ModernHTMLFormatter"
 
 [tool.hatch.build.targets.wheel]
+# `packages` already ships every file (Python, .css, .js, .jinja, .svg, …) inside
+# the package directory — no `force-include` needed.
 packages = ["behave_modern_report"]
 
-[tool.hatch.build.targets.wheel.force-include]
-"behave_modern_report/templates" = "behave_modern_report/templates"
-"behave_modern_report/assets" = "behave_modern_report/assets"
+[tool.hatch.build.targets.sdist]
+include = [
+    "behave_modern_report",
+    "tests",
+    "examples",
+    "docs",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE",
+    "pyproject.toml",
+]
 
 [tool.ruff]
 line-length = 100
