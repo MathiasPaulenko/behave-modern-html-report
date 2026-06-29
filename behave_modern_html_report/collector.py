@@ -16,6 +16,7 @@ from typing import Any
 from . import statistics as stats_mod
 from .models import (
     Attachment,
+    Background,
     DataTable,
     Environment,
     ErrorInfo,
@@ -81,6 +82,53 @@ class Collector:
     # Feature
     # ------------------------------------------------------------------
 
+    def _make_background(self, behave_background: Any) -> Background:
+        """Convert a Behave background object into a Background model."""
+        bg = Background(
+            name=getattr(behave_background, "name", "") or "",
+            keyword=(getattr(behave_background, "keyword", "Background") or "Background"),
+            location=safe_str(getattr(behave_background, "location", "")),
+        )
+        for behave_step in getattr(behave_background, "steps", []) or []:
+            bg.steps.append(self._make_step(behave_step))
+        return bg
+
+    def _make_step(self, behave_step: Any) -> Step:
+        """Convert a Behave step object into a Step model."""
+        step = Step(
+            keyword=(getattr(behave_step, "keyword", "") or "").strip(),
+            name=getattr(behave_step, "name", "") or "",
+            status=normalize_status(getattr(behave_step, "status", None)),
+            duration=float(getattr(behave_step, "duration", 0.0) or 0.0),
+            location=safe_str(getattr(behave_step, "location", "")),
+            text=getattr(behave_step, "text", None),
+        )
+
+        table = getattr(behave_step, "table", None)
+        if table is not None:
+            try:
+                step.table = DataTable(
+                    headings=[safe_str(h) for h in getattr(table, "headings", []) or []],
+                    rows=[[safe_str(c) for c in row.cells] for row in table.rows],
+                )
+            except Exception:  # pragma: no cover - defensive
+                step.table = None
+
+        error_message = getattr(behave_step, "error_message", None) or ""
+        exception = getattr(behave_step, "exception", None)
+        if error_message or exception:
+            step.error = ErrorInfo(
+                message=safe_str(error_message or exception),
+                traceback=safe_str(getattr(behave_step, "exc_traceback", "") or error_message),
+                exception_type=type(exception).__name__ if exception else "",
+            )
+
+        for behave_att in getattr(behave_step, "embeddings", []) or []:
+            step.attachments.append(self._make_attachment(behave_att))
+
+        step.logs = [safe_str(line) for line in getattr(behave_step, "log", []) or []]
+        return step
+
     def start_feature(self, behave_feature: Any) -> Feature:
         """Start a new feature and add it to the execution tree.
 
@@ -97,6 +145,9 @@ class Collector:
             location=safe_str(getattr(behave_feature, "location", "")),
             tags=[safe_str(t) for t in getattr(behave_feature, "tags", []) or []],
         )
+        behave_background = getattr(behave_feature, "background", None)
+        if behave_background:
+            feature.background = self._make_background(behave_background)
         self._current_feature = feature
         self.execution.features.append(feature)
         return feature
@@ -146,6 +197,14 @@ class Collector:
             Scenario: Created scenario model.
 
         """
+        scenario_type = safe_str(getattr(behave_scenario, "type", ""))
+        is_outline = scenario_type in ("scenario_outline", "outline")
+        outline_name = ""
+        examples = None
+        if is_outline:
+            outline_name = getattr(behave_scenario, "outline_name", "") or getattr(behave_scenario, "name", "") or ""
+            examples = self._make_examples(getattr(behave_scenario, "examples", None))
+
         scenario = Scenario(
             name=getattr(behave_scenario, "name", "") or "",
             description="\n".join(getattr(behave_scenario, "description", []) or []),
@@ -153,11 +212,32 @@ class Collector:
             tags=[safe_str(t) for t in getattr(behave_scenario, "tags", []) or []],
             feature_name=self._current_feature.name if self._current_feature else "",
             rule_name=self._current_rule_name,
+            is_outline=is_outline,
+            outline_name=outline_name,
+            examples=examples,
         )
+        if self._current_feature and self._current_feature.background:
+            scenario.background = self._current_feature.background
         self._current_scenario = scenario
         if self._current_feature is not None:
             self._current_feature.scenarios.append(scenario)
         return scenario
+
+    def _make_examples(self, behave_examples: Any) -> DataTable | None:
+        """Convert Behave examples tables into a DataTable model."""
+        if not behave_examples:
+            return None
+        tables = getattr(behave_examples, "tables", None)
+        if not tables:
+            return None
+        # Use the first examples table for the report.
+        table = tables[0] if isinstance(tables, list) else behave_examples
+        try:
+            headings = [safe_str(h) for h in getattr(table, "headings", []) or []]
+            rows = [[safe_str(c) for c in row.cells] for row in table.rows]
+            return DataTable(headings=headings, rows=rows)
+        except Exception:
+            return None
 
     def end_scenario(self, behave_scenario: Any) -> None:
         """Finalize the current scenario with its final status and duration.
@@ -188,34 +268,7 @@ class Collector:
         """
         if self._current_scenario is None:
             return None
-        step = Step(
-            keyword=(getattr(behave_step, "keyword", "") or "").strip(),
-            name=getattr(behave_step, "name", "") or "",
-            status=normalize_status(getattr(behave_step, "status", None)),
-            duration=float(getattr(behave_step, "duration", 0.0) or 0.0),
-            location=safe_str(getattr(behave_step, "location", "")),
-            text=getattr(behave_step, "text", None),
-        )
-
-        table = getattr(behave_step, "table", None)
-        if table is not None:
-            try:
-                step.table = DataTable(
-                    headings=list(table.headings),
-                    rows=[[safe_str(c) for c in row.cells] for row in table.rows],
-                )
-            except Exception:  # pragma: no cover - defensive
-                step.table = None
-
-        error_message = getattr(behave_step, "error_message", None) or ""
-        exception = getattr(behave_step, "exception", None)
-        if error_message or exception:
-            step.error = ErrorInfo(
-                message=safe_str(error_message or exception),
-                traceback=safe_str(getattr(behave_step, "exc_traceback", "") or error_message),
-                exception_type=type(exception).__name__ if exception else "",
-            )
-
+        step = self._make_step(behave_step)
         self._current_scenario.steps.append(step)
         return step
 

@@ -19,6 +19,8 @@ from pathlib import Path
 
 from behave_modern_html_report import Renderer
 from behave_modern_html_report.models import (
+    Background,
+    DataTable,
     Environment,
     ErrorInfo,
     Execution,
@@ -105,6 +107,63 @@ def build_demo_execution() -> Execution:
         _random_scenario(5, "Checkout"),
     ]
     features.append(checkout)
+
+    # Feature with background and scenario outline.
+    background_steps = [
+        Step(keyword="Given", name="the database is reset", status="passed", duration=0.2),
+        Step(keyword="And", name="the user is authenticated", status="passed", duration=0.15),
+    ]
+    outline_feature = Feature(
+        name="User Login",
+        description="Login scenarios with background and outline examples.",
+        location="features/login.feature:1",
+        tags=["login"],
+        background=Background(
+            name="Setup a test user",
+            keyword="Background",
+            steps=background_steps,
+            location="features/login.feature:3",
+        ),
+    )
+    outline_feature.scenarios = [
+        Scenario(
+            name="Outline example: Login with valid credentials",
+            status="passed",
+            location="features/login.feature:10",
+            tags=["login", "outline"],
+            steps=[
+                Step(keyword="Given", name="the username is \"alice\"", status="passed", duration=0.1),
+                Step(keyword="When", name="the user logs in", status="passed", duration=0.2),
+                Step(keyword="Then", name="the dashboard is shown", status="passed", duration=0.1),
+            ],
+            feature_name="User Login",
+            is_outline=True,
+            outline_name="Login with valid credentials",
+            examples=DataTable(
+                headings=["username", "password"],
+                rows=[["alice", "secret1"], ["bob", "secret2"], ["carol", "secret3"]],
+            ),
+        ),
+        Scenario(
+            name="Outline example: Login with invalid credentials",
+            status="failed",
+            location="features/login.feature:20",
+            tags=["login", "outline"],
+            steps=[
+                Step(keyword="Given", name="the username is \"eve\"", status="passed", duration=0.1),
+                Step(keyword="When", name="the user logs in", status="passed", duration=0.2),
+                Step(keyword="Then", name="the error is shown", status="failed", duration=0.1),
+            ],
+            feature_name="User Login",
+            is_outline=True,
+            outline_name="Login with invalid credentials",
+            examples=DataTable(
+                headings=["username", "password"],
+                rows=[["eve", "wrong"], ["mallory", "bad"]],
+            ),
+        ),
+    ]
+    features.append(outline_feature)
 
     for fname in ["Authentication", "Reporting", "Settings"]:
         feat = Feature(

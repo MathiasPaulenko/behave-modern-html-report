@@ -423,6 +423,32 @@ pre { margin: 0; }
 
 .empty { text-align: center; color: var(--text-dim); padding: 24px; }
 
+.background-block {
+  margin: 12px 0; border: 1px dashed var(--border); border-radius: var(--radius);
+  background: var(--bg-elev-2); overflow: hidden;
+}
+.background-head {
+  display: flex; align-items: center; gap: 8px; padding: 8px 12px;
+  font-size: 12px; color: var(--text-dim); text-transform: uppercase; letter-spacing: .03em;
+}
+.background-head .ico { width: 14px; height: 14px; color: var(--text-faint); }
+.background-label { font-weight: 600; }
+.background-steps { padding: 0 12px 12px; }
+.background-steps .step { background: var(--bg-elev); }
+
+.outline-banner {
+  display: inline-flex; align-items: center; gap: 8px;
+  margin: 12px 0; padding: 6px 12px; border-radius: var(--radius-sm);
+  background: var(--bg-elev-2); border: 1px solid var(--border);
+  font-size: 12px; color: var(--text-dim);
+}
+.outline-label { font-weight: 600; color: var(--primary); text-transform: uppercase; letter-spacing: .03em; }
+.outline-name { font-style: italic; }
+
+.examples-block { margin: 12px 0; }
+.examples-head { font-size: 12px; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: .03em; margin-bottom: 8px; }
+.examples-table { font-size: 12px; }
+
 .logs summary { cursor: pointer; color: var(--text-dim); padding: 6px 0; }
 .logs pre { background: var(--code-bg); padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--border); max-height: 240px; overflow: auto; }
 

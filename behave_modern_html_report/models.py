@@ -129,6 +129,16 @@ class Step:
 
 
 @dataclass(slots=True)
+class Background:
+    """A Gherkin background shared by scenarios in a feature or rule."""
+
+    name: str = ""
+    keyword: str = "Background"
+    steps: list[Step] = field(default_factory=list)
+    location: str = ""
+
+
+@dataclass(slots=True)
 class Scenario:
     """A scenario or scenario outline example."""
 
@@ -139,8 +149,12 @@ class Scenario:
     location: str = ""
     tags: list[str] = field(default_factory=list)
     steps: list[Step] = field(default_factory=list)
+    background: Background | None = None
     feature_name: str = ""
     rule_name: str = ""
+    is_outline: bool = False
+    outline_name: str = ""
+    examples: DataTable | None = None
 
     @property
     def step_count(self) -> int:
@@ -159,6 +173,7 @@ class Feature:
     location: str = ""
     tags: list[str] = field(default_factory=list)
     scenarios: list[Scenario] = field(default_factory=list)
+    background: Background | None = None
 
     @property
     def scenario_count(self) -> int:

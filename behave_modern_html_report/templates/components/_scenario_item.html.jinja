@@ -29,11 +29,51 @@
   <div class="scenario-body" hidden>
     {% if scenario.description %}<p class="desc">{{ scenario.description }}</p>{% endif %}
     {% if scenario.location %}<p class="muted small">{{ scenario.location }}</p>{% endif %}
+
+    {% if scenario.background and scenario.background.steps %}
+      <div class="background-block">
+        <div class="background-head">
+          <svg class="ico"><use href="#i-bg"/></svg>
+          <span class="background-label">{{ scenario.background.keyword }}</span>
+          <span class="muted small">{{ scenario.background.name }}</span>
+        </div>
+        <ol class="steps background-steps">
+          {% set max_step_duration = scenario.background.steps|map(attribute='duration')|max|default(0.0) %}
+          {% for step in scenario.background.steps %}
+            {% include "components/step.html.jinja" %}
+          {% endfor %}
+        </ol>
+      </div>
+    {% endif %}
+
+    {% if scenario.is_outline %}
+      <div class="outline-banner">
+        <span class="outline-label">Scenario Outline</span>
+        {% if scenario.outline_name %}<span class="outline-name">{{ scenario.outline_name }}</span>{% endif %}
+      </div>
+    {% endif %}
+
     {% set max_step_duration = scenario.steps|map(attribute='duration')|max|default(0.0) %}
     <ol class="steps">
       {% for step in scenario.steps %}
         {% include "components/step.html.jinja" %}
       {% endfor %}
     </ol>
+
+    {% if scenario.examples and scenario.examples.headings %}
+      <div class="examples-block">
+        <div class="examples-head">Examples</div>
+        <div class="table-wrap">
+          <table class="data-table examples-table">
+            <thead><tr>{% for h in scenario.examples.headings %}<th>{{ h }}</th>{% endfor %}</tr></thead>
+            <tbody>
+              {% for row in scenario.examples.rows %}
+                <tr>{% for cell in row %}<td>{{ cell }}</td>{% endfor %}</tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    {% endif %}
   </div>
 </li>
