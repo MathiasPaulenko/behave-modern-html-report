@@ -109,7 +109,7 @@
     toggleSection(head, !expanded);
   });
 
-  // ---- View mode toggle (compact / detailed / result) --------
+  // ---- View mode toggle (compact / detailed) -----------------
   var VIEW_MODE_KEY = "bmr.viewMode";
   function applyViewMode(mode) {
     var listIds = ["features-list", "rules-list", "scenarios-list"];
@@ -117,12 +117,6 @@
       var el = document.getElementById(id);
       if (el) el.classList.toggle("detailed", mode === "detailed");
     });
-    var scenariosList = document.getElementById("scenarios-list");
-    var scenariosTable = document.getElementById("scenarios-table");
-    if (scenariosList && scenariosTable) {
-      scenariosList.hidden = mode === "result";
-      scenariosTable.hidden = mode !== "result";
-    }
     document.querySelectorAll("[data-view-mode]").forEach(function (btn) {
       btn.classList.toggle("is-active", btn.dataset.viewMode === mode);
       btn.setAttribute("aria-pressed", String(btn.dataset.viewMode === mode));
@@ -132,7 +126,7 @@
   (function initViewMode() {
     var saved = "compact";
     try { saved = localStorage.getItem(VIEW_MODE_KEY) || "compact"; } catch (_) {}
-    if (!["result", "compact", "detailed"].includes(saved)) saved = "compact";
+    if (!["compact", "detailed"].includes(saved)) saved = "compact";
     applyViewMode(saved);
     document.addEventListener("click", function (e) {
       var btn = e.target.closest("[data-view-mode]");
