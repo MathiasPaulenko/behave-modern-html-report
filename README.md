@@ -112,6 +112,40 @@ python examples/demo_generator/generate_demo.py
 This builds `examples/demo_generator/demo-report.html` with a realistic-looking suite —
 useful for previews, screenshots, and design iteration.
 
+## Screenshots
+
+### Dashboard view
+
+![Dashboard](docs/images/dashboard.png)
+
+### Features view
+
+![Features](docs/images/features.png)
+
+### Rules view
+
+![Rules](docs/images/rules.png)
+
+### Scenarios view
+
+![Scenarios](docs/images/scenarios.png)
+
+### Results view
+
+![Results](docs/images/results.png)
+
+### Tags view
+
+![Tags](docs/images/tags.png)
+
+### Statistics view
+
+![Statistics](docs/images/statistics.png)
+
+### Environment view
+
+![Environment](docs/images/environment.png)
+
 ## Architecture
 
 ```text
@@ -144,6 +178,15 @@ pip install -e ".[dev]"
 pytest
 ruff check .
 ```
+
+## Documentation
+
+- [Usage](docs/usage.md) — installation, basic configuration, and running.
+- [Configuration](docs/configuration.md) — all reporter options and userdata keys.
+- [Report views](docs/views.md) — what each view shows.
+- [Examples](docs/examples.md) — demo generator and functional Behave project.
+- [Architecture](docs/architecture.md) — how the formatter is structured.
+- [Contributing](docs/contributing.md) — local setup, checks, and conventions.
 
 ## License
 
