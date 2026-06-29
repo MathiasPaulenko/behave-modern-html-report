@@ -1,4 +1,4 @@
-"""Generate screenshots of the demo report for README."""
+"""Generate full-page screenshots of the demo report for README."""
 
 from __future__ import annotations
 
@@ -42,7 +42,7 @@ def main() -> int:
                 button.click()
                 page.wait_for_timeout(400)
             path = OUT_DIR / f"{route}.png"
-            page.locator(f".view[data-view='{route}']").screenshot(path=path)
+            page.screenshot(path=path, full_page=True)
             print(f"Wrote {path}")
 
         browser.close()
