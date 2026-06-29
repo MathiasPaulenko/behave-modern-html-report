@@ -1,4 +1,4 @@
-"""Generate full-page screenshots of the demo report for README."""
+"""Generate window screenshots of the demo report for README."""
 
 from __future__ import annotations
 
@@ -30,7 +30,7 @@ def main() -> int:
 
     with sync_playwright() as p:
         browser = p.chromium.launch()
-        page = browser.new_page(viewport={"width": 1440, "height": 900})
+        page = browser.new_page(viewport={"width": 1600, "height": 1200})
         page.goto(REPORT.as_uri())
         page.wait_for_load_state("networkidle")
         # Give charts a moment to render
@@ -41,8 +41,10 @@ def main() -> int:
             if button.count():
                 button.click()
                 page.wait_for_timeout(400)
+            # Scroll to top so the sidebar and topbar are always visible
+            page.evaluate("window.scrollTo(0, 0)")
             path = OUT_DIR / f"{route}.png"
-            page.screenshot(path=path, full_page=True)
+            page.screenshot(path=path)
             print(f"Wrote {path}")
 
         browser.close()
