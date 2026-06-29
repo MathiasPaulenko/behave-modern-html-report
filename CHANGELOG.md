@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2026-06-29
+
+### Added
+
+- Full **Background** and **Scenario Outline** support with `Examples` tables.
+- **Gherkin Rules** support (requires Behave 1.3.x): scenarios under a `Rule` are grouped correctly.
+- **Compact / Detailed** view modes for Features, Rules, and Scenarios with `localStorage` persistence.
+- New top-level **Results** view showing a compact table of all scenarios.
+- Expanded **Environment** section with user, CPU, memory, git branch/commit/remote, and selected env vars.
+- New **Statistics** raw-metrics view: status distribution, duration percentiles, per-feature summary, and error distribution.
+- Functional **Behave example project** under `examples/behave_project/` with features, steps, hooks, and `behave.ini`.
+- New documentation pages under `docs/`: usage, configuration, views, examples, architecture, contributing.
+- Screenshots of every report view embedded in the README.
+- Contributor setup files: `requirements.txt`, `requirements-dev.txt`, `Makefile`, `.editorconfig`, `.pre-commit-config.yaml`.
+
+### Changed
+
+- Tags view now relies solely on the table for pass rate information; the chart was removed.
+- Demo generator moved to `examples/demo_generator/`.
+- Obsolete `examples/features/` and `examples/behave.ini` removed.
+- Pass rate bars in tables now have color-coded fills (low/medium/high).
+
+### Removed
+
+- Redundant Tag pass rate chart from the Tags view.
+- Duplicated charts from the Statistics view in favor of raw data tables.
+
 ## [0.2.0] - 2026-06-28
 
 ### Added
