@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2026-06-29
+
+### Added
+
+- New report customization options via `behave.userdata`:
+  - `bmr.favicon`, `bmr.primary_color`, `bmr.accent_color`.
+  - `bmr.default_view`, `bmr.hidden_views`, `bmr.expand_by_default`.
+  - `bmr.max_slowest`, `bmr.show_copy_command`, `bmr.show_environment_vars`.
+  - `bmr.footer_text`, `bmr.link_to_ci`.
+- `View in CI` button in the header when `bmr.link_to_ci` is set.
+- Custom footer text support.
+- Option to hide the environment variables card.
+- Option to hide the copy reproduce command button on scenarios.
+- Programmatic color override via CSS custom properties.
+
+### Changed
+
+- Updated README, `docs/configuration.md`, `docs/views.md`, `docs/examples.md` and the example project README to document the new options.
+- Demo generator now uses `default_view`, `footer_text`, `show_copy_command` and `show_environment_vars`.
+- Regenerated demo report and screenshots.
+
 ## [2.0.0] - 2026-06-29
 
 ### Added
