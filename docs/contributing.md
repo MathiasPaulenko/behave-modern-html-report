@@ -9,7 +9,14 @@ git clone https://github.com/MathiasPaulenko/behave-modern-html-report.git
 cd behave-modern-html-report
 python -m venv .venv
 . .venv/Scripts/activate   # PowerShell: .venv\Scripts\Activate.ps1
-pip install -e ".[dev]"
+pip install -r requirements-dev.txt
+pip install -e .
+```
+
+Or use the provided `Makefile`:
+
+```bash
+make install-dev
 ```
 
 ## Releasing
@@ -29,9 +36,16 @@ If the version was not changed, the workflow exits cleanly without releasing.
 ## Running checks
 
 ```bash
-pytest -ra
-ruff check .
-black --check .
+make test
+make lint
+```
+
+Equivalently:
+
+```bash
+python -m pytest -ra
+python -m ruff check .
+python -m black --check .
 ```
 
 ## Iterating on the UI
