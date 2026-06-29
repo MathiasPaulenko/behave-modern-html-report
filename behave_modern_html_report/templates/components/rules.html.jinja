@@ -1,7 +1,13 @@
 <section class="view" data-view="rules" hidden>
   <header class="view-header">
-    <h1 class="view-title">Rules</h1>
-    <p class="view-sub">All Gherkin Rules grouped by feature.</p>
+    <div>
+      <h1 class="view-title">Rules</h1>
+      <p class="view-sub">All Gherkin Rules grouped by feature.</p>
+    </div>
+    <div class="view-actions">
+      <button class="action-btn" data-expand-all=".rule.card" type="button">Expand all</button>
+      <button class="action-btn" data-collapse-all=".rule.card" type="button">Collapse all</button>
+    </div>
   </header>
 
   <div id="rules-list" class="stack">

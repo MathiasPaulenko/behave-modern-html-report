@@ -76,13 +76,37 @@
   });
 
   // ---- Expand / collapse -------------------------------------
+  function toggleSection(head, expanded) {
+    var body;
+    if (head.classList.contains("scenario-head")) {
+      body = head.closest(".scenario").querySelector(".scenario-body");
+    } else {
+      body = head.nextElementSibling;
+    }
+    head.setAttribute("aria-expanded", String(expanded));
+    if (body) body.hidden = !expanded;
+  }
   document.addEventListener("click", function (e) {
+    var expandBtn = e.target.closest("[data-expand-all]");
+    var collapseBtn = e.target.closest("[data-collapse-all]");
+    if (expandBtn) {
+      document.querySelectorAll(expandBtn.dataset.expandAll).forEach(function (el) {
+        var head = el.querySelector(".feature-head, .rule-head, .scenario-head");
+        if (head) toggleSection(head, true);
+      });
+      return;
+    }
+    if (collapseBtn) {
+      document.querySelectorAll(collapseBtn.dataset.collapseAll).forEach(function (el) {
+        var head = el.querySelector(".feature-head, .rule-head, .scenario-head");
+        if (head) toggleSection(head, false);
+      });
+      return;
+    }
     var head = e.target.closest(".feature-head, .rule-head, .scenario-head");
     if (!head) return;
-    var body = head.nextElementSibling;
     var expanded = head.getAttribute("aria-expanded") === "true";
-    head.setAttribute("aria-expanded", expanded ? "false" : "true");
-    if (body) body.hidden = expanded;
+    toggleSection(head, !expanded);
   });
 
   // ---- Copy to clipboard -------------------------------------

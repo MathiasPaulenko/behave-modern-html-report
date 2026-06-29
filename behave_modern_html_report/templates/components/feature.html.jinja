@@ -1,7 +1,13 @@
 <section class="view" data-view="features" hidden>
   <header class="view-header">
-    <h1 class="view-title">Features</h1>
-    <p class="view-sub">{{ execution.features|length }} features · {{ execution.statistics.total_scenarios }} scenarios</p>
+    <div>
+      <h1 class="view-title">Features</h1>
+      <p class="view-sub">{{ execution.features|length }} features · {{ execution.statistics.total_scenarios }} scenarios</p>
+    </div>
+    <div class="view-actions">
+      <button class="action-btn" data-expand-all=".feature" type="button">Expand all</button>
+      <button class="action-btn" data-collapse-all=".feature" type="button">Collapse all</button>
+    </div>
   </header>
 
   <div id="features-list" class="stack">
