@@ -24,7 +24,7 @@ def test_renderer_produces_single_html_file(tmp_path, sample_execution):
     assert "Card expired" in html
 
 
-def test_renderer_supports_custom_css_js(tmp_path, sample_execution):
+def test_renderer_supports_custom_css_js(sample_execution):
     """Custom CSS and JS are inlined into the generated HTML."""
     r = Renderer(RenderOptions(custom_css=".bmr-x{color:red}", custom_js="window.__bmr=1;"))
     html = r.render(sample_execution)
@@ -32,7 +32,7 @@ def test_renderer_supports_custom_css_js(tmp_path, sample_execution):
     assert "window.__bmr=1;" in html
 
 
-def test_renderer_handles_empty_execution(tmp_path):
+def test_renderer_handles_empty_execution():
     """The renderer produces a valid HTML report even for an empty execution."""
     from behave_modern_html_report.models import Execution
 

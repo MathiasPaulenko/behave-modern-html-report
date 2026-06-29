@@ -11,7 +11,7 @@ def before_all(context):
     context.config.userdata.set("bmr.theme", "auto")
 
 
-def before_scenario(context, scenario):
+def before_scenario(_context, scenario):
     """Skip or mark pending scenarios based on tags for the demo."""
     if "skip" in scenario.tags:
         scenario.skip("Scenario tagged with @skip")
@@ -20,7 +20,7 @@ def before_scenario(context, scenario):
 
 
 def after_step(context, step):
-    """Attach a screenshot placeholder and a log line on failure."""
+    """Attach a failure log when a step fails."""
     if step.status == "failed":
         context.attach(
             mime_type="text/plain",
@@ -29,11 +29,11 @@ def after_step(context, step):
         )
 
 
-def after_all(context):
+def after_all(_context):
     """Write a summary JSON sidecar for debugging."""
     summary = {
-        "features": len(context.features),
-        "status": str(context.failed),
+        "features": len(_context.features),
+        "status": str(_context.failed),
     }
     path = os.path.join(os.path.dirname(__file__), "summary.json")
     with open(path, "w", encoding="utf-8") as f:

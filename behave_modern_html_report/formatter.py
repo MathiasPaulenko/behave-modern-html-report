@@ -72,7 +72,6 @@ class ModernHTMLFormatter(Formatter):  # type: ignore[misc,valid-type]
 
     def background(self, background: Any) -> None:
         """Behave hook: background steps are handled via the scenario."""
-        # Background steps are surfaced via the scenario's own steps in Behave.
         pass
 
     def rule(self, rule: Any) -> None:
@@ -85,7 +84,6 @@ class ModernHTMLFormatter(Formatter):  # type: ignore[misc,valid-type]
 
     def step(self, step: Any) -> None:
         """Behave hook: step queued; final state arrives in ``result``."""
-        # Called when a step is queued; the final state arrives in `result`.
         pass
 
     def match(self, match: Any) -> None:
@@ -98,12 +96,10 @@ class ModernHTMLFormatter(Formatter):  # type: ignore[misc,valid-type]
 
     def eof(self) -> None:
         """Behave hook: end of feature; finalize current feature/scenario."""
-        # End of file = end of feature in Behave.
         feature = self._collector._current_feature  # noqa: SLF001 - intentional
         if feature is not None:
             self._collector.end_feature(_FakeFinal(feature))
 
-        # Also finalize the last scenario if Behave didn't call us back.
         scenario = self._collector._current_scenario  # noqa: SLF001
         if scenario is not None:
             self._collector.end_scenario(_FakeFinal(scenario))

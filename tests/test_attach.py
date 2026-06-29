@@ -78,7 +78,6 @@ def test_log_appends_message():
 
 def test_helpers_noop_when_formatter_missing():
     """Attachment helpers must not raise when the formatter is unavailable."""
-    # Must not raise when called outside Behave or without the formatter.
     attach_text(SimpleNamespace(_runner=None), "text", "n.txt")
     attach_file(SimpleNamespace(_runner=SimpleNamespace(formatters=[])), "nope")
     log(SimpleNamespace(_runner=SimpleNamespace(formatters=[object()])), "msg")
