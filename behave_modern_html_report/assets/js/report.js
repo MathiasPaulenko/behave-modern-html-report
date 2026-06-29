@@ -109,6 +109,33 @@
     toggleSection(head, !expanded);
   });
 
+  // ---- Detailed / compact toggle -----------------------------
+  var DETAIL_KEY = "bmr.detailed";
+  function applyDetailed(detailed) {
+    var lists = ["features-list", "rules-list", "scenarios-list"];
+    lists.forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) el.classList.toggle("detailed", detailed);
+    });
+    document.querySelectorAll("[data-toggle=\"detailed\"]").forEach(function (btn) {
+      btn.classList.toggle("is-active", detailed);
+      btn.textContent = detailed ? "Compact mode" : "Detailed mode";
+      btn.setAttribute("aria-pressed", String(detailed));
+    });
+    try { localStorage.setItem(DETAIL_KEY, String(detailed)); } catch (_) {}
+  }
+  (function initDetailed() {
+    var saved = false;
+    try { saved = localStorage.getItem(DETAIL_KEY) === "true"; } catch (_) {}
+    applyDetailed(saved);
+    document.addEventListener("click", function (e) {
+      var btn = e.target.closest("[data-toggle=\"detailed\"]");
+      if (!btn) return;
+      var isDetailed = document.getElementById("features-list").classList.contains("detailed");
+      applyDetailed(!isDetailed);
+    });
+  })();
+
   // ---- Copy to clipboard -------------------------------------
   document.addEventListener("click", function (e) {
     var btn = e.target.closest(".copy-btn");

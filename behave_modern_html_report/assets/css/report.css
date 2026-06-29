@@ -449,6 +449,12 @@ pre { margin: 0; }
 .examples-head { font-size: 12px; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: .03em; margin-bottom: 8px; }
 .examples-table { font-size: 12px; }
 
+/* Compact/detailed scenario view toggle */
+.detailed-only { display: none; }
+.detailed .detailed-only { display: block; }
+
+.action-btn.is-active { background: var(--bg-elev-2); color: var(--text); border-color: var(--primary); }
+
 .logs summary { cursor: pointer; color: var(--text-dim); padding: 6px 0; }
 .logs pre { background: var(--code-bg); padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--border); max-height: 240px; overflow: auto; }
 

@@ -31,7 +31,7 @@
     {% if scenario.location %}<p class="muted small">{{ scenario.location }}</p>{% endif %}
 
     {% if scenario.background and scenario.background.steps %}
-      <div class="background-block">
+      <div class="background-block detailed-only">
         <div class="background-head">
           <svg class="ico"><use href="#i-bg"/></svg>
           <span class="background-label">{{ scenario.background.keyword }}</span>
@@ -47,7 +47,7 @@
     {% endif %}
 
     {% if scenario.is_outline %}
-      <div class="outline-banner">
+      <div class="outline-banner detailed-only">
         <span class="outline-label">Scenario Outline</span>
         {% if scenario.outline_name %}<span class="outline-name">{{ scenario.outline_name }}</span>{% endif %}
       </div>
@@ -61,7 +61,7 @@
     </ol>
 
     {% if scenario.examples and scenario.examples.headings %}
-      <div class="examples-block">
+      <div class="examples-block detailed-only">
         <div class="examples-head">Examples</div>
         <div class="table-wrap">
           <table class="data-table examples-table">
