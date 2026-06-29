@@ -5,14 +5,13 @@ in `behave.ini`, `setup.cfg`, or programmatically from `environment.py`.
 
 ## Options
 
-- `bmr.title` — default `Behave Report`. Report title shown in the header and browser tab.
-- `bmr.company` — default empty. Company name shown next to the title.
+- `bmr.title` — default `Behave Modern Report`. Report title shown in the sidebar, header and browser tab.
+- `bmr.company` — default empty. Company name shown under the title in the sidebar.
 - `bmr.theme` — default `auto`. Choose `light`, `dark` or `auto`.
-- `bmr.logo` — default empty. URL or base64 data URI for a logo image.
-- `bmr.custom_css` — default empty. Path to a custom CSS file to embed.
-- `bmr.custom_js` — default empty. Path to a custom JavaScript file to embed.
+- `bmr.logo` — default empty. URL or base64 data URI for a logo image in the sidebar.
+- `bmr.custom_css` — default empty. Path to a custom CSS file to embed into the report.
+- `bmr.custom_js` — default empty. Path to a custom JavaScript file to embed into the report.
 - `bmr.json_sidecar` — default `false`. Also write a `.json` file next to the HTML report.
-- `bmr.open_browser` — default `false`. Auto-open the report after Behave finishes.
 
 ## Example `behave.ini`
 

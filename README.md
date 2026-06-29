@@ -55,7 +55,7 @@ Open `report.html` in any browser. Done.
 
 ## Configuration
 
-All options are read from `behave`'s `userdata`:
+All reporter options are read from `behave`'s `userdata` section. Set them in `behave.ini`, `setup.cfg`, or programmatically from `environment.py`:
 
 ```ini
 [behave.userdata]
@@ -67,6 +67,18 @@ bmr.json_sidecar  = true          ; writes report.json next to report.html
 bmr.custom_css    = path/to/extra.css
 bmr.custom_js     = path/to/extra.js
 ```
+
+Available options:
+
+- `bmr.title` — report title (default `Behave Modern Report`).
+- `bmr.company` — company name shown under the title.
+- `bmr.logo` — URL or base64 data URI for a logo.
+- `bmr.theme` — `auto`, `dark` or `light`.
+- `bmr.json_sidecar` — write `report.json` next to the HTML report.
+- `bmr.custom_css` — embed a custom CSS file into the report.
+- `bmr.custom_js` — embed a custom JavaScript file into the report.
+
+See [docs/configuration.md](docs/configuration.md) for the full reference.
 
 ## Behave 1.3.x and Gherkin Rules compatibility
 
