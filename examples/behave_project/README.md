@@ -10,11 +10,13 @@ A functional Behave project used to test `behave-modern-html-report`.
 
 ## Requirements
 
-Install the reporter in editable mode from the repository root:
+Install the dependencies from this directory:
 
 ```bash
-pip install -e .
+pip install -r requirements.txt
 ```
+
+This installs `behave` and the reporter in editable mode (`-e ../..`).
 
 ## Run
 
