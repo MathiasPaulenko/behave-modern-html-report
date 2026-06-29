@@ -7,7 +7,10 @@
     <div class="view-actions">
       <button class="action-btn" data-expand-all=".rule.card" type="button">Expand all</button>
       <button class="action-btn" data-collapse-all=".rule.card" type="button">Collapse all</button>
-      <button class="action-btn" data-toggle="detailed" data-target="rules-list" type="button">Detailed mode</button>
+      <div class="mode-group" role="group" aria-label="Rules view mode">
+        <button class="action-btn" data-view-mode="compact" data-target="rules-list" type="button">Compact mode</button>
+        <button class="action-btn" data-view-mode="detailed" data-target="rules-list" type="button">Detailed mode</button>
+      </div>
     </div>
   </header>
 

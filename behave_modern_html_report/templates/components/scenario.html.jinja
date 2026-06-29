@@ -7,10 +7,11 @@
     <div class="view-actions">
       <button class="action-btn" data-expand-all=".scenario" type="button">Expand all</button>
       <button class="action-btn" data-collapse-all=".scenario" type="button">Collapse all</button>
-      <button class="action-btn" data-toggle="detailed" data-target="scenarios-list" type="button">Detailed mode</button>
-      <button id="compact-toggle" class="icon-btn" aria-label="Toggle compact view" title="Compact view" type="button" aria-pressed="false">
-        <svg class="ico"><use href="#i-table"/></svg>
-      </button>
+      <div class="mode-group" role="group" aria-label="Scenario view mode">
+        <button class="action-btn" data-view-mode="result" type="button">Result mode</button>
+        <button class="action-btn" data-view-mode="compact" type="button">Compact mode</button>
+        <button class="action-btn" data-view-mode="detailed" type="button">Detailed mode</button>
+      </div>
     </div>
   </header>
   <ol class="scenarios stack" id="scenarios-list">

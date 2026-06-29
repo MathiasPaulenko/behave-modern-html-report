@@ -109,30 +109,35 @@
     toggleSection(head, !expanded);
   });
 
-  // ---- Detailed / compact toggle -----------------------------
-  var DETAIL_KEY = "bmr.detailed";
-  function applyDetailed(detailed) {
-    var lists = ["features-list", "rules-list", "scenarios-list"];
-    lists.forEach(function (id) {
+  // ---- View mode toggle (compact / detailed / result) --------
+  var VIEW_MODE_KEY = "bmr.viewMode";
+  function applyViewMode(mode) {
+    var listIds = ["features-list", "rules-list", "scenarios-list"];
+    listIds.forEach(function (id) {
       var el = document.getElementById(id);
-      if (el) el.classList.toggle("detailed", detailed);
+      if (el) el.classList.toggle("detailed", mode === "detailed");
     });
-    document.querySelectorAll("[data-toggle=\"detailed\"]").forEach(function (btn) {
-      btn.classList.toggle("is-active", detailed);
-      btn.textContent = detailed ? "Compact mode" : "Detailed mode";
-      btn.setAttribute("aria-pressed", String(detailed));
+    var scenariosList = document.getElementById("scenarios-list");
+    var scenariosTable = document.getElementById("scenarios-table");
+    if (scenariosList && scenariosTable) {
+      scenariosList.hidden = mode === "result";
+      scenariosTable.hidden = mode !== "result";
+    }
+    document.querySelectorAll("[data-view-mode]").forEach(function (btn) {
+      btn.classList.toggle("is-active", btn.dataset.viewMode === mode);
+      btn.setAttribute("aria-pressed", String(btn.dataset.viewMode === mode));
     });
-    try { localStorage.setItem(DETAIL_KEY, String(detailed)); } catch (_) {}
+    try { localStorage.setItem(VIEW_MODE_KEY, mode); } catch (_) {}
   }
-  (function initDetailed() {
-    var saved = false;
-    try { saved = localStorage.getItem(DETAIL_KEY) === "true"; } catch (_) {}
-    applyDetailed(saved);
+  (function initViewMode() {
+    var saved = "compact";
+    try { saved = localStorage.getItem(VIEW_MODE_KEY) || "compact"; } catch (_) {}
+    if (!["result", "compact", "detailed"].includes(saved)) saved = "compact";
+    applyViewMode(saved);
     document.addEventListener("click", function (e) {
-      var btn = e.target.closest("[data-toggle=\"detailed\"]");
+      var btn = e.target.closest("[data-view-mode]");
       if (!btn) return;
-      var isDetailed = document.getElementById("features-list").classList.contains("detailed");
-      applyDetailed(!isDetailed);
+      applyViewMode(btn.dataset.viewMode);
     });
   })();
 
@@ -279,19 +284,6 @@
       var matchStatus = activeStatuses.has(status);
       var matchQuery = !q || name.indexOf(q) >= 0 || tags.indexOf(q) >= 0;
       f.classList.toggle("is-hidden", !(anyScenario || anyRule || (matchStatus && matchQuery)));
-    });
-  }
-
-  // ---- Compact view toggle -----------------------------------
-  var compactToggle = document.getElementById("compact-toggle");
-  var scenariosList = document.getElementById("scenarios-list");
-  var scenariosTable = document.getElementById("scenarios-table");
-  if (compactToggle && scenariosList && scenariosTable) {
-    compactToggle.addEventListener("click", function () {
-      var compact = scenariosTable.hidden;
-      scenariosTable.hidden = !compact;
-      scenariosList.hidden = compact;
-      compactToggle.setAttribute("aria-pressed", String(compact));
     });
   }
 

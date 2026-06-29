@@ -7,7 +7,10 @@
     <div class="view-actions">
       <button class="action-btn" data-expand-all=".feature" type="button">Expand all</button>
       <button class="action-btn" data-collapse-all=".feature" type="button">Collapse all</button>
-      <button class="action-btn" data-toggle="detailed" data-target="features-list" type="button">Detailed mode</button>
+      <div class="mode-group" role="group" aria-label="Feature view mode">
+        <button class="action-btn" data-view-mode="compact" data-target="features-list" type="button">Compact mode</button>
+        <button class="action-btn" data-view-mode="detailed" data-target="features-list" type="button">Detailed mode</button>
+      </div>
     </div>
   </header>
 
