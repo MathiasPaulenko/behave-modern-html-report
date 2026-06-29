@@ -106,10 +106,10 @@ The helpers also work with Playwright, Selenium, PIL images, bytes, files, and J
 ## Generate a demo without running Behave
 
 ```bash
-python examples/generate_demo.py
+python examples/demo_generator/generate_demo.py
 ```
 
-This builds `examples/demo-report.html` with a realistic-looking suite —
+This builds `examples/demo_generator/demo-report.html` with a realistic-looking suite —
 useful for previews, screenshots, and design iteration.
 
 ## Architecture

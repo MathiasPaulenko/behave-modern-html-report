@@ -4,8 +4,8 @@ Useful for development and for the project's screenshots.
 
 Usage::
 
-    python examples/generate_demo.py
-    # -> opens examples/demo-report.html in your default browser
+    python examples/demo_generator/generate_demo.py
+    # -> opens examples/demo_generator/demo-report.html in your default browser
 
 """
 

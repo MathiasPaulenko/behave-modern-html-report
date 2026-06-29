@@ -39,10 +39,10 @@ black --check .
 The fastest loop is to regenerate the demo report and reload it:
 
 ```bash
-python examples/generate_demo.py
+python examples/demo_generator/generate_demo.py
 ```
 
-Open `examples/demo-report.html` in your browser and refresh after each change.
+Open `examples/demo_generator/demo-report.html` in your browser and refresh after each change.
 
 ## Project conventions
 
