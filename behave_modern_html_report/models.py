@@ -195,6 +195,13 @@ class Environment:
     hostname: str = ""
     cwd: str = ""
     command: str = ""
+    user: str = ""
+    cpu_count: int = 0
+    memory_mb: int = 0
+    git_branch: str = ""
+    git_commit: str = ""
+    git_remote: str = ""
+    env_vars: dict[str, str] = field(default_factory=dict)
     extra: dict[str, str] = field(default_factory=dict)
 
 

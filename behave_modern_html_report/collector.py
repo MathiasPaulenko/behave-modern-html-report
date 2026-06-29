@@ -7,6 +7,8 @@ keeps this layer easy to unit-test with simple stubs.
 
 from __future__ import annotations
 
+import getpass
+import os
 import platform
 import socket
 import sys
@@ -69,14 +71,78 @@ class Collector:
             from behave import __version__ as behave_version  # type: ignore
         except Exception:  # pragma: no cover
             behave_version = "unknown"
+
+        try:
+            cpu_count = os.cpu_count() or 0
+        except Exception:  # pragma: no cover
+            cpu_count = 0
+
+        memory_mb = 0
+        try:
+            import psutil  # type: ignore
+            memory_mb = int(psutil.virtual_memory().total / (1024 * 1024))
+        except Exception:  # pragma: no cover
+            pass
+
+        try:
+            user = getpass.getuser()
+        except Exception:  # pragma: no cover
+            user = ""
+
+        git_info = Collector._capture_git_info()
+
+        env_vars = {}
+        for key in os.environ:
+            if any(
+                key.upper().startswith(prefix)
+                for prefix in ("CI", "GITHUB", "GITLAB", "BITBUCKET", "JENKINS", "TRAVIS", "CIRCLE", "BUILD", "AGENT", "TF_", "AZURE")
+            ) or key.upper() in {"PATH", "HOME", "USER", "USERPROFILE", "SHELL", "LANG", "TERM"}:
+                env_vars[key] = safe_str(os.environ[key])
+
         return Environment(
             python_version=sys.version.split()[0],
             behave_version=behave_version,
             platform=f"{platform.system()} {platform.release()} ({platform.machine()})",
             hostname=socket.gethostname(),
-            cwd=safe_str(sys.argv[0] if sys.argv else ""),
+            cwd=safe_str(os.getcwd()),
             command=" ".join(sys.argv),
+            user=user,
+            cpu_count=cpu_count,
+            memory_mb=memory_mb,
+            git_branch=git_info.get("branch", ""),
+            git_commit=git_info.get("commit", ""),
+            git_remote=git_info.get("remote", ""),
+            env_vars=env_vars,
         )
+
+    @staticmethod
+    def _capture_git_info() -> dict[str, str]:
+        """Capture git branch, commit and remote if available."""
+        info: dict[str, str] = {}
+        try:
+            import subprocess
+
+            result = subprocess.run(
+                ["git", "rev-parse", "--abbrev-ref", "HEAD"],
+                capture_output=True, text=True, timeout=2, check=False,
+            )
+            if result.returncode == 0:
+                info["branch"] = result.stdout.strip()
+            result = subprocess.run(
+                ["git", "rev-parse", "--short", "HEAD"],
+                capture_output=True, text=True, timeout=2, check=False,
+            )
+            if result.returncode == 0:
+                info["commit"] = result.stdout.strip()
+            result = subprocess.run(
+                ["git", "remote", "get-url", "origin"],
+                capture_output=True, text=True, timeout=2, check=False,
+            )
+            if result.returncode == 0:
+                info["remote"] = result.stdout.strip()
+        except Exception:  # pragma: no cover
+            pass
+        return info
 
     # ------------------------------------------------------------------
     # Feature

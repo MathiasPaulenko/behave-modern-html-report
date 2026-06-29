@@ -1,27 +1,67 @@
 {% set env = execution.environment %}
 <section class="view" data-view="environment" hidden>
   <header class="view-header">
-    <h1 class="view-title">Environment</h1>
-    <p class="view-sub">Host and runtime information.</p>
+    <div>
+      <h1 class="view-title">Environment</h1>
+      <p class="view-sub">Host, runtime, git and execution context.</p>
+    </div>
   </header>
-  <div class="card">
-    <dl class="kv">
-      <dt>Python</dt><dd>{{ env.python_version }}</dd>
-      <dt>Behave</dt><dd>{{ env.behave_version }}</dd>
-      <dt>Platform</dt><dd>{{ env.platform }}</dd>
-      <dt>Host</dt><dd>{{ env.hostname }}</dd>
-      <dt>Working dir</dt><dd>{{ env.cwd }}</dd>
-      <dt>Command</dt><dd><code>{{ env.command }}</code></dd>
-      {% for k, v in env.extra.items() %}
-        <dt>{{ k }}</dt><dd>{{ v }}</dd>
-      {% endfor %}
-      {% if execution.statistics.start_time %}
-        <dt>Started</dt><dd>{{ execution.statistics.start_time.strftime('%Y-%m-%d %H:%M:%S') }}</dd>
-      {% endif %}
-      {% if execution.statistics.end_time %}
-        <dt>Ended</dt><dd>{{ execution.statistics.end_time.strftime('%Y-%m-%d %H:%M:%S') }}</dd>
-      {% endif %}
-      <dt>Duration</dt><dd>{{ execution.statistics.duration|duration }}</dd>
-    </dl>
+
+  <div class="stack">
+    <div class="card">
+      <h3 class="card-title">Runtime</h3>
+      <dl class="kv">
+        <dt>Python</dt><dd>{{ env.python_version }}</dd>
+        <dt>Behave</dt><dd>{{ env.behave_version }}</dd>
+        <dt>Platform</dt><dd>{{ env.platform }}</dd>
+        <dt>Host</dt><dd>{{ env.hostname }}</dd>
+        {% if env.user %}<dt>User</dt><dd>{{ env.user }}</dd>{% endif %}
+        {% if env.cpu_count %}<dt>CPUs</dt><dd>{{ env.cpu_count }}</dd>{% endif %}
+        {% if env.memory_mb %}<dt>Memory</dt><dd>{{ env.memory_mb }} MB</dd>{% endif %}
+        <dt>Working dir</dt><dd>{{ env.cwd }}</dd>
+        <dt>Command</dt><dd><code>{{ env.command }}</code></dd>
+        <dt>Generated</dt><dd>{{ execution.generated_at.strftime('%Y-%m-%d %H:%M:%S') }}</dd>
+        {% if execution.statistics.start_time %}
+          <dt>Started</dt><dd>{{ execution.statistics.start_time.strftime('%Y-%m-%d %H:%M:%S') }}</dd>
+        {% endif %}
+        {% if execution.statistics.end_time %}
+          <dt>Ended</dt><dd>{{ execution.statistics.end_time.strftime('%Y-%m-%d %H:%M:%S') }}</dd>
+        {% endif %}
+        <dt>Duration</dt><dd>{{ execution.statistics.duration|duration }}</dd>
+      </dl>
+    </div>
+
+    {% if env.git_branch or env.git_commit or env.git_remote %}
+    <div class="card">
+      <h3 class="card-title">Git</h3>
+      <dl class="kv">
+        {% if env.git_branch %}<dt>Branch</dt><dd><code>{{ env.git_branch }}</code></dd>{% endif %}
+        {% if env.git_commit %}<dt>Commit</dt><dd><code>{{ env.git_commit }}</code></dd>{% endif %}
+        {% if env.git_remote %}<dt>Remote</dt><dd>{{ env.git_remote }}</dd>{% endif %}
+      </dl>
+    </div>
+    {% endif %}
+
+    {% if env.env_vars %}
+    <div class="card">
+      <h3 class="card-title">Environment variables</h3>
+      <dl class="kv">
+        {% for k, v in env.env_vars.items() %}
+          <dt>{{ k }}</dt><dd><code>{{ v }}</code></dd>
+        {% endfor %}
+      </dl>
+    </div>
+    {% endif %}
+
+    {% if env.extra %}
+    <div class="card">
+      <h3 class="card-title">Extra</h3>
+      <dl class="kv">
+        {% for k, v in env.extra.items() %}
+          <dt>{{ k }}</dt><dd>{{ v }}</dd>
+        {% endfor %}
+      </dl>
+    </div>
+    {% endif %}
   </div>
 </section>

@@ -169,6 +169,16 @@ def test_collector_captures_feature_background():
     assert execution.features[0].scenarios[0].background is execution.features[0].background
 
 
+def test_collector_captures_environment():
+    """The collector captures host and runtime environment details."""
+    c = Collector()
+    env = c.execution.environment
+    assert env.python_version
+    assert env.platform
+    assert env.hostname
+    assert env.cpu_count >= 0
+
+
 def test_collector_captures_scenario_outline():
     """The collector detects scenario outlines and captures their examples table."""
     c = Collector()
