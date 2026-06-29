@@ -368,7 +368,17 @@
   function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
 
   // ---- Initial render ----------------------------------------
-  showView("dashboard");
+  var defaultView = (DATA.default_view && document.querySelector('.nav-item[data-route="' + DATA.default_view + '"]')) ? DATA.default_view : "dashboard";
+  showView(defaultView);
+  if (DATA.expand_by_default) {
+    document.querySelectorAll(".feature-head, .rule-head, .scenario-head").forEach(function (head) {
+      toggleSection(head, true);
+    });
+  }
+  // Hide copy buttons if disabled.
+  if (DATA.show_copy_command === false) {
+    document.querySelectorAll(".copy-btn").forEach(function (btn) { btn.hidden = true; });
+  }
   // Charts need layout; defer to next frame.
   requestAnimationFrame(renderCharts);
   window.addEventListener("resize", debounce(renderCharts, 120));

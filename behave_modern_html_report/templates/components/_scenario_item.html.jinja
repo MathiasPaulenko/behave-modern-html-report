@@ -21,10 +21,12 @@
         {% for tag in scenario.tags %}<span class="tag">@{{ tag }}</span>{% endfor %}
       </div>
     </button>
+    {% if options.show_copy_command %}
     <button class="icon-btn copy-btn" title="Copy reproduce command" aria-label="Copy reproduce command"
             data-copy-text="{{ repro_cmd }}" type="button">
       <svg class="ico"><use href="#i-terminal"/></svg>
     </button>
+    {% endif %}
   </div>
   <div class="scenario-body" hidden>
     {% if scenario.description %}<p class="desc">{{ scenario.description }}</p>{% endif %}

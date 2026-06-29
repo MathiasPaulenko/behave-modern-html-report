@@ -50,9 +50,20 @@ class ModernHTMLFormatter(Formatter):  # type: ignore[misc,valid-type]
             title=userdata.get("bmr.title", "Behave Modern Report"),
             company=userdata.get("bmr.company", ""),
             logo_url=userdata.get("bmr.logo", ""),
+            favicon_url=userdata.get("bmr.favicon", ""),
             theme=userdata.get("bmr.theme", "auto"),
-            embed_assets=userdata.get("bmr.embed", "true").lower() != "false",
-            json_sidecar=userdata.get("bmr.json_sidecar", "false").lower() == "true",
+            primary_color=userdata.get("bmr.primary_color", ""),
+            accent_color=userdata.get("bmr.accent_color", ""),
+            default_view=userdata.get("bmr.default_view", "dashboard"),
+            hidden_views=_parse_list(userdata.get("bmr.hidden_views", "")),
+            expand_by_default=_parse_bool(userdata.get("bmr.expand_by_default", "false")),
+            max_slowest=_parse_int(userdata.get("bmr.max_slowest", "10"), 10),
+            show_copy_command=_parse_bool(userdata.get("bmr.show_copy_command", "true")),
+            show_environment_vars=_parse_bool(userdata.get("bmr.show_environment_vars", "true")),
+            footer_text=userdata.get("bmr.footer_text", ""),
+            link_to_ci=userdata.get("bmr.link_to_ci", ""),
+            embed_assets=_parse_bool(userdata.get("bmr.embed", "true")),
+            json_sidecar=_parse_bool(userdata.get("bmr.json_sidecar", "false")),
             custom_css=_read_optional(userdata.get("bmr.custom_css")),
             custom_js=_read_optional(userdata.get("bmr.custom_js")),
         )
@@ -194,6 +205,34 @@ class _FakeFinal:
         """
         self.status = getattr(source, "status", None)
         self.duration = getattr(source, "duration", 0.0)
+
+
+def _parse_bool(value: Any, default: bool = False) -> bool:
+    """Parse a userdata string into a boolean."""
+    if value is None:
+        return default
+    if isinstance(value, bool):
+        return value
+    return str(value).lower() not in ("false", "0", "no", "")
+
+
+def _parse_int(value: Any, default: int) -> int:
+    """Parse a userdata string into an integer."""
+    if value is None:
+        return default
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def _parse_list(value: Any) -> list[str]:
+    """Parse a comma-separated userdata string into a list of strings."""
+    if value is None:
+        return []
+    if isinstance(value, list):
+        return [str(item).strip() for item in value if str(item).strip()]
+    return [item.strip() for item in str(value).split(",") if item.strip()]
 
 
 def _read_optional(path: str | None) -> str:

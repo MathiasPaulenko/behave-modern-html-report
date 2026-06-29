@@ -28,7 +28,18 @@ class RenderOptions:
     title: str = "Behave Modern Report"
     company: str = ""
     logo_url: str = ""
+    favicon_url: str = ""
     theme: str = "auto"  # auto | dark | light
+    primary_color: str = ""
+    accent_color: str = ""
+    default_view: str = "dashboard"
+    hidden_views: list[str] = field(default_factory=list)
+    expand_by_default: bool = False
+    max_slowest: int = 10
+    show_copy_command: bool = True
+    show_environment_vars: bool = True
+    footer_text: str = ""
+    link_to_ci: str = ""
     embed_assets: bool = True
     json_sidecar: bool = False
     custom_css: str = ""
@@ -72,7 +83,7 @@ class Renderer:
         stats_mod.compute(execution)
 
         data = as_dict(execution)
-        slowest = [as_dict(s) for s in stats_mod.slowest_scenarios(execution, limit=10)]
+        slowest = [as_dict(s) for s in stats_mod.slowest_scenarios(execution, limit=self.options.max_slowest)]
         buckets = stats_mod.duration_buckets(execution)
         tags = stats_mod.tag_ranking(execution)
         errors = stats_mod.error_distribution(execution)
@@ -98,6 +109,10 @@ class Renderer:
                     "buckets": buckets,
                     "tags": tags,
                     "errors": errors,
+                    "default_view": self.options.default_view,
+                    "hidden_views": self.options.hidden_views,
+                    "expand_by_default": self.options.expand_by_default,
+                    "show_copy_command": self.options.show_copy_command,
                 },
                 default=str,
             ),

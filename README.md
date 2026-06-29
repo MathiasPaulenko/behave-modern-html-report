@@ -62,7 +62,18 @@ All reporter options are read from `behave`'s `userdata` section. Set them in `b
 bmr.title         = My Awesome Suite
 bmr.company       = Acme Inc.
 bmr.logo          = https://example.com/logo.svg
+bmr.favicon       = https://example.com/favicon.ico
 bmr.theme         = auto          ; auto | dark | light
+bmr.primary_color = #3b82f6
+bmr.accent_color  = #22c55e
+bmr.default_view  = dashboard     ; dashboard | features | scenarios | ...
+bmr.hidden_views    = rules,statistics
+bmr.expand_by_default = false
+bmr.max_slowest   = 10
+bmr.show_copy_command = true
+bmr.show_environment_vars = true
+bmr.footer_text   = Build #12345
+bmr.link_to_ci    = https://ci.example.com/build/12345
 bmr.json_sidecar  = true          ; writes report.json next to report.html
 bmr.custom_css    = path/to/extra.css
 bmr.custom_js     = path/to/extra.js
@@ -72,11 +83,19 @@ Available options:
 
 - `bmr.title` — report title (default `Behave Modern Report`).
 - `bmr.company` — company name shown under the title.
-- `bmr.logo` — URL or base64 data URI for a logo.
+- `bmr.logo` / `bmr.favicon` — URL or base64 data URI for a logo/favicon.
 - `bmr.theme` — `auto`, `dark` or `light`.
+- `bmr.primary_color` / `bmr.accent_color` — override the report colors.
+- `bmr.default_view` — initial view (`dashboard`, `features`, `scenarios`, ...).
+- `bmr.hidden_views` — comma-separated views to hide (e.g. `rules,statistics`).
+- `bmr.expand_by_default` — expand all sections on load.
+- `bmr.max_slowest` — number of slowest scenarios on the dashboard.
+- `bmr.show_copy_command` — show the copy reproduce command button.
+- `bmr.show_environment_vars` — show the environment variables card.
+- `bmr.footer_text` — custom footer line.
+- `bmr.link_to_ci` — "View in CI" button URL.
 - `bmr.json_sidecar` — write `report.json` next to the HTML report.
-- `bmr.custom_css` — embed a custom CSS file into the report.
-- `bmr.custom_js` — embed a custom JavaScript file into the report.
+- `bmr.custom_css` / `bmr.custom_js` — embed custom CSS/JS files.
 
 See [docs/configuration.md](docs/configuration.md) for the full reference.
 

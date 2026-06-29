@@ -9,6 +9,17 @@ in `behave.ini`, `setup.cfg`, or programmatically from `environment.py`.
 - `bmr.company` — default empty. Company name shown under the title in the sidebar.
 - `bmr.theme` — default `auto`. Choose `light`, `dark` or `auto`.
 - `bmr.logo` — default empty. URL or base64 data URI for a logo image in the sidebar.
+- `bmr.favicon` — default empty. URL or base64 data URI for a favicon.
+- `bmr.primary_color` — default empty. CSS color value that overrides the report primary color.
+- `bmr.accent_color` — default empty. CSS color value that overrides the report accent color.
+- `bmr.default_view` — default `dashboard`. View shown when the report opens (`dashboard`, `features`, `rules`, `scenarios`, `results`, `tags`, `statistics`, `environment`).
+- `bmr.hidden_views` — default empty. Comma-separated list of views to hide from the sidebar (e.g. `rules,statistics`).
+- `bmr.expand_by_default` — default `false`. Expand all features, rules and scenarios on load.
+- `bmr.max_slowest` — default `10`. Number of slowest scenarios shown on the dashboard.
+- `bmr.show_copy_command` — default `true`. Show the copy reproduce command button on each scenario.
+- `bmr.show_environment_vars` — default `true`. Show the environment variables card in the Environment view.
+- `bmr.footer_text` — default empty. Custom text appended to the footer.
+- `bmr.link_to_ci` — default empty. URL for a "View in CI" button in the header.
 - `bmr.custom_css` — default empty. Path to a custom CSS file to embed into the report.
 - `bmr.custom_js` — default empty. Path to a custom JavaScript file to embed into the report.
 - `bmr.json_sidecar` — default `false`. Also write a `.json` file next to the HTML report.
