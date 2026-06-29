@@ -219,7 +219,7 @@ pre { margin: 0; }
 .stat-foot  { color: var(--text-faint); font-size: 12px; }
 
 .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 12px; margin-bottom: 16px; }
-.chart-card canvas { width: 100% !important; height: auto !important; }
+.chart-card canvas, .chart-canvas { width: 100% !important; height: auto !important; }
 
 /* ============================================================
    Status pill & badges
