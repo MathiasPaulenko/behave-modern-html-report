@@ -340,8 +340,9 @@
       });
     }
 
-    var tg = document.getElementById("chart-tag-pass");
-    if (tg) {
+    function renderTagPassRate(canvasId) {
+      var tg = document.getElementById(canvasId);
+      if (!tg) return;
       var worstTags = (DATA.tags || [])
         .filter(function (t) { return t.count >= 1; })
         .sort(function (a, b) { return a.pass_rate - b.pass_rate; })
@@ -352,6 +353,8 @@
         colors: worstTags.map(function (t) { return t.pass_rate === 100 ? PALETTE.passed : PALETTE.failed; }),
       });
     }
+    renderTagPassRate("chart-tag-pass");
+    renderTagPassRate("chart-tags-pass-rate");
 
     var er = document.getElementById("chart-errors");
     if (er) {

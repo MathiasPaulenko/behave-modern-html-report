@@ -397,6 +397,10 @@ pre { margin: 0; }
 .progress-segment.status-undefined{ background: var(--c-undefined); }
 .progress-segment.status-pending  { background: var(--c-pending); }
 
+.progress-fill.pass-high   { background: var(--c-passed); }
+.progress-fill.pass-medium { background: var(--c-undefined); }
+.progress-fill.pass-low    { background: var(--c-failed); }
+
 .progress-legend {
   display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
   margin-top: 10px; font-size: 12px; color: var(--text-dim);

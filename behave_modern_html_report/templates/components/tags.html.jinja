@@ -10,7 +10,7 @@
         <span class="card-muted">Top tags by pass rate</span>
       </div>
       <div class="card-body">
-        <canvas id="chart-tag-pass" class="chart-canvas"></canvas>
+        <canvas id="chart-tags-pass-rate" class="chart-canvas"></canvas>
       </div>
     </div>
     <div class="card span-2">
@@ -42,7 +42,7 @@
                   <td>{{ t.skipped + t.undefined + t.pending }}</td>
                   <td>
                     <div class="progress-bar">
-                      <span class="progress-fill" style="width: {{ t.pass_rate }}%"></span>
+                      <span class="progress-fill {% if t.pass_rate < 50 %}pass-low{% elif t.pass_rate < 100 %}pass-medium{% else %}pass-high{% endif %}" style="width: {{ t.pass_rate }}%"></span>
                       <span class="progress-label">{{ t.pass_rate|round(1) }}%</span>
                     </div>
                   </td>
