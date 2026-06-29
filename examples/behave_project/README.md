@@ -32,6 +32,30 @@ This uses `behave.ini` and generates `report.html` with the modern formatter.
 
 Open `report.html` in a browser.
 
+## Report customization
+
+The example `behave.ini` configures a few reporter options through `userdata`:
+
+```ini
+[behave.userdata]
+bmr.title = Behave Project Example
+bmr.company = Open Source
+bmr.theme = auto
+bmr.default_view = dashboard
+bmr.show_copy_command = true
+bmr.show_environment_vars = true
+```
+
+You can also override them from `environment.py`:
+
+```python
+def before_all(context):
+    context.config.userdata.set("bmr.title", "My Custom Title")
+    context.config.userdata.set("bmr.link_to_ci", "https://ci.example.com/build/123")
+```
+
+See the main [Configuration](../../docs/configuration.md) docs for the full list of options.
+
 ## Advanced
 
 Run a subset of features:

@@ -1,7 +1,9 @@
 # Report views
 
 The generated report is a single-page application with a sidebar navigation menu.
-Each view shows a different slice of the execution data.
+Each view shows a different slice of the execution data. You can change the initial
+view with `bmr.default_view` and hide unwanted views with `bmr.hidden_views` (see
+[configuration.md](configuration.md)).
 
 ## Dashboard
 

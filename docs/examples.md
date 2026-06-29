@@ -39,7 +39,7 @@ It generates `report.html` in the same directory. The project exercises:
 - Passing, failing, skipped, pending, and undefined scenarios.
 - Attachments on failure.
 - Slow scenarios with duration timing.
-- Custom `bmr.title` and `bmr.company` userdata.
+- Custom `bmr.title`, `bmr.company`, `bmr.theme`, `bmr.default_view`, `bmr.show_copy_command` and `bmr.show_environment_vars` userdata.
 
 Run a subset of features:
 
