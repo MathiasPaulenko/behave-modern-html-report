@@ -5,8 +5,8 @@ A functional Behave project used to test `behave-modern-html-report`.
 ## Features
 
 - **Login**: background, scenario outline, pending/undefined steps.
-- **Checkout**: background, passing and failing scenarios.
-- **Reporting**: skipped scenario, slow scenario, attachment on failure.
+- **Checkout**: Gherkin `Rule` grouping, background, passing and failing scenarios.
+- **Reporting**: skipped/pending scenario, slow scenario, attachment on failure.
 
 ## Requirements
 
