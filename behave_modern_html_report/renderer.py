@@ -76,6 +76,9 @@ class Renderer:
         buckets = stats_mod.duration_buckets(execution)
         tags = stats_mod.tag_ranking(execution)
         errors = stats_mod.error_distribution(execution)
+        features_stats = stats_mod.feature_stats(execution)
+        percentiles = stats_mod.duration_percentiles(execution)
+        status_distribution = execution.statistics.by_status
 
         template = self.env.get_template("report.html.jinja")
         return template.render(
@@ -85,6 +88,9 @@ class Renderer:
             buckets=buckets,
             errors=errors,
             slowest=slowest,
+            features_stats=features_stats,
+            percentiles=percentiles,
+            status_distribution=status_distribution,
             data_json=json.dumps(
                 {
                     "execution": data,

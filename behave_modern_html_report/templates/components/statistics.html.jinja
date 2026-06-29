@@ -1,22 +1,140 @@
+{% set stats = execution.statistics %}
 <section class="view" data-view="statistics" hidden>
   <header class="view-header">
-    <h1 class="view-title">Statistics</h1>
-    <p class="view-sub">Distribution and performance analytics.</p>
+    <div>
+      <h1 class="view-title">Statistics</h1>
+      <p class="view-sub">Raw metrics and distribution tables.</p>
+    </div>
   </header>
 
-  <div class="grid-2">
-    <div class="card chart-card">
-      <h3 class="card-title">Status</h3>
-      <canvas id="chart-status-2" height="240"></canvas>
+  <div class="cards">
+    <div class="stat-card stat-total">
+      <div class="stat-label">Scenarios</div>
+      <div class="stat-value">{{ stats.total_scenarios }}</div>
     </div>
-    <div class="card chart-card">
-      <h3 class="card-title">Duration buckets</h3>
-      <canvas id="chart-buckets" height="240"></canvas>
+    <div class="stat-card stat-passed">
+      <div class="stat-label">Passed</div>
+      <div class="stat-value">{{ stats.passed }}</div>
+    </div>
+    <div class="stat-card stat-failed">
+      <div class="stat-label">Failed</div>
+      <div class="stat-value">{{ stats.failed }}</div>
+    </div>
+    <div class="stat-card stat-total">
+      <div class="stat-label">Pass rate</div>
+      <div class="stat-value">{{ '%.1f'|format(stats.pass_rate) }}%</div>
+    </div>
+    <div class="stat-card stat-total">
+      <div class="stat-label">Duration</div>
+      <div class="stat-value">{{ stats.duration|duration }}</div>
+    </div>
+    <div class="stat-card stat-total">
+      <div class="stat-label">Avg scenario</div>
+      <div class="stat-value">{{ stats.avg_scenario_duration|duration }}</div>
     </div>
   </div>
 
-  <div class="card chart-card">
-    <h3 class="card-title">Slowest scenarios</h3>
-    <canvas id="chart-slowest" height="320"></canvas>
+  <div class="card">
+    <h3 class="card-title">Status distribution</h3>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr><th>Status</th><th>Count</th><th>Percentage</th></tr>
+        </thead>
+        <tbody>
+          {% for s in ["passed","failed","skipped","undefined","pending"] %}
+            {% set count = status_distribution.get(s, 0) %}
+            {% if count %}
+              <tr>
+                <td>
+                  <span class="status-badge status-{{ s }}">
+                    <svg class="ico"><use href="#i-{{ s|status_icon }}"/></svg>
+                    {{ s|status_label }}
+                  </span>
+                </td>
+                <td>{{ count }}</td>
+                <td>{{ '%.1f'|format(count / stats.total_scenarios * 100) }}%</td>
+              </tr>
+            {% endif %}
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 class="card-title">Duration percentiles</h3>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Min</th><th>Avg</th><th>P50</th><th>P90</th><th>P95</th><th>Max</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{{ percentiles.min|duration }}</td>
+            <td>{{ percentiles.avg|duration }}</td>
+            <td>{{ percentiles.p50|duration }}</td>
+            <td>{{ percentiles.p90|duration }}</td>
+            <td>{{ percentiles.p95|duration }}</td>
+            <td>{{ percentiles.max|duration }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 class="card-title">Per-feature summary</h3>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Feature</th><th>Status</th><th>Scenarios</th><th>Passed</th><th>Failed</th><th>Duration</th><th>Avg</th><th>Pass rate</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for f in features_stats %}
+            <tr>
+              <td>{{ f.name }}</td>
+              <td>
+                <span class="status-badge status-{{ f.status }}">
+                  <svg class="ico"><use href="#i-{{ f.status|status_icon }}"/></svg>
+                  {{ f.status|status_label }}
+                </span>
+              </td>
+              <td>{{ f.scenarios }}</td>
+              <td>{{ f.passed }}</td>
+              <td>{{ f.failed }}</td>
+              <td>{{ f.duration|duration }}</td>
+              <td>{{ f.avg_duration|duration }}</td>
+              <td>
+                <div class="progress-bar">
+                  <span class="progress-fill {% if f.pass_rate < 50 %}pass-low{% elif f.pass_rate < 100 %}pass-medium{% else %}pass-high{% endif %}" style="width: {{ f.pass_rate }}%"></span>
+                  <span class="progress-label">{{ f.pass_rate|round(1) }}%</span>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 class="card-title">Error distribution</h3>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>Exception type</th><th>Count</th></tr></thead>
+        <tbody>
+          {% for exc, count in errors.items() %}
+            <tr><td><code>{{ exc }}</code></td><td>{{ count }}</td></tr>
+          {% else %}
+            <tr><td colspan="2" class="empty">No errors recorded.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
 </section>

@@ -69,7 +69,7 @@
   function showView(route) {
     navItems.forEach(function (b) { b.classList.toggle("is-active", b.dataset.route === route); });
     views.forEach(function (v) { v.hidden = v.dataset.view !== route; });
-    if (route === "statistics" || route === "dashboard" || route === "tags") renderCharts();
+    if (route === "dashboard" || route === "tags") renderCharts();
   }
   navItems.forEach(function (b) {
     b.addEventListener("click", function () { showView(b.dataset.route); });

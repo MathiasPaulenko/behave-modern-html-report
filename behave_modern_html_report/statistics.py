@@ -261,3 +261,70 @@ def error_distribution(execution: Execution) -> dict[str, int]:
                     exc = step.error.exception_type
                     counts[exc] = counts.get(exc, 0) + 1
     return counts
+
+
+def feature_stats(execution: Execution) -> list[dict[str, Any]]:
+    """Return per-feature summary statistics.
+
+    Args:
+        execution (Execution): Execution tree to analyse.
+
+    Returns:
+        list[dict[str, Any]]: Feature rows with counts, duration and pass rate.
+
+    """
+    rows = []
+    for feature in execution.features:
+        scenarios = feature.scenarios
+        total = len(scenarios)
+        passed = sum(1 for s in scenarios if s.status == STATUS_PASSED)
+        failed = sum(1 for s in scenarios if s.status in _FAILED_STATUSES)
+        duration = sum(s.duration for s in scenarios)
+        pass_rate = (passed / total * 100.0) if total else 0.0
+        rows.append(
+            {
+                "name": feature.name,
+                "status": feature.status,
+                "scenarios": total,
+                "passed": passed,
+                "failed": failed,
+                "duration": duration,
+                "avg_duration": duration / total if total else 0.0,
+                "pass_rate": pass_rate,
+            }
+        )
+    return sorted(rows, key=lambda r: (-r["failed"], -r["duration"]), reverse=False)
+
+
+def _percentile(values: list[float], pct: float) -> float:
+    """Return the percentile of a sorted list of floats."""
+    if not values:
+        return 0.0
+    sorted_values = sorted(values)
+    k = (len(sorted_values) - 1) * pct / 100.0
+    f = int(k)
+    c = f + 1 if f + 1 < len(sorted_values) else f
+    if f == c:
+        return sorted_values[f]
+    return sorted_values[f] * (c - k) + sorted_values[c] * (k - f)
+
+
+def duration_percentiles(execution: Execution) -> dict[str, float]:
+    """Return duration percentile stats for all scenarios.
+
+    Args:
+        execution (Execution): Execution tree to analyse.
+
+    Returns:
+        dict[str, float]: Mapping of percentile labels to durations.
+
+    """
+    durations = [s.duration for f in execution.features for s in f.scenarios]
+    return {
+        "min": min(durations) if durations else 0.0,
+        "p50": _percentile(durations, 50.0),
+        "p90": _percentile(durations, 90.0),
+        "p95": _percentile(durations, 95.0),
+        "max": max(durations) if durations else 0.0,
+        "avg": sum(durations) / len(durations) if durations else 0.0,
+    }
