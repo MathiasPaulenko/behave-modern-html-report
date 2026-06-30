@@ -1,0 +1,1257 @@
+<!doctype html>
+<html lang="en" data-theme="auto">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Step Catalog Demo</title>
+  <meta name="generator" content="behave-modern-html-report" />
+  <style>/* ============================================================
+   Behave Modern Report — stylesheet
+   Design tokens, layout, components, themes.
+   ============================================================ */
+
+:root {
+  --radius-sm: 6px;
+  --radius: 12px;
+  --radius-lg: 16px;
+  --shadow-1: 0 1px 2px rgba(0,0,0,.06), 0 1px 3px rgba(0,0,0,.08);
+  --shadow-2: 0 4px 12px rgba(0,0,0,.10), 0 2px 6px rgba(0,0,0,.06);
+  --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  --mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --transition: 160ms cubic-bezier(.2,.7,.3,1);
+
+  /* status palette (works for both themes) */
+  --c-passed: #22c55e;
+  --c-failed: #ef4444;
+  --c-skipped: #94a3b8;
+  --c-undefined: #f59e0b;
+  --c-pending: #8b5cf6;
+  --c-untested: #64748b;
+}
+
+/* ---------- Dark (default) ---------- */
+html[data-theme="dark"], html[data-theme="auto"] {
+  --bg: #0b0f17;
+  --bg-elev: #111827;
+  --bg-elev-2: #1f2937;
+  --border: #1f2937;
+  --border-strong: #334155;
+  --text: #e5e7eb;
+  --text-dim: #9ca3af;
+  --text-faint: #6b7280;
+  --primary: #60a5fa;
+  --primary-strong: #3b82f6;
+  --code-bg: #0f172a;
+}
+@media (prefers-color-scheme: light) {
+  html[data-theme="auto"] {
+    --bg: #f8fafc; --bg-elev: #ffffff; --bg-elev-2: #f1f5f9;
+    --border: #e5e7eb; --border-strong: #cbd5e1;
+    --text: #0f172a; --text-dim: #475569; --text-faint: #64748b;
+    --primary: #2563eb; --primary-strong: #1d4ed8; --code-bg: #f1f5f9;
+  }
+}
+/* ---------- Light (explicit) ---------- */
+html[data-theme="light"] {
+  --bg: #f8fafc; --bg-elev: #ffffff; --bg-elev-2: #f1f5f9;
+  --border: #e5e7eb; --border-strong: #cbd5e1;
+  --text: #0f172a; --text-dim: #475569; --text-faint: #64748b;
+  --primary: #2563eb; --primary-strong: #1d4ed8; --code-bg: #f1f5f9;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  font-family: var(--font);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text);
+  background: var(--bg);
+  display: grid;
+  grid-template-columns: 260px 1fr;
+}
+
+a { color: var(--primary); }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+code, pre, kbd { font-family: var(--mono); font-size: 12.5px; }
+pre { margin: 0; }
+
+.skip-link { position: absolute; left: -1000px; }
+.skip-link:focus { left: 8px; top: 8px; background: var(--bg-elev); padding: 8px 12px; border-radius: var(--radius-sm); }
+
+/* ============================================================
+   Sidebar
+   ============================================================ */
+.sidebar {
+  position: sticky; top: 0; height: 100vh;
+  background: var(--bg-elev);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; padding: 18px 12px;
+  gap: 16px;
+}
+.brand { display: flex; align-items: center; gap: 10px; padding: 4px 8px 14px; }
+.brand-mark { display: inline-flex; align-items: center; justify-content: center;
+  width: 36px; height: 36px; border-radius: 10px; background: var(--bg-elev-2); color: var(--primary); }
+.brand-logo { width: 36px; height: 36px; border-radius: 10px; object-fit: contain; background: var(--bg-elev-2); }
+.brand-title { font-weight: 650; letter-spacing: -.01em; }
+.brand-sub { font-size: 12px; color: var(--text-faint); }
+
+.nav { display: flex; flex-direction: column; gap: 2px; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 10px; border-radius: 10px; color: var(--text-dim);
+  transition: background var(--transition), color var(--transition);
+}
+.nav-item:hover { background: var(--bg-elev-2); color: var(--text); }
+.nav-item.is-active { background: color-mix(in oklab, var(--primary) 14%, transparent); color: var(--text); }
+.nav-item .ico { width: 18px; height: 18px; }
+
+.sidebar-footer { margin-top: auto; }
+.footer-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 0 4px; }
+.icon-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; border-radius: 8px;
+  color: var(--text-dim); border: 1px solid var(--border);
+  transition: background var(--transition), color var(--transition);
+}
+.icon-btn:hover { background: var(--bg-elev-2); color: var(--text); }
+.icon-btn .ico { width: 14px; height: 14px; }
+.version { font-size: 11px; color: var(--text-faint); }
+
+/* ============================================================
+   Main / topbar
+   ============================================================ */
+.main { padding: 22px 32px 80px; min-width: 0; }
+
+.topbar {
+  display: flex; gap: 14px; align-items: center;
+  margin-bottom: 18px; flex-wrap: wrap;
+}
+.ci-link {
+  margin-left: auto;
+  padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: 600;
+  background: var(--primary); color: var(--bg-elev);
+  text-decoration: none;
+}
+.ci-link:hover { filter: brightness(1.1); }
+.advanced-filters {
+  background: var(--bg-elev); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 14px 16px;
+  margin-bottom: 18px; box-shadow: var(--shadow-1);
+}
+.filter-row {
+  display: flex; gap: 14px; align-items: flex-end; flex-wrap: wrap;
+}
+.filter-field {
+  display: flex; flex-direction: column; gap: 4px;
+  flex: 1 1 180px;
+}
+.filter-field span { font-size: 12px; color: var(--text-dim); }
+.filter-field input {
+  background: var(--bg-elev-2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 6px 10px; color: var(--text); font-size: 13px;
+}
+.filter-field input:focus { outline: none; border-color: var(--primary); }
+.filter-checkbox {
+  flex-direction: row; align-items: center; gap: 8px;
+  flex: 0 0 auto;
+}
+.filter-checkbox input { width: 16px; height: 16px; accent-color: var(--primary); }
+.search-wrap {
+  position: relative; flex: 1 1 320px;
+  display: flex; align-items: center;
+  background: var(--bg-elev); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 0 10px; height: 40px;
+  box-shadow: var(--shadow-1);
+}
+.search-wrap:focus-within { border-color: var(--primary); }
+.search-ico { width: 16px; height: 16px; color: var(--text-faint); }
+#global-search { flex: 1; background: none; border: 0; outline: none; padding: 0 10px;
+  color: var(--text); font-size: 14px; }
+.kbd { font-size: 11px; color: var(--text-faint); border: 1px solid var(--border-strong);
+  padding: 1px 6px; border-radius: 6px; background: var(--bg-elev-2); }
+
+.filters { display: flex; gap: 8px; flex-wrap: wrap; }
+.chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 10px; border-radius: 999px;
+  background: var(--bg-elev); border: 1px solid var(--border);
+  color: var(--text-dim); font-size: 12.5px;
+  transition: all var(--transition);
+}
+.chip .ico { width: 14px; height: 14px; }
+.chip em { font-style: normal; color: var(--text-faint); font-variant-numeric: tabular-nums; }
+.chip[aria-pressed="true"] { color: var(--text); border-color: var(--border-strong); }
+.chip[aria-pressed="false"] { opacity: .45; }
+.chip-passed   { --chip: var(--c-passed);    }
+.chip-failed   { --chip: var(--c-failed);    }
+.chip-skipped  { --chip: var(--c-skipped);   }
+.chip-undefined{ --chip: var(--c-undefined); }
+.chip-pending  { --chip: var(--c-pending);   }
+.chip[aria-pressed="true"] { box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--chip) 55%, transparent); }
+.chip .ico { color: var(--chip); }
+
+/* ============================================================
+   Views & cards
+   ============================================================ */
+.view { animation: fade .25s ease both; }
+@keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+.view-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 16px; gap: 16px; flex-wrap: wrap;
+}
+.view-title { margin: 0; font-size: 22px; letter-spacing: -.01em; }
+.view-sub { margin: 4px 0 0; color: var(--text-dim); }
+.view-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.action-btn {
+  padding: 6px 12px; border-radius: 8px; font-size: 13px;
+  border: 1px solid var(--border); color: var(--text-dim);
+  background: var(--bg-elev); transition: all var(--transition);
+}
+.action-btn:hover { background: var(--bg-elev-2); color: var(--text); border-color: var(--border-strong); }
+
+.card {
+  background: var(--bg-elev); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 16px;
+  box-shadow: var(--shadow-1);
+}
+.card-title { margin: 0 0 12px; font-size: 14px; color: var(--text-dim); font-weight: 600; letter-spacing: .02em; text-transform: uppercase; }
+
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 16px; }
+.stat-card { padding: 14px 16px; position: relative; overflow: hidden; }
+.stat-card::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--accent, var(--text-faint)); }
+.stat-passed   { --accent: var(--c-passed);    }
+.stat-failed   { --accent: var(--c-failed);    }
+.stat-skipped  { --accent: var(--c-skipped);   }
+.stat-undefined{ --accent: var(--c-undefined); }
+.stat-pending  { --accent: var(--c-pending);   }
+.stat-total    { --accent: var(--primary);     }
+.stat-label { color: var(--text-dim); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+.stat-value { font-size: 30px; font-weight: 700; letter-spacing: -.02em; margin-top: 2px; }
+.stat-foot  { color: var(--text-faint); font-size: 12px; }
+
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 12px; margin-bottom: 16px; }
+.chart-card canvas, .chart-canvas { width: 100% !important; height: auto !important; }
+
+/* ============================================================
+   Status pill & badges
+   ============================================================ */
+.status-pill {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 8px 14px; border-radius: 999px; font-weight: 600;
+  background: var(--bg-elev); border: 1px solid var(--border);
+}
+.status-pill .ico { width: 16px; height: 16px; }
+.status-pill.status-passed   { color: var(--c-passed);    border-color: color-mix(in oklab, var(--c-passed) 50%, var(--border)); }
+.status-pill.status-failed   { color: var(--c-failed);    border-color: color-mix(in oklab, var(--c-failed) 50%, var(--border)); }
+.status-pill.status-skipped  { color: var(--c-skipped);   }
+.status-pill.status-undefined{ color: var(--c-undefined); }
+.status-pill.status-pending  { color: var(--c-pending);   }
+
+.status-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600;
+  background: color-mix(in oklab, var(--c, var(--text-faint)) 18%, transparent);
+  color: var(--c, var(--text-faint));
+}
+.status-badge .ico { width: 12px; height: 12px; }
+.status-badge.status-passed   { --c: var(--c-passed); }
+.status-badge.status-failed   { --c: var(--c-failed); }
+.status-badge.status-skipped  { --c: var(--c-skipped); }
+.status-badge.status-undefined{ --c: var(--c-undefined); }
+.status-badge.status-pending  { --c: var(--c-pending); }
+.status-badge.status-untested { --c: var(--text-faint); }
+
+.status-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--text-faint); flex-shrink: 0; }
+.status-dot.status-passed   { background: var(--c-passed); }
+.status-dot.status-failed   { background: var(--c-failed); }
+.status-dot.status-skipped  { background: var(--c-skipped); }
+.status-dot.status-undefined{ background: var(--c-undefined); }
+.status-dot.status-pending  { background: var(--c-pending); }
+
+/* ============================================================
+   Features / Scenarios / Steps
+   ============================================================ */
+.stack { display: flex; flex-direction: column; gap: 10px; }
+
+.feature, .scenario { transition: border-color var(--transition); }
+.feature.is-hidden, .scenario.is-hidden, .scenario-row.is-hidden { display: none; }
+
+.scenarios-table {
+  width: 100%; border-collapse: collapse;
+  background: var(--bg-elev); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); overflow: hidden;
+}
+.scenarios-table th, .scenarios-table td {
+  padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border);
+}
+.scenarios-table th {
+  background: var(--bg-elev-2); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--text-dim);
+}
+.scenarios-table td { font-size: 13px; }
+.scenarios-table tr:last-child td { border-bottom: 0; }
+.scenarios-table tbody tr:hover { background: var(--bg-elev-2); }
+.scenarios-table .tags { margin-top: 0; }
+
+.feature-head, .scenario-head {
+  width: 100%; display: flex; align-items: center; gap: 12px;
+  text-align: left; padding: 14px 16px;
+}
+.feature-head { padding: 16px; }
+.feature-head .chev, .scenario-head .chev {
+  width: 14px; height: 14px; color: var(--text-faint);
+  transition: transform var(--transition);
+}
+[aria-expanded="true"] .chev { transform: rotate(90deg); }
+
+.scenario-row-header {
+  display: flex; align-items: center; gap: 8px;
+}
+.scenario-row-header .scenario-head { flex: 1; padding: 14px 12px; }
+.scenario-row-header .copy-btn {
+  width: 32px; height: 32px; border-radius: 8px;
+  margin-right: 8px; opacity: 0;
+  transition: opacity var(--transition), background var(--transition);
+}
+.scenario-row-header:hover .copy-btn { opacity: 1; }
+.scenario-row-header .copy-btn .ico { width: 14px; height: 14px; }
+.scenario-row-header .copy-btn:hover { background: var(--bg-elev); color: var(--text); }
+
+.feature-meta, .scenario-meta { flex: 1; min-width: 0; }
+.feature-title { margin: 0; font-size: 16px; font-weight: 650; letter-spacing: -.005em; }
+.feature-sub { color: var(--text-dim); font-size: 12.5px; margin-top: 2px; display: flex; gap: 6px; flex-wrap: wrap; }
+.scenario-title { font-weight: 550; }
+.muted { color: var(--text-faint); }
+.small { font-size: 12px; }
+.desc { color: var(--text-dim); margin: 8px 0 4px; white-space: pre-wrap; }
+
+.tags { display: flex; gap: 4px; flex-wrap: wrap; }
+.tag {
+  font-size: 11px; padding: 2px 8px; border-radius: 999px;
+  color: var(--text-dim); background: var(--bg-elev-2);
+  border: 1px solid var(--border);
+}
+
+.feature-body, .scenario-body { padding: 4px 16px 16px; border-top: 1px solid var(--border); }
+.scenarios { list-style: none; padding: 0; margin: 8px 0 0; display: flex; flex-direction: column; gap: 8px; }
+
+.rule { margin: 10px 0; }
+.rule-head {
+  width: 100%; display: flex; align-items: center; gap: 10px;
+  text-align: left; padding: 10px 12px;
+  background: var(--bg-elev-2); border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.rule-head .chev { width: 14px; height: 14px; color: var(--text-faint); transition: transform var(--transition); }
+.rule-head[aria-expanded="true"] .chev { transform: rotate(90deg); }
+.rule-label { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--text-faint); border: 1px solid var(--border); padding: 2px 6px; border-radius: 6px; }
+.rule-title { font-weight: 600; flex: 1; }
+.rule-count { font-size: 12px; color: var(--text-faint); }
+.rule-body { padding: 8px 8px 0; }
+.rule.is-hidden { display: none; }
+
+.rule.card { background: var(--bg-elev); border: 1px solid var(--border); border-radius: var(--radius-lg); margin: 0; }
+.rule.card .rule-head { background: transparent; border-radius: var(--radius-lg); padding: 14px 16px; }
+.rule.card .rule-meta { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.rule.card .rule-sub { font-size: 12px; color: var(--text-faint); }
+.rule.card .rule-body { padding: 4px 16px 16px; border-top: 1px solid var(--border); }
+.rule.card .rule-body .scenarios { margin-top: 0; }
+
+.scenario {
+  background: var(--bg-elev-2); border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.steps { list-style: none; padding: 0; margin: 8px 0 0; display: flex; flex-direction: column; gap: 6px; }
+.step { padding: 8px 10px; border-radius: 10px; background: var(--bg-elev); border: 1px solid var(--border); }
+.step-head { display: flex; align-items: center; gap: 10px; }
+.kw { color: var(--primary); font-weight: 600; min-width: 48px; }
+.step-text { flex: 1; word-break: break-word; }
+.step-duration-bar {
+  height: 4px; border-radius: 2px; background: var(--primary);
+  opacity: 0.35; min-width: 1px; max-width: 120px;
+  transition: width var(--transition);
+}
+.step-duration { white-space: nowrap; }
+.step.status-failed { border-color: color-mix(in oklab, var(--c-failed) 60%, var(--border)); }
+.step.status-passed { border-color: color-mix(in oklab, var(--c-passed) 25%, var(--border)); }
+
+.docstring, .traceback {
+  margin-top: 8px; background: var(--code-bg); padding: 10px 12px;
+  border-radius: var(--radius-sm); border: 1px solid var(--border);
+  white-space: pre-wrap; word-break: break-word; max-height: 360px; overflow: auto;
+}
+
+.table-wrap { margin-top: 8px; overflow: auto; }
+.data-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.data-table th, .data-table td { border: 1px solid var(--border); padding: 6px 10px; text-align: left; }
+.data-table th { background: var(--bg-elev-2); }
+
+.num-pass { color: var(--c-passed); font-weight: 600; }
+.num-fail { color: var(--c-failed); font-weight: 600; }
+
+.grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+.span-2 { grid-column: span 2; }
+
+.tag-pill { font-size: 12px; padding: 2px 8px; border-radius: 999px; background: var(--bg-elev-2); border: 1px solid var(--border); }
+
+.progress-bar {
+  position: relative; height: 22px; border-radius: 999px; background: var(--bg-elev-2);
+  border: 1px solid var(--border); overflow: hidden; min-width: 80px;
+}
+.progress-bar.stacked { display: flex; }
+.progress-segment { height: 100%; transition: width var(--transition); }
+.progress-segment:first-child { border-radius: 999px 0 0 999px; }
+.progress-segment:last-child { border-radius: 0 999px 999px 0; }
+.progress-segment.status-passed   { background: var(--c-passed); }
+.progress-segment.status-failed   { background: var(--c-failed); }
+.progress-segment.status-skipped  { background: var(--c-skipped); }
+.progress-segment.status-undefined{ background: var(--c-undefined); }
+.progress-segment.status-pending  { background: var(--c-pending); }
+
+.progress-fill {
+  position: absolute; left: 0; top: 0; bottom: 0; border-radius: 999px;
+  transition: width var(--transition);
+}
+.progress-fill.pass-high   { background: var(--c-passed); }
+.progress-fill.pass-medium { background: var(--c-undefined); }
+.progress-fill.pass-low    { background: var(--c-failed); }
+.progress-label {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 600; color: var(--text); z-index: 1;
+}
+
+.progress-legend {
+  display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
+  margin-top: 10px; font-size: 12px; color: var(--text-dim);
+}
+.progress-legend-item { display: inline-flex; align-items: center; gap: 6px; }
+.progress-legend-item .status-dot { width: 8px; height: 8px; }
+.progress-pass-rate { margin-left: auto; font-weight: 600; color: var(--text); }
+
+.progress-card { padding: 16px; margin-bottom: 16px; }
+
+.dashboard-actions {
+  display: flex; justify-content: flex-end; margin-bottom: 16px;
+}
+.dashboard-actions .copy-btn {
+  display: inline-flex; align-items: center; gap: 6px; font-size: 13px;
+  padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border); color: var(--text-dim);
+}
+.dashboard-actions .copy-btn:hover { background: var(--bg-elev-2); color: var(--text); }
+.summary-text {
+  position: absolute; left: -1000px; width: 1px; height: 1px; opacity: 0; pointer-events: none;
+}
+
+.section-subtitle { color: var(--text-dim); margin: 2px 0 14px; font-size: 13.5px; }
+
+.empty { text-align: center; color: var(--text-dim); padding: 24px; }
+
+.background-block {
+  margin: 12px 0; border: 1px dashed var(--border); border-radius: var(--radius);
+  background: var(--bg-elev-2); overflow: hidden;
+}
+.background-head {
+  display: flex; align-items: center; gap: 8px; padding: 8px 12px;
+  font-size: 12px; color: var(--text-dim); text-transform: uppercase; letter-spacing: .03em;
+}
+.background-head .ico { width: 14px; height: 14px; color: var(--text-faint); }
+.background-label { font-weight: 600; }
+.background-steps { padding: 0 12px 12px; }
+.background-steps .step { background: var(--bg-elev); }
+
+.outline-banner {
+  display: inline-flex; align-items: center; gap: 8px;
+  margin: 12px 0; padding: 6px 12px; border-radius: var(--radius-sm);
+  background: var(--bg-elev-2); border: 1px solid var(--border);
+  font-size: 12px; color: var(--text-dim);
+}
+.outline-label { font-weight: 600; color: var(--primary); text-transform: uppercase; letter-spacing: .03em; }
+.outline-name { font-style: italic; }
+
+.examples-block { margin: 12px 0; }
+.examples-head { font-size: 12px; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: .03em; margin-bottom: 8px; }
+.examples-table { font-size: 12px; }
+
+/* Compact/detailed scenario view toggle */
+.detailed-only { display: none; }
+.detailed .detailed-only { display: block; }
+
+.action-btn.is-active { background: var(--bg-elev-2); color: var(--text); border-color: var(--primary); }
+.mode-group { display: inline-flex; align-items: center; }
+.mode-group .action-btn {
+  border-radius: 0; margin: 0 0 0 -1px; border-right-width: 1px;
+  position: relative;
+}
+.mode-group .action-btn:first-child { margin-left: 0; border-radius: 8px 0 0 8px; }
+.mode-group .action-btn:last-child { border-radius: 0 8px 8px 0; }
+.mode-group .action-btn.is-active { background: var(--bg-elev-2); color: var(--text); border-color: var(--primary); z-index: 1; }
+
+.logs summary { cursor: pointer; color: var(--text-dim); padding: 6px 0; }
+.logs pre { background: var(--code-bg); padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--border); max-height: 240px; overflow: auto; }
+
+/* ============================================================
+   Errors
+   ============================================================ */
+.error-block {
+  margin-top: 10px; border: 1px solid color-mix(in oklab, var(--c-failed) 35%, var(--border));
+  background: color-mix(in oklab, var(--c-failed) 8%, transparent);
+  border-radius: var(--radius); overflow: hidden;
+}
+.error-head { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px;
+  background: color-mix(in oklab, var(--c-failed) 12%, transparent); color: var(--c-failed); }
+.copy-btn { display: inline-flex; align-items: center; gap: 6px; font-size: 12px;
+  padding: 4px 8px; border-radius: 8px; border: 1px solid var(--border); color: var(--text-dim); }
+.copy-btn:hover { background: var(--bg-elev); color: var(--text); }
+.copy-btn .ico { width: 12px; height: 12px; }
+
+/* ============================================================
+   Attachments
+   ============================================================ */
+.attachments { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
+.thumb {
+  width: 96px; height: 96px; padding: 0; overflow: hidden;
+  border-radius: var(--radius-sm); border: 1px solid var(--border);
+  background: var(--bg-elev-2);
+}
+.thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.attach-link {
+  display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px;
+  border-radius: var(--radius-sm); background: var(--bg-elev-2); border: 1px solid var(--border);
+  color: var(--text-dim); text-decoration: none; font-size: 12.5px;
+}
+.attach-link:hover { color: var(--text); }
+.attach-link .ico { width: 14px; height: 14px; }
+.attach-text summary { cursor: pointer; padding: 4px 0; color: var(--text-dim); }
+.attach-text pre { background: var(--code-bg); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px; max-height: 320px; overflow: auto; }
+
+/* ============================================================
+   Key/value (environment)
+   ============================================================ */
+.kv { display: grid; grid-template-columns: 180px 1fr; gap: 6px 16px; margin: 0; }
+.kv dt { color: var(--text-dim); }
+.kv dd { margin: 0; word-break: break-all; }
+
+/* ============================================================
+   Lightbox
+   ============================================================ */
+.lightbox {
+  position: fixed; inset: 0; background: rgba(0,0,0,.78);
+  display: flex; align-items: center; justify-content: center; z-index: 80;
+}
+.lightbox[hidden] { display: none; }
+.lightbox-content img { max-width: 92vw; max-height: 88vh; border-radius: var(--radius); box-shadow: var(--shadow-2); }
+.lightbox-close { position: absolute; top: 14px; right: 18px; font-size: 28px; color: white; }
+
+/* ============================================================
+   Footer
+   ============================================================ */
+.footer { color: var(--text-faint); font-size: 12px; margin-top: 28px; text-align: center; }
+
+/* ============================================================
+   Focus / accessibility
+   ============================================================ */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px; border-radius: 6px;
+}
+
+/* ============================================================
+   Responsive
+   ============================================================ */
+@media (max-width: 920px) {
+  body { grid-template-columns: 1fr; }
+  .sidebar { position: relative; height: auto; flex-direction: row; align-items: center; gap: 12px; padding: 10px; }
+  .sidebar .brand { padding: 0 6px; }
+  .nav { flex-direction: row; flex-wrap: wrap; }
+  .nav-item span { display: none; }
+  .sidebar-footer { flex-direction: row; margin-left: auto; }
+  .version { display: none; }
+  .main { padding: 16px; }
+  .kv { grid-template-columns: 1fr; }
+  .grid-3 { grid-template-columns: 1fr; }
+  .span-2 { grid-column: span 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
+/* Applied transiently by JS when switching themes so charts measure a stable layout. */
+.bmr-no-transition, .bmr-no-transition *, .bmr-no-transition *::before, .bmr-no-transition *::after {
+  transition: none !important;
+  animation: none !important;
+}
+</style>
+  <style>
+    .catalog-header { margin-bottom: 24px; }
+    .catalog-header h1 { font-size: 24px; margin: 0 0 4px; }
+    .catalog-header p { color: var(--text-faint); font-size: 14px; margin: 0; }
+
+    .stats-row { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
+    .stat-card {
+      background: var(--bg-elev); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px 20px; min-width: 140px;
+      box-shadow: var(--shadow-1);
+    }
+    .stat-card .stat-num { font-size: 28px; font-weight: 700; color: var(--primary); }
+    .stat-card .stat-lbl { font-size: 12px; color: var(--text-faint); margin-top: 2px; }
+
+    .keyword-bar { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+    .keyword-chip {
+      padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 600;
+      border: 1px solid var(--border); background: var(--bg-elev); cursor: pointer;
+      transition: all .15s;
+    }
+    .keyword-chip:hover { border-color: var(--primary); }
+    .keyword-chip.is-active { background: var(--primary); color: var(--bg-elev); border-color: var(--primary); }
+    .keyword-chip .count { opacity: .7; margin-left: 4px; }
+
+    .search-box { margin-bottom: 20px; }
+    .search-box input {
+      width: 100%; padding: 10px 14px; font-size: 14px;
+      border: 1px solid var(--border); border-radius: var(--radius);
+      background: var(--bg-elev); color: var(--text);
+    }
+    .search-box input:focus { outline: 2px solid var(--primary); }
+
+    .step-table {
+      width: 100%; border-collapse: collapse; font-size: 13px;
+      background: var(--bg-elev); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden;
+    }
+    .step-table th {
+      text-align: left; padding: 10px 14px; font-weight: 600;
+      border-bottom: 1px solid var(--border); color: var(--text-faint);
+      font-size: 12px; text-transform: uppercase; letter-spacing: .04em;
+      cursor: pointer; user-select: none;
+    }
+    .step-table th:hover { color: var(--text); }
+    .step-table th .sort-ico { opacity: .4; margin-left: 4px; }
+    .step-table th.sorted .sort-ico { opacity: 1; color: var(--primary); }
+    .step-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); }
+    .step-table tr:last-child td { border-bottom: none; }
+    .step-table tr:hover { background: var(--bg-hover); }
+
+    .kw-badge {
+      display: inline-block; padding: 2px 8px; border-radius: 4px;
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+    }
+    .kw-given { background: #3b82f620; color: #60a5fa; }
+    .kw-when { background: #f59e0b20; color: #fbbf24; }
+    .kw-then { background: #22c55e20; color: #4ade80; }
+    .kw-step { background: #8b5cf620; color: #a78bfa; }
+
+    .pattern-cell { font-family: monospace; font-size: 13px; }
+    .pattern-cell .param { color: var(--primary); font-weight: 600; }
+
+    .file-cell { font-size: 12px; color: var(--text-faint); }
+    .file-cell code { font-size: 12px; }
+
+    .params-cell .param-tag {
+      display: inline-block; padding: 1px 6px; border-radius: 3px;
+      background: var(--bg-hover); font-size: 11px; font-family: monospace;
+      margin-right: 2px;
+    }
+
+    .step-detail {
+      background: var(--bg-elev); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px; margin-top: 20px;
+      display: none;
+    }
+    .step-detail.is-open { display: block; }
+    .step-detail-head { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+    .step-detail-head h3 { margin: 0; font-family: monospace; font-size: 15px; }
+    .step-detail-meta { color: var(--text-faint); font-size: 12px; margin-bottom: 16px; }
+    .step-detail pre {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 8px; padding: 14px; overflow-x: auto;
+      font-size: 13px; line-height: 1.5;
+    }
+    .step-detail pre code { font-family: monospace; }
+    .step-detail .docstring {
+      color: var(--text-faint); font-style: italic; margin-bottom: 12px;
+      padding: 8px 12px; border-left: 3px solid var(--primary);
+      background: var(--bg); border-radius: 0 8px 8px 0;
+    }
+
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--text-faint); }
+    .empty-state svg { width: 48px; height: 48px; opacity: .3; margin-bottom: 12px; }
+  </style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="i-grid" viewBox="0 0 24 24"><path fill="currentColor" d="M3 3h8v8H3V3Zm10 0h8v8h-8V3ZM3 13h8v8H3v-8Zm10 0h8v8h-8v-8Z"/></symbol>
+    <symbol id="i-folder" viewBox="0 0 24 24"><path fill="currentColor" d="M3 6a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6Z"/></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24"><path fill="currentColor" d="M4 6h16v2H4V6Zm0 5h16v2H4v-2Zm0 5h16v2H4v-2Z"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path fill="currentColor" d="M4 20V10h3v10H4Zm6 0V4h3v16h-3Zm6 0v-7h3v7h-3Z"/></symbol>
+    <symbol id="i-cpu" viewBox="0 0 24 24"><path fill="currentColor" d="M9 2v2H7a3 3 0 0 0-3 3v2H2v2h2v2H2v2h2v2a3 3 0 0 0 3 3h2v2h2v-2h2v2h2v-2h2a3 3 0 0 0 3-3v-2h2v-2h-2v-2h2V9h-2V7a3 3 0 0 0-3-3h-2V2h-2v2h-2V2H9Zm-2 5h10v10H7V7Zm2 2v6h6V9H9Z"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><path fill="currentColor" d="M12 4V1h0v3Zm0 19v-3h0v3ZM4 12H1v0h3Zm19 0h-3v0h3ZM5.6 5.6 3.5 3.5l1.4-1.4L7 4.2 5.6 5.6Zm12.8 12.8-2.1-2.1 1.4-1.4 2.1 2.1-1.4 1.4ZM5.6 18.4 4.2 17l2.1-2.1 1.4 1.4-2.1 2.1Zm12.8-12.8L17 7l-2.1-2.1 1.4-1.4 2.1 2.1ZM12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10Z"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><path fill="currentColor" d="M10 2a8 8 0 1 1-5 14.3l-3.4 3.4-1.4-1.4 3.4-3.4A8 8 0 0 1 10 2Zm0 2a6 6 0 1 0 0 12 6 6 0 0 0 0-12Z"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path fill="currentColor" d="m9 16.2-3.5-3.5L4 14.2 9 19l11-11-1.5-1.4L9 16.2Z"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path fill="currentColor" d="m12 10.6 5.3-5.3 1.4 1.4-5.3 5.3 5.3 5.3-1.4 1.4-5.3-5.3-5.3 5.3-1.4-1.4 5.3-5.3-5.3-5.3 1.4-1.4 5.3 5.3Z"/></symbol>
+    <symbol id="i-skip" viewBox="0 0 24 24"><path fill="currentColor" d="M6 5h2v14H6V5Zm4 7 8-7v14l-8-7Z"/></symbol>
+    <symbol id="i-help" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm.5 14h-1v-2h1v2Zm1.7-5.4c-.6.6-1.2 1-1.2 1.9h-2c0-1.6.8-2.2 1.4-2.7.6-.5 1-.8 1-1.6a1.5 1.5 0 1 0-3 0H7.4a3.5 3.5 0 1 1 6.8 1.4Z"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm1 11h-5v-2h3V6h2v7Z"/></symbol>
+    <symbol id="i-dot" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" fill="currentColor"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2 1 21h22L12 2Zm0 4 7.5 13h-15L12 6Zm-1 5h2v5h-2v-5Zm0 6h2v2h-2v-2Z"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path fill="currentColor" d="m8 6 6 6-6 6 1.4 1.4L16.8 12 9.4 4.6 8 6Z"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><path fill="currentColor" d="M16 1H4a2 2 0 0 0-2 2v14h2V3h12V1Zm3 4H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Zm0 16H8V7h11v14Z"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path fill="currentColor" d="M12 3v10.6l3.3-3.3 1.4 1.4L12 16.4l-4.7-4.7 1.4-1.4L12 13.6V3h0Zm-8 17h16v2H4v-2Z"/></symbol>
+    <symbol id="i-tag" viewBox="0 0 24 24"><path fill="currentColor" d="M10 2h8a2 2 0 0 1 2 2v8l-10 10L2 14l8-12Zm5 6a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"/></symbol>
+    <symbol id="i-terminal" viewBox="0 0 24 24"><path fill="currentColor" d="M4 5h16v2H4V5Zm0 6h12v2H4v-2Zm0 6h9v2H4v-2Zm12 0h5v2h-5v-2Z"/></symbol>
+    <symbol id="i-filter" viewBox="0 0 24 24"><path fill="currentColor" d="M4 5h16v2.2l-6 6.4V19h-4v-5.4L4 7.2V5Z"/></symbol>
+    <symbol id="i-table" viewBox="0 0 24 24"><path fill="currentColor" d="M4 5h16v14H4V5Zm2 2v4h5V7H6Zm7 0v4h5V7h-5ZM6 13v4h5v-4H6Zm7 0v4h5v-4h-5Z"/></symbol>
+    <symbol id="i-rules" viewBox="0 0 24 24"><path fill="currentColor" d="M4 4h16v2H4V4Zm0 6h10v2H4v-2Zm0 6h16v2H4v-2Zm12-6h4v2h-4v-2Z"/></symbol>
+    <symbol id="i-bg" viewBox="0 0 24 24"><path fill="currentColor" d="M3 5h18v2H3V5Zm0 6h12v2H3v-2Zm0 6h18v2H3v-2Z"/></symbol>
+    <symbol id="i-results" viewBox="0 0 24 24"><path fill="currentColor" d="M4 4h16v2H4V4Zm0 5h10v2H4V9Zm0 5h16v2H4v-2Zm0 5h10v2H4v-2Z"/></symbol>
+  </defs>
+</svg>
+  <div class="layout">
+    <aside class="sidebar" aria-label="Primary">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M12 2 3 7v10l9 5 9-5V7l-9-5Zm0 2.2 6.5 3.6L12 11.4 5.5 7.8 12 4.2ZM5 9.6l6 3.4v7.2L5 16.8V9.6Zm14 0v7.2l-6 3.4V13l6-3.4Z"/></svg>
+        </span>
+        <div class="brand-text">
+          <div class="brand-title">Step Catalog Demo</div>
+        </div>
+      </div>
+      <nav class="nav" aria-label="Sections">
+        <button class="nav-item is-active" data-route="catalog">
+          <svg class="ico"><use href="#i-list"/></svg><span>Step Catalog</span>
+        </button>
+        <button class="nav-item" data-route="metrics">
+          <svg class="ico"><use href="#i-chart"/></svg><span>Metrics</span>
+        </button>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="footer-row">
+          <span class="version">Behave Modern Report</span>
+          <button id="theme-toggle" class="icon-btn" aria-label="Toggle theme" title="Toggle theme">
+            <svg class="ico"><use href="#i-sun"/></svg>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <section class="view" data-view="catalog">
+        <div class="catalog-header">
+          <h1>Step Catalog</h1>
+          <p>25 step definitions across 3 files · 11 Given, 5 When, 9 Then</p>
+        </div>
+
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-num">25</div>
+            <div class="stat-lbl">Total steps</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num">3</div>
+            <div class="stat-lbl">Files</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num">10</div>
+            <div class="stat-lbl">Parameterised</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num">0</div>
+            <div class="stat-lbl">With docstring</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num">0</div>
+            <div class="stat-lbl">Regex patterns</div>
+          </div>
+        </div>
+
+        <div class="keyword-bar" id="keyword-filters">
+          <button class="keyword-chip is-active" data-keyword="all">All <span class="count">(25)</span></button>
+          <button class="keyword-chip" data-keyword="given">Given <span class="count">(11)</span></button>
+          <button class="keyword-chip" data-keyword="when">When <span class="count">(5)</span></button>
+          <button class="keyword-chip" data-keyword="then">Then <span class="count">(9)</span></button>
+        </div>
+
+        <div class="search-box">
+          <input type="text" id="step-search" placeholder="Search by pattern, function name or file…" aria-label="Search steps" />
+        </div>
+
+        <table class="step-table" id="step-table">
+          <thead>
+            <tr>
+              <th data-sort="keyword">Keyword <span class="sort-ico">↕</span></th>
+              <th data-sort="pattern">Pattern <span class="sort-ico">↕</span></th>
+              <th data-sort="func_name">Function <span class="sort-ico">↕</span></th>
+              <th data-sort="file_path">File <span class="sort-ico">↕</span></th>
+              <th data-sort="params">Params <span class="sort-ico">↕</span></th>
+            </tr>
+          </thead>
+          <tbody id="step-tbody">
+            <tr class="step-row" data-keyword="given" data-pattern="the cart contains {count:d} items" data-func="step_cart_items" data-file="checkout_steps.py"
+                data-source="def step_cart_items(context, count=1):
+    context.cart = {&#34;items&#34;: count, &#34;total&#34;: count * 50}" data-docstring="" data-line="10" data-end-line="11" data-is-regex="False">
+              <td><span class="kw-badge kw-given">given</span></td>
+              <td class="pattern-cell">the cart contains {count:d} items</td>
+              <td><code>step_cart_items</code></td>
+              <td class="file-cell"><code>checkout_steps.py:10</code></td>
+              <td class="params-cell">
+<span class="param-tag">count:d</span>              </td>
+            </tr>
+            <tr class="step-row" data-keyword="given" data-pattern="the cart contains 1 item" data-func="step_cart_items" data-file="checkout_steps.py"
+                data-source="def step_cart_items(context, count=1):
+    context.cart = {&#34;items&#34;: count, &#34;total&#34;: count * 50}" data-docstring="" data-line="10" data-end-line="11" data-is-regex="False">
+              <td><span class="kw-badge kw-given">given</span></td>
+              <td class="pattern-cell">the cart contains 1 item</td>
+              <td><code>step_cart_items</code></td>
+              <td class="file-cell"><code>checkout_steps.py:10</code></td>
+              <td class="params-cell">
+<span class="param-tag">count</span>              </td>
+            </tr>
+            <tr class="step-row" data-keyword="given" data-pattern="the total is {total:d}" data-func="step_total" data-file="checkout_steps.py"
+                data-source="def step_total(context, total):
+    context.cart[&#34;total&#34;] = total" data-docstring="" data-line="15" data-end-line="16" data-is-regex="False">
+              <td><span class="kw-badge kw-given">given</span></td>
+              <td class="pattern-cell">the total is {total:d}</td>
+              <td><code>step_total</code></td>
+              <td class="file-cell"><code>checkout_steps.py:15</code></td>
+              <td class="params-cell">
+<span class="param-tag">total:d</span>              </td>
+            </tr>
+            <tr class="step-row" data-keyword="when" data-pattern="the user pays with "{method}"" data-func="step_pay" data-file="checkout_steps.py"
+                data-source="def step_pay(context, method):
+    time.sleep(0.05)
+    context.payment_accepted = method == &#34;credit card&#34;
+    context.payment_method = method" data-docstring="" data-line="20" data-end-line="23" data-is-regex="False">
+              <td><span class="kw-badge kw-when">when</span></td>
+              <td class="pattern-cell">the user pays with "{method}"</td>
+              <td><code>step_pay</code></td>
+              <td class="file-cell"><code>checkout_steps.py:20</code></td>
+              <td class="params-cell">
+<span class="param-tag">method</span>              </td>
+            </tr>
+            <tr class="step-row" data-keyword="then" data-pattern="the payment is accepted" data-func="step_payment_accepted" data-file="checkout_steps.py"
+                data-source="def step_payment_accepted(context):
+    assert context.payment_accepted, &#34;Payment was rejected&#34;" data-docstring="" data-line="27" data-end-line="28" data-is-regex="False">
+              <td><span class="kw-badge kw-then">then</span></td>
+              <td class="pattern-cell">the payment is accepted</td>
+              <td><code>step_payment_accepted</code></td>
+              <td class="file-cell"><code>checkout_steps.py:27</code></td>
+              <td class="params-cell">
+              </td>
+            </tr>
+            <tr class="step-row" data-keyword="then" data-pattern="the payment is rejected" data-func="step_payment_rejected" data-file="checkout_steps.py"
+                data-source="def step_payment_rejected(context):
+    assert not context.payment_accepted, &#34;Payment was unexpectedly accepted&#34;" data-docstring="" data-line="32" data-end-line="33" data-is-regex="False">
+              <td><span class="kw-badge kw-then">then</span></td>
+              <td class="pattern-cell">the payment is rejected</td>
+              <td><code>step_payment_rejected</code></td>
+              <td class="file-cell"><code>checkout_steps.py:32</code></td>
+              <td class="params-cell">
+              </td>
+            </tr>
+            <tr class="step-row" data-keyword="given" data-pattern="the order is confirmed" data-func="step_order_confirmed" data-file="checkout_steps.py"
+                data-source="def step_order_confirmed(context):
+    context.order = {&#34;status&#34;: &#34;confirmed&#34;}" data-docstring="" data-line="37" data-end-line="38" data-is-regex="False">
+              <td><span class="kw-badge kw-given">given</span></td>
+              <td class="pattern-cell">the order is confirmed</td>
+              <td><code>step_order_confirmed</code></td>
+              <td class="file-cell"><code>checkout_steps.py:37</code></td>
+              <td class="params-cell">
+              </td>
+            </tr>
+            <tr class="step-row" data-keyword="when" data-pattern="the user selects "{method}" shipping" data-func="step_select_shipping" data-file="checkout_steps.py"
+                data-source="def step_select_shipping(context, method):
+    time.sleep(0.03)
+    context.shipping = method" data-docstring="" data-line="42" data-end-line="44" data-is-regex="False">
+              <td><span class="kw-badge kw-when">when</span></td>
+              <td class="pattern-cell">the user selects "{method}" shipping</td>
+              <td><code>step_select_shipping</code></td>
+              <td class="file-cell"><code>checkout_steps.py:42</code></td>
+              <td class="params-cell">
+<span class="param-tag">method</span>              </td>
+            </tr>
+            <tr class="step-row" data-keyword="then" data-pattern="the shipping cost is {cost:d}" data-func="step_shipping_cost" data-file="checkout_steps.py"
+                data-source="def step_shipping_cost(context, cost):
+    expected = {&#34;express&#34;: 15, &#34;standard&#34;: 5}[context.shipping]
+    assert expected == cost, f&#34;Expected shipping cost {cost}, got {expected}&#34;" data-docstring="" data-line="48" data-end-line="50" data-is-regex="False">
+              <td><span class="kw-badge kw-then">then</span></td>
+              <td class="pattern-cell">the shipping cost is {cost:d}</td>
+              <td><code>step_shipping_cost</code></td>
+              <td class="file-cell"><code>checkout_steps.py:48</code></td>
+              <td class="params-cell">
+<span class="param-tag">cost:d</span>              </td>
+            </tr>
+            <tr class="step-row" data-keyword="then" data-pattern="the order is confirmed" data-func="step_check_confirmed" data-file="checkout_steps.py"
+                data-source="def step_check_confirmed(context):
+    assert context.order[&#34;status&#34;] == &#34;confirmed&#34;" data-docstring="" data-line="54" data-end-line="55" data-is-regex="False">
+              <td><span class="kw-badge kw-then">then</span></td>
+              <td class="pattern-cell">the order is confirmed</td>
+              <td><code>step_check_confirmed</code></td>
+              <td class="file-cell"><code>checkout_steps.py:54</code></td>
+              <td class="params-cell">
+              </td>
+            </tr>
+            <tr class="step-row" data-keyword="given" data-pattern="the database is reset" data-func="step_reset_db" data-file="login_steps.py"
+                data-source="def step_reset_db(context):
+    context.database = {&#34;users&#34;: {&#34;alice&#34;: &#34;secret1&#34;, &#34;bob&#34;: &#34;secret2&#34;, &#34;locked&#34;: &#34;secret&#34;}}" data-docstring="" data-line="7" data-end-line="8" data-is-regex="False">
+              <td><span class="kw-badge kw-given">given</span></td>
+              <td class="pattern-cell">the database is reset</td>
+              <td><code>step_reset_db</code></td>
+              <td class="file-cell"><code>login_steps.py:7</code></td>
+              <td class="params-cell">
+              </td>
+            </tr>
+            <tr class="step-row" data-keyword="given" data-pattern="a registered user exists" data-func="step_user_exists" data-file="login_steps.py"
+                data-source="def step_user_exists(context):
+    assert context.database is not None" data-docstring="" data-line="12" data-end-line="13" data-is-regex="False">
+              <td><span class="kw-badge kw-given">given</span></td>
+              <td class="pattern-cell">a registered user exists</td>
+              <td><code>step_user_exists</code></td>
+              <td class="file-cell"><code>login_steps.py:12</code></td>
+              <td class="params-cell">
+              </td>
+            </tr>
+            <tr class="step-row" data-keyword="given" data-pattern="the username is "{username}"" data-func="step_set_username" data-file="login_steps.py"
+                data-source="def step_set_username(context, username):
+    context.username = username" data-docstring="" data-line="17" data-end-line="18" data-is-regex="False">
+              <td><span class="kw-badge kw-given">given</span></td>
+              <td class="pattern-cell">the username is "{username}"</td>
+              <td><code>step_set_username</code></td>
+              <td class="file-cell"><code>login_steps.py:17</code></td>
+              <td class="params-cell">
+<span class="param-tag">username</span>              </td>
+            </tr>
+            <tr class="step-row" data-keyword="given" data-pattern="the password is "{password}"" data-func="step_set_password" data-file="login_steps.py"
+                data-source="def step_set_password(context, password):
+    context.password = password" data-docstring="" data-line="22" data-end-line="23" data-is-regex="False">
+              <td><span class="kw-badge kw-given">given</span></td>
+              <td class="pattern-cell">the password is "{password}"</td>
+              <td><code>step_set_password</code></td>
+              <td class="file-cell"><code>login_steps.py:22</code></td>
+              <td class="params-cell">
+<span class="param-tag">password</span>              </td>
+            </tr>
+            <tr class="step-row" data-keyword="when" data-pattern="the user logs in" data-func="step_login" data-file="login_steps.py"
+                data-source="def step_login(context):
+    expected = context.database[&#34;users&#34;].get(context.username)
+    context.logged_in = expected is not None and expected == context.password" data-docstring="" data-line="27" data-end-line="29" data-is-regex="False">
+              <td><span class="kw-badge kw-when">when</span></td>
+              <td class="pattern-cell">the user logs in</td>
+              <td><code>step_login</code></td>
+              <td class="file-cell"><code>login_steps.py:27</code></td>
+              <td class="params-cell">
+              </td>
+            </tr>
+            <tr class="step-row" data-keyword="then" data-pattern="the dashboard is shown" data-func="step_dashboard" data-file="login_steps.py"
+                data-source="def step_dashboard(context):
+    assert context.logged_in, &#34;User is not logged in&#34;" data-docstring="" data-line="33" data-end-line="34" data-is-regex="False">
+              <td><span class="kw-badge kw-then">then</span></td>
+              <td class="pattern-cell">the dashboard is shown</td>
+              <td><code>step_dashboard</code></td>
+              <td class="file-cell"><code>login_steps.py:33</code></td>
+              <td class="params-cell">
+              </td>
+            </tr>
+            <tr class="step-row" data-keyword="then" data-pattern="an error is shown" data-func="step_error" data-file="login_steps.py"
+                data-source="def step_error(context):
+    assert not context.logged_in, &#34;User unexpectedly logged in&#34;" data-docstring="" data-line="38" data-end-line="39" data-is-regex="False">
+              <td><span class="kw-badge kw-then">then</span></td>
+              <td class="pattern-cell">an error is shown</td>
+              <td><code>step_error</code></td>
+              <td class="file-cell"><code>login_steps.py:38</code></td>
+              <td class="params-cell">
+              </td>
+            </tr>
+            <tr class="step-row" data-keyword="then" data-pattern="the account locked message is shown" data-func="step_locked" data-file="login_steps.py"
+                data-source="def step_locked(context):
+    context.scenario.skip(&#34;Account locking logic is not implemented yet&#34;)" data-docstring="" data-line="43" data-end-line="44" data-is-regex="False">
+              <td><span class="kw-badge kw-then">then</span></td>
+              <td class="pattern-cell">the account locked message is shown</td>
+              <td><code>step_locked</code></td>
+              <td class="file-cell"><code>login_steps.py:43</code></td>
+              <td class="params-cell">
+              </td>
+            </tr>
+            <tr class="step-row" data-keyword="given" data-pattern="the report engine is ready" data-func="step_engine_ready" data-file="reporting_steps.py"
+                data-source="def step_engine_ready(context):
+    context.report = {&#34;rows&#34;: 0, &#34;size&#34;: 0}" data-docstring="" data-line="9" data-end-line="10" data-is-regex="False">
+              <td><span class="kw-badge kw-given">given</span></td>
+              <td class="pattern-cell">the report engine is ready</td>
+              <td><code>step_engine_ready</code></td>
+              <td class="file-cell"><code>reporting_steps.py:9</code></td>
+              <td class="params-cell">
+              </td>
+            </tr>
+            <tr class="step-row" data-keyword="when" data-pattern="the report is generated with {rows:d} rows" data-func="step_generate_report" data-file="reporting_steps.py"
+                data-source="def step_generate_report(context, rows):
+    time.sleep(0.2)
+    context.report[&#34;rows&#34;] = rows
+    context.report[&#34;size&#34;] = rows * 1024" data-docstring="" data-line="14" data-end-line="17" data-is-regex="False">
+              <td><span class="kw-badge kw-when">when</span></td>
+              <td class="pattern-cell">the report is generated with {rows:d} rows</td>
+              <td><code>step_generate_report</code></td>
+              <td class="file-cell"><code>reporting_steps.py:14</code></td>
+              <td class="params-cell">
+<span class="param-tag">rows:d</span>              </td>
+            </tr>
+            <tr class="step-row" data-keyword="then" data-pattern="the report is available" data-func="step_report_available" data-file="reporting_steps.py"
+                data-source="def step_report_available(context):
+    report = getattr(context, &#34;report&#34;, {})
+    assert report.get(&#34;rows&#34;, 0) &gt; 0" data-docstring="" data-line="21" data-end-line="23" data-is-regex="False">
+              <td><span class="kw-badge kw-then">then</span></td>
+              <td class="pattern-cell">the report is available</td>
+              <td><code>step_report_available</code></td>
+              <td class="file-cell"><code>reporting_steps.py:21</code></td>
+              <td class="params-cell">
+              </td>
+            </tr>
+            <tr class="step-row" data-keyword="then" data-pattern="the report size is greater than {size:d} MB" data-func="step_report_size" data-file="reporting_steps.py"
+                data-source="def step_report_size(context, size):
+    mb = context.report[&#34;size&#34;] / (1024 * 1024)
+    assert mb &gt; size, f&#34;Report size {mb:.2f} MB is not greater than {size} MB&#34;" data-docstring="" data-line="27" data-end-line="29" data-is-regex="False">
+              <td><span class="kw-badge kw-then">then</span></td>
+              <td class="pattern-cell">the report size is greater than {size:d} MB</td>
+              <td><code>step_report_size</code></td>
+              <td class="file-cell"><code>reporting_steps.py:27</code></td>
+              <td class="params-cell">
+<span class="param-tag">size:d</span>              </td>
+            </tr>
+            <tr class="step-row" data-keyword="given" data-pattern="the legacy engine is enabled" data-func="step_legacy_engine" data-file="reporting_steps.py"
+                data-source="def step_legacy_engine(context):
+    pass" data-docstring="" data-line="33" data-end-line="34" data-is-regex="False">
+              <td><span class="kw-badge kw-given">given</span></td>
+              <td class="pattern-cell">the legacy engine is enabled</td>
+              <td><code>step_legacy_engine</code></td>
+              <td class="file-cell"><code>reporting_steps.py:33</code></td>
+              <td class="params-cell">
+              </td>
+            </tr>
+            <tr class="step-row" data-keyword="given" data-pattern="the legacy report engine is being implemented" data-func="step_legacy_pending" data-file="reporting_steps.py"
+                data-source="def step_legacy_pending(context):
+    context.scenario.skip(&#34;Legacy report engine not implemented yet&#34;)" data-docstring="" data-line="38" data-end-line="39" data-is-regex="False">
+              <td><span class="kw-badge kw-given">given</span></td>
+              <td class="pattern-cell">the legacy report engine is being implemented</td>
+              <td><code>step_legacy_pending</code></td>
+              <td class="file-cell"><code>reporting_steps.py:38</code></td>
+              <td class="params-cell">
+              </td>
+            </tr>
+            <tr class="step-row" data-keyword="when" data-pattern="the legacy report is generated" data-func="step_legacy_report" data-file="reporting_steps.py"
+                data-source="def step_legacy_report(context):
+    pass" data-docstring="" data-line="43" data-end-line="44" data-is-regex="False">
+              <td><span class="kw-badge kw-when">when</span></td>
+              <td class="pattern-cell">the legacy report is generated</td>
+              <td><code>step_legacy_report</code></td>
+              <td class="file-cell"><code>reporting_steps.py:43</code></td>
+              <td class="params-cell">
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="step-detail" id="step-detail">
+          <div class="step-detail-head">
+            <span class="kw-badge" id="detail-kw"></span>
+            <h3 id="detail-pattern"></h3>
+          </div>
+          <div class="step-detail-meta" id="detail-meta"></div>
+          <div class="docstring" id="detail-docstring" hidden></div>
+          <pre><code id="detail-source"></code></pre>
+        </div>
+      </section>
+
+      <section class="view" data-view="metrics" hidden>
+        <div class="catalog-header">
+          <h1>Metrics</h1>
+          <p>Distribution and coverage of step definitions.</p>
+        </div>
+
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-num">25</div>
+            <div class="stat-lbl">Total steps</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num">40.0%</div>
+            <div class="stat-lbl">Parameterised</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num">0.0%</div>
+            <div class="stat-lbl">Documented</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num">0.0%</div>
+            <div class="stat-lbl">Regex</div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom: 20px;">
+          <h3 class="card-title">By keyword</h3>
+          <dl class="kv">
+            <dt>Given</dt>
+            <dd>11 (44.0%)</dd>
+            <dt>When</dt>
+            <dd>5 (20.0%)</dd>
+            <dt>Then</dt>
+            <dd>9 (36.0%)</dd>
+          </dl>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">By file</h3>
+          <table class="step-table">
+            <thead>
+              <tr><th>File</th><th>Steps</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="file-cell"><code>checkout_steps.py</code></td>
+                <td>10</td>
+              </tr>
+              <tr>
+                <td class="file-cell"><code>login_steps.py</code></td>
+                <td>8</td>
+              </tr>
+              <tr>
+                <td class="file-cell"><code>reporting_steps.py</code></td>
+                <td>7</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <footer class="footer">
+        Generated by <strong>behave-modern-html-report</strong> · 2026-06-30 20:44:52
+      </footer>
+    </main>
+  </div>
+
+  <script id="bmr-data" type="application/json">{"steps": [{"keyword": "given", "pattern": "the cart contains {count:d} items", "is_regex": false, "func_name": "step_cart_items", "file_path": "checkout_steps.py", "line": 10, "end_line": 11, "docstring": "", "params": ["count:d"], "source": "def step_cart_items(context, count=1):\n    context.cart = {\"items\": count, \"total\": count * 50}"}, {"keyword": "given", "pattern": "the cart contains 1 item", "is_regex": false, "func_name": "step_cart_items", "file_path": "checkout_steps.py", "line": 10, "end_line": 11, "docstring": "", "params": ["count"], "source": "def step_cart_items(context, count=1):\n    context.cart = {\"items\": count, \"total\": count * 50}"}, {"keyword": "given", "pattern": "the total is {total:d}", "is_regex": false, "func_name": "step_total", "file_path": "checkout_steps.py", "line": 15, "end_line": 16, "docstring": "", "params": ["total:d"], "source": "def step_total(context, total):\n    context.cart[\"total\"] = total"}, {"keyword": "when", "pattern": "the user pays with \"{method}\"", "is_regex": false, "func_name": "step_pay", "file_path": "checkout_steps.py", "line": 20, "end_line": 23, "docstring": "", "params": ["method"], "source": "def step_pay(context, method):\n    time.sleep(0.05)\n    context.payment_accepted = method == \"credit card\"\n    context.payment_method = method"}, {"keyword": "then", "pattern": "the payment is accepted", "is_regex": false, "func_name": "step_payment_accepted", "file_path": "checkout_steps.py", "line": 27, "end_line": 28, "docstring": "", "params": [], "source": "def step_payment_accepted(context):\n    assert context.payment_accepted, \"Payment was rejected\""}, {"keyword": "then", "pattern": "the payment is rejected", "is_regex": false, "func_name": "step_payment_rejected", "file_path": "checkout_steps.py", "line": 32, "end_line": 33, "docstring": "", "params": [], "source": "def step_payment_rejected(context):\n    assert not context.payment_accepted, \"Payment was unexpectedly accepted\""}, {"keyword": "given", "pattern": "the order is confirmed", "is_regex": false, "func_name": "step_order_confirmed", "file_path": "checkout_steps.py", "line": 37, "end_line": 38, "docstring": "", "params": [], "source": "def step_order_confirmed(context):\n    context.order = {\"status\": \"confirmed\"}"}, {"keyword": "when", "pattern": "the user selects \"{method}\" shipping", "is_regex": false, "func_name": "step_select_shipping", "file_path": "checkout_steps.py", "line": 42, "end_line": 44, "docstring": "", "params": ["method"], "source": "def step_select_shipping(context, method):\n    time.sleep(0.03)\n    context.shipping = method"}, {"keyword": "then", "pattern": "the shipping cost is {cost:d}", "is_regex": false, "func_name": "step_shipping_cost", "file_path": "checkout_steps.py", "line": 48, "end_line": 50, "docstring": "", "params": ["cost:d"], "source": "def step_shipping_cost(context, cost):\n    expected = {\"express\": 15, \"standard\": 5}[context.shipping]\n    assert expected == cost, f\"Expected shipping cost {cost}, got {expected}\""}, {"keyword": "then", "pattern": "the order is confirmed", "is_regex": false, "func_name": "step_check_confirmed", "file_path": "checkout_steps.py", "line": 54, "end_line": 55, "docstring": "", "params": [], "source": "def step_check_confirmed(context):\n    assert context.order[\"status\"] == \"confirmed\""}, {"keyword": "given", "pattern": "the database is reset", "is_regex": false, "func_name": "step_reset_db", "file_path": "login_steps.py", "line": 7, "end_line": 8, "docstring": "", "params": [], "source": "def step_reset_db(context):\n    context.database = {\"users\": {\"alice\": \"secret1\", \"bob\": \"secret2\", \"locked\": \"secret\"}}"}, {"keyword": "given", "pattern": "a registered user exists", "is_regex": false, "func_name": "step_user_exists", "file_path": "login_steps.py", "line": 12, "end_line": 13, "docstring": "", "params": [], "source": "def step_user_exists(context):\n    assert context.database is not None"}, {"keyword": "given", "pattern": "the username is \"{username}\"", "is_regex": false, "func_name": "step_set_username", "file_path": "login_steps.py", "line": 17, "end_line": 18, "docstring": "", "params": ["username"], "source": "def step_set_username(context, username):\n    context.username = username"}, {"keyword": "given", "pattern": "the password is \"{password}\"", "is_regex": false, "func_name": "step_set_password", "file_path": "login_steps.py", "line": 22, "end_line": 23, "docstring": "", "params": ["password"], "source": "def step_set_password(context, password):\n    context.password = password"}, {"keyword": "when", "pattern": "the user logs in", "is_regex": false, "func_name": "step_login", "file_path": "login_steps.py", "line": 27, "end_line": 29, "docstring": "", "params": [], "source": "def step_login(context):\n    expected = context.database[\"users\"].get(context.username)\n    context.logged_in = expected is not None and expected == context.password"}, {"keyword": "then", "pattern": "the dashboard is shown", "is_regex": false, "func_name": "step_dashboard", "file_path": "login_steps.py", "line": 33, "end_line": 34, "docstring": "", "params": [], "source": "def step_dashboard(context):\n    assert context.logged_in, \"User is not logged in\""}, {"keyword": "then", "pattern": "an error is shown", "is_regex": false, "func_name": "step_error", "file_path": "login_steps.py", "line": 38, "end_line": 39, "docstring": "", "params": [], "source": "def step_error(context):\n    assert not context.logged_in, \"User unexpectedly logged in\""}, {"keyword": "then", "pattern": "the account locked message is shown", "is_regex": false, "func_name": "step_locked", "file_path": "login_steps.py", "line": 43, "end_line": 44, "docstring": "", "params": [], "source": "def step_locked(context):\n    context.scenario.skip(\"Account locking logic is not implemented yet\")"}, {"keyword": "given", "pattern": "the report engine is ready", "is_regex": false, "func_name": "step_engine_ready", "file_path": "reporting_steps.py", "line": 9, "end_line": 10, "docstring": "", "params": [], "source": "def step_engine_ready(context):\n    context.report = {\"rows\": 0, \"size\": 0}"}, {"keyword": "when", "pattern": "the report is generated with {rows:d} rows", "is_regex": false, "func_name": "step_generate_report", "file_path": "reporting_steps.py", "line": 14, "end_line": 17, "docstring": "", "params": ["rows:d"], "source": "def step_generate_report(context, rows):\n    time.sleep(0.2)\n    context.report[\"rows\"] = rows\n    context.report[\"size\"] = rows * 1024"}, {"keyword": "then", "pattern": "the report is available", "is_regex": false, "func_name": "step_report_available", "file_path": "reporting_steps.py", "line": 21, "end_line": 23, "docstring": "", "params": [], "source": "def step_report_available(context):\n    report = getattr(context, \"report\", {})\n    assert report.get(\"rows\", 0) > 0"}, {"keyword": "then", "pattern": "the report size is greater than {size:d} MB", "is_regex": false, "func_name": "step_report_size", "file_path": "reporting_steps.py", "line": 27, "end_line": 29, "docstring": "", "params": ["size:d"], "source": "def step_report_size(context, size):\n    mb = context.report[\"size\"] / (1024 * 1024)\n    assert mb > size, f\"Report size {mb:.2f} MB is not greater than {size} MB\""}, {"keyword": "given", "pattern": "the legacy engine is enabled", "is_regex": false, "func_name": "step_legacy_engine", "file_path": "reporting_steps.py", "line": 33, "end_line": 34, "docstring": "", "params": [], "source": "def step_legacy_engine(context):\n    pass"}, {"keyword": "given", "pattern": "the legacy report engine is being implemented", "is_regex": false, "func_name": "step_legacy_pending", "file_path": "reporting_steps.py", "line": 38, "end_line": 39, "docstring": "", "params": [], "source": "def step_legacy_pending(context):\n    context.scenario.skip(\"Legacy report engine not implemented yet\")"}, {"keyword": "when", "pattern": "the legacy report is generated", "is_regex": false, "func_name": "step_legacy_report", "file_path": "reporting_steps.py", "line": 43, "end_line": 44, "docstring": "", "params": [], "source": "def step_legacy_report(context):\n    pass"}], "total": 25, "by_keyword": {"given": 11, "when": 5, "then": 9}}</script>
+  <script>/* Step catalog client-side interactions.
+ * The bulk of the logic is inline in step_catalog.html.jinja;
+ * this file is a placeholder for future shared chart rendering.
+ */
+</script>
+  <script>
+    (function () {
+      var DATA = JSON.parse(document.getElementById('bmr-data').textContent);
+
+      // ---- Theme ----
+      var THEME_KEY = "bmr.theme";
+      function applyTheme(theme) {
+        document.documentElement.setAttribute("data-theme", theme);
+        try { localStorage.setItem(THEME_KEY, theme); } catch (_) {}
+      }
+      var savedTheme = "auto";
+      try { savedTheme = localStorage.getItem(THEME_KEY) || "auto"; } catch (_) {}
+      if (savedTheme === "auto") {
+        applyTheme(window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      } else { applyTheme(savedTheme); }
+      var toggle = document.getElementById("theme-toggle");
+      if (toggle) toggle.addEventListener("click", function () {
+        var cur = document.documentElement.getAttribute("data-theme");
+        applyTheme(cur === "dark" ? "light" : "dark");
+      });
+
+      // ---- Navigation ----
+      function showView(route) {
+        document.querySelectorAll(".view").forEach(function (v) { v.hidden = v.dataset.view !== route; });
+        document.querySelectorAll(".nav-item").forEach(function (n) {
+          n.classList.toggle("is-active", n.dataset.route === route);
+        });
+      }
+      document.querySelectorAll(".nav-item").forEach(function (btn) {
+        btn.addEventListener("click", function () { showView(btn.dataset.route); });
+      });
+
+      // ---- Keyword filters ----
+      var activeKeyword = "all";
+      document.querySelectorAll(".keyword-chip").forEach(function (chip) {
+        chip.addEventListener("click", function () {
+          activeKeyword = chip.dataset.keyword;
+          document.querySelectorAll(".keyword-chip").forEach(function (c) { c.classList.remove("is-active"); });
+          chip.classList.add("is-active");
+          filterAndRender();
+        });
+      });
+
+      // ---- Search ----
+      var searchInput = document.getElementById("step-search");
+      if (searchInput) searchInput.addEventListener("input", filterAndRender);
+
+      // ---- Sorting ----
+      var sortKey = null, sortAsc = true;
+      document.querySelectorAll("#step-table th[data-sort]").forEach(function (th) {
+        th.addEventListener("click", function () {
+          var key = th.dataset.sort;
+          if (sortKey === key) { sortAsc = !sortAsc; } else { sortKey = key; sortAsc = true; }
+          document.querySelectorAll("#step-table th").forEach(function (t) { t.classList.remove("sorted"); });
+          th.classList.add("sorted");
+          filterAndRender();
+        });
+      });
+
+      function filterAndRender() {
+        var query = (searchInput ? searchInput.value : "").toLowerCase();
+        var rows = document.querySelectorAll("#step-tbody .step-row");
+        rows.forEach(function (row) {
+          var kw = row.dataset.keyword;
+          var pattern = row.dataset.pattern.toLowerCase();
+          var func = row.dataset.func.toLowerCase();
+          var file = row.dataset.file.toLowerCase();
+          var kwOk = activeKeyword === "all" || kw === activeKeyword;
+          var searchOk = !query || pattern.indexOf(query) >= 0 || func.indexOf(query) >= 0 || file.indexOf(query) >= 0;
+          row.style.display = (kwOk && searchOk) ? "" : "none";
+        });
+        if (sortKey) sortRows();
+      }
+
+      function sortRows() {
+        var tbody = document.getElementById("step-tbody");
+        var rows = Array.from(tbody.querySelectorAll(".step-row"));
+        rows.sort(function (a, b) {
+          var va = a.dataset[sortKey] || "";
+          var vb = b.dataset[sortKey] || "";
+          if (va < vb) return sortAsc ? -1 : 1;
+          if (va > vb) return sortAsc ? 1 : -1;
+          return 0;
+        });
+        rows.forEach(function (r) { tbody.appendChild(r); });
+      }
+
+      // ---- Step detail ----
+      var detail = document.getElementById("step-detail");
+      document.querySelectorAll(".step-row").forEach(function (row) {
+        row.addEventListener("click", function () {
+          document.querySelectorAll(".step-row").forEach(function (r) { r.classList.remove("is-selected"); });
+          row.classList.add("is-selected");
+          var kw = row.dataset.keyword;
+          var pattern = row.dataset.pattern;
+          var file = row.dataset.file;
+          var line = row.dataset.line;
+          var endLine = row.dataset.endLine;
+          var isRegex = row.dataset.isRegex === "true";
+          var source = row.dataset.source;
+          var docstring = row.dataset.docstring;
+
+          document.getElementById("detail-kw").className = "kw-badge kw-" + kw;
+          document.getElementById("detail-kw").textContent = kw;
+          document.getElementById("detail-pattern").textContent = pattern + (isRegex ? " (regex)" : "");
+          document.getElementById("detail-meta").textContent = file + ":" + line + (endLine !== line ? "-" + endLine : "");
+          document.getElementById("detail-source").textContent = source;
+
+          var docEl = document.getElementById("detail-docstring");
+          if (docstring) { docEl.textContent = docstring; docEl.hidden = false; }
+          else { docEl.hidden = true; }
+
+          detail.classList.add("is-open");
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

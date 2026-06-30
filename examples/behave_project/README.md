@@ -56,6 +56,19 @@ def before_all(context):
 
 See the main [Configuration](../../docs/configuration.md) docs for the full list of options.
 
+## Step catalog
+
+Generate a static catalog of all step definitions:
+
+```bash
+behave -f steps -o steps.html
+```
+
+Open `steps.html` to see all `@given`, `@when`, `@then` steps with patterns,
+parameters, source code and metrics.
+
+See the main [Usage](../../docs/usage.md) docs for more information.
+
 ## Advanced
 
 Run a subset of features:

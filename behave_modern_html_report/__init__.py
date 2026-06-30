@@ -26,11 +26,17 @@ from .attach import (
 from .collector import Collector
 from .formatter import ModernHTMLFormatter
 from .renderer import Renderer
+from .step_catalog_formatter import StepCatalogFormatter
+from .step_scanner import StepCatalog, scan_directory, scan_file
 
 __all__ = [
     "ModernHTMLFormatter",
+    "StepCatalogFormatter",
     "Renderer",
     "Collector",
+    "StepCatalog",
+    "scan_directory",
+    "scan_file",
     "attach_file",
     "attach_text",
     "attach_json",

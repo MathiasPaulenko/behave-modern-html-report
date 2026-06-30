@@ -23,6 +23,7 @@ in `behave.ini`, `setup.cfg`, or programmatically from `environment.py`.
 - `bmr.custom_css` — default empty. Path to a custom CSS file to embed into the report.
 - `bmr.custom_js` — default empty. Path to a custom JavaScript file to embed into the report.
 - `bmr.json_sidecar` — default `false`. Also write a `.json` file next to the HTML report.
+- `bmr.steps_dir` — default `features/steps`. Directory to scan for step definitions when using the `steps` formatter.
 
 ## Example `behave.ini`
 

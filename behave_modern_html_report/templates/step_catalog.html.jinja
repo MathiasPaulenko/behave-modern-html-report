@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="en" data-theme="{{ theme }}">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{ title }}</title>
+  <meta name="generator" content="behave-modern-html-report" />
+  <style>{{ css|safe }}</style>
+  <style>
+    .catalog-header { margin-bottom: 24px; }
+    .catalog-header h1 { font-size: 24px; margin: 0 0 4px; }
+    .catalog-header p { color: var(--text-faint); font-size: 14px; margin: 0; }
+
+    .stats-row { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
+    .stat-card {
+      background: var(--bg-elev); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px 20px; min-width: 140px;
+      box-shadow: var(--shadow-1);
+    }
+    .stat-card .stat-num { font-size: 28px; font-weight: 700; color: var(--primary); }
+    .stat-card .stat-lbl { font-size: 12px; color: var(--text-faint); margin-top: 2px; }
+
+    .keyword-bar { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+    .keyword-chip {
+      padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 600;
+      border: 1px solid var(--border); background: var(--bg-elev); cursor: pointer;
+      transition: all .15s;
+    }
+    .keyword-chip:hover { border-color: var(--primary); }
+    .keyword-chip.is-active { background: var(--primary); color: var(--bg-elev); border-color: var(--primary); }
+    .keyword-chip .count { opacity: .7; margin-left: 4px; }
+
+    .search-box { margin-bottom: 20px; }
+    .search-box input {
+      width: 100%; padding: 10px 14px; font-size: 14px;
+      border: 1px solid var(--border); border-radius: var(--radius);
+      background: var(--bg-elev); color: var(--text);
+    }
+    .search-box input:focus { outline: 2px solid var(--primary); }
+
+    .step-table {
+      width: 100%; border-collapse: collapse; font-size: 13px;
+      background: var(--bg-elev); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden;
+    }
+    .step-table th {
+      text-align: left; padding: 10px 14px; font-weight: 600;
+      border-bottom: 1px solid var(--border); color: var(--text-faint);
+      font-size: 12px; text-transform: uppercase; letter-spacing: .04em;
+      cursor: pointer; user-select: none;
+    }
+    .step-table th:hover { color: var(--text); }
+    .step-table th .sort-ico { opacity: .4; margin-left: 4px; }
+    .step-table th.sorted .sort-ico { opacity: 1; color: var(--primary); }
+    .step-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); }
+    .step-table tr:last-child td { border-bottom: none; }
+    .step-table tr:hover { background: var(--bg-hover); }
+
+    .kw-badge {
+      display: inline-block; padding: 2px 8px; border-radius: 4px;
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+    }
+    .kw-given { background: #3b82f620; color: #60a5fa; }
+    .kw-when { background: #f59e0b20; color: #fbbf24; }
+    .kw-then { background: #22c55e20; color: #4ade80; }
+    .kw-step { background: #8b5cf620; color: #a78bfa; }
+
+    .pattern-cell { font-family: monospace; font-size: 13px; }
+    .pattern-cell .param { color: var(--primary); font-weight: 600; }
+
+    .file-cell { font-size: 12px; color: var(--text-faint); }
+    .file-cell code { font-size: 12px; }
+
+    .params-cell .param-tag {
+      display: inline-block; padding: 1px 6px; border-radius: 3px;
+      background: var(--bg-hover); font-size: 11px; font-family: monospace;
+      margin-right: 2px;
+    }
+
+    .step-detail {
+      background: var(--bg-elev); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px; margin-top: 20px;
+      display: none;
+    }
+    .step-detail.is-open { display: block; }
+    .step-detail-head { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+    .step-detail-head h3 { margin: 0; font-family: monospace; font-size: 15px; }
+    .step-detail-meta { color: var(--text-faint); font-size: 12px; margin-bottom: 16px; }
+    .step-detail pre {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 8px; padding: 14px; overflow-x: auto;
+      font-size: 13px; line-height: 1.5;
+    }
+    .step-detail pre code { font-family: monospace; }
+    .step-detail .docstring {
+      color: var(--text-faint); font-style: italic; margin-bottom: 12px;
+      padding: 8px 12px; border-left: 3px solid var(--primary);
+      background: var(--bg); border-radius: 0 8px 8px 0;
+    }
+
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--text-faint); }
+    .empty-state svg { width: 48px; height: 48px; opacity: .3; margin-bottom: 12px; }
+  </style>
+</head>
+<body>
+  {% include "components/icons.html.jinja" %}
+
+  <div class="layout">
+    <aside class="sidebar" aria-label="Primary">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M12 2 3 7v10l9 5 9-5V7l-9-5Zm0 2.2 6.5 3.6L12 11.4 5.5 7.8 12 4.2ZM5 9.6l6 3.4v7.2L5 16.8V9.6Zm14 0v7.2l-6 3.4V13l6-3.4Z"/></svg>
+        </span>
+        <div class="brand-text">
+          <div class="brand-title">{{ title }}</div>
+          {% if company %}<div class="brand-sub">{{ company }}</div>{% endif %}
+        </div>
+      </div>
+      <nav class="nav" aria-label="Sections">
+        <button class="nav-item is-active" data-route="catalog">
+          <svg class="ico"><use href="#i-list"/></svg><span>Step Catalog</span>
+        </button>
+        <button class="nav-item" data-route="metrics">
+          <svg class="ico"><use href="#i-chart"/></svg><span>Metrics</span>
+        </button>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="footer-row">
+          <span class="version">Behave Modern Report</span>
+          <button id="theme-toggle" class="icon-btn" aria-label="Toggle theme" title="Toggle theme">
+            <svg class="ico"><use href="#i-sun"/></svg>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <section class="view" data-view="catalog">
+        <div class="catalog-header">
+          <h1>Step Catalog</h1>
+          <p>{{ catalog.total }} step definitions across {{ catalog.by_file | length }} files · {{ catalog.by_keyword.get('given', 0) }} Given, {{ catalog.by_keyword.get('when', 0) }} When, {{ catalog.by_keyword.get('then', 0) }} Then</p>
+        </div>
+
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-num">{{ catalog.total }}</div>
+            <div class="stat-lbl">Total steps</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num">{{ catalog.by_file | length }}</div>
+            <div class="stat-lbl">Files</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num">{{ catalog.with_params }}</div>
+            <div class="stat-lbl">Parameterised</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num">{{ catalog.with_docstring }}</div>
+            <div class="stat-lbl">With docstring</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num">{{ catalog.regex_steps }}</div>
+            <div class="stat-lbl">Regex patterns</div>
+          </div>
+        </div>
+
+        <div class="keyword-bar" id="keyword-filters">
+          <button class="keyword-chip is-active" data-keyword="all">All <span class="count">({{ catalog.total }})</span></button>
+          {% for kw in ['given', 'when', 'then', 'step'] %}
+            {% set count = catalog.by_keyword.get(kw, 0) %}
+            {% if count > 0 %}
+          <button class="keyword-chip" data-keyword="{{ kw }}">{{ kw | capitalize }} <span class="count">({{ count }})</span></button>
+            {% endif %}
+          {% endfor %}
+        </div>
+
+        <div class="search-box">
+          <input type="text" id="step-search" placeholder="Search by pattern, function name or file…" aria-label="Search steps" />
+        </div>
+
+        {% if steps %}
+        <table class="step-table" id="step-table">
+          <thead>
+            <tr>
+              <th data-sort="keyword">Keyword <span class="sort-ico">↕</span></th>
+              <th data-sort="pattern">Pattern <span class="sort-ico">↕</span></th>
+              <th data-sort="func_name">Function <span class="sort-ico">↕</span></th>
+              <th data-sort="file_path">File <span class="sort-ico">↕</span></th>
+              <th data-sort="params">Params <span class="sort-ico">↕</span></th>
+            </tr>
+          </thead>
+          <tbody id="step-tbody">
+            {% for s in steps %}
+            <tr class="step-row" data-keyword="{{ s.keyword }}" data-pattern="{{ s.pattern }}" data-func="{{ s.func_name }}" data-file="{{ s.file_path }}"
+                data-source="{{ s.source | e }}" data-docstring="{{ s.docstring | e }}" data-line="{{ s.line }}" data-end-line="{{ s.end_line }}" data-is-regex="{{ s.is_regex }}">
+              <td><span class="kw-badge kw-{{ s.keyword }}">{{ s.keyword }}</span></td>
+              <td class="pattern-cell">{{ s.pattern }}</td>
+              <td><code>{{ s.func_name }}</code></td>
+              <td class="file-cell"><code>{{ s.file_path }}:{{ s.line }}</code></td>
+              <td class="params-cell">
+                {% for p in s.params %}<span class="param-tag">{{ p }}</span>{% endfor %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+          <svg class="ico"><use href="#i-list"/></svg>
+          <p>No step definitions found. Make sure your <code>features/steps/</code> directory contains Python files with <code>@given</code>, <code>@when</code> or <code>@then</code> decorators.</p>
+        </div>
+        {% endif %}
+
+        <div class="step-detail" id="step-detail">
+          <div class="step-detail-head">
+            <span class="kw-badge" id="detail-kw"></span>
+            <h3 id="detail-pattern"></h3>
+          </div>
+          <div class="step-detail-meta" id="detail-meta"></div>
+          <div class="docstring" id="detail-docstring" hidden></div>
+          <pre><code id="detail-source"></code></pre>
+        </div>
+      </section>
+
+      <section class="view" data-view="metrics" hidden>
+        <div class="catalog-header">
+          <h1>Metrics</h1>
+          <p>Distribution and coverage of step definitions.</p>
+        </div>
+
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-num">{{ catalog.total }}</div>
+            <div class="stat-lbl">Total steps</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num">{{ '%.1f' % (catalog.with_params / catalog.total * 100 if catalog.total else 0) }}%</div>
+            <div class="stat-lbl">Parameterised</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num">{{ '%.1f' % (catalog.with_docstring / catalog.total * 100 if catalog.total else 0) }}%</div>
+            <div class="stat-lbl">Documented</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num">{{ '%.1f' % (catalog.regex_steps / catalog.total * 100 if catalog.total else 0) }}%</div>
+            <div class="stat-lbl">Regex</div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom: 20px;">
+          <h3 class="card-title">By keyword</h3>
+          <dl class="kv">
+            {% for kw in ['given', 'when', 'then', 'step'] %}
+              {% set count = catalog.by_keyword.get(kw, 0) %}
+              {% if count > 0 %}
+            <dt>{{ kw | capitalize }}</dt>
+            <dd>{{ count }} ({{ '%.1f' % (count / catalog.total * 100) }}%)</dd>
+              {% endif %}
+            {% endfor %}
+          </dl>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">By file</h3>
+          <table class="step-table">
+            <thead>
+              <tr><th>File</th><th>Steps</th></tr>
+            </thead>
+            <tbody>
+              {% for file, count in catalog.by_file.items() | sort(attribute='1', reverse=True) %}
+              <tr>
+                <td class="file-cell"><code>{{ file }}</code></td>
+                <td>{{ count }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <footer class="footer">
+        Generated by <strong>behave-modern-html-report</strong> · {{ now.strftime('%Y-%m-%d %H:%M:%S') }}
+      </footer>
+    </main>
+  </div>
+
+  <script id="bmr-data" type="application/json">{{ data_json|safe }}</script>
+  <script>{{ js|safe }}</script>
+  <script>
+    (function () {
+      var DATA = JSON.parse(document.getElementById('bmr-data').textContent);
+
+      // ---- Theme ----
+      var THEME_KEY = "bmr.theme";
+      function applyTheme(theme) {
+        document.documentElement.setAttribute("data-theme", theme);
+        try { localStorage.setItem(THEME_KEY, theme); } catch (_) {}
+      }
+      var savedTheme = "auto";
+      try { savedTheme = localStorage.getItem(THEME_KEY) || "auto"; } catch (_) {}
+      if (savedTheme === "auto") {
+        applyTheme(window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      } else { applyTheme(savedTheme); }
+      var toggle = document.getElementById("theme-toggle");
+      if (toggle) toggle.addEventListener("click", function () {
+        var cur = document.documentElement.getAttribute("data-theme");
+        applyTheme(cur === "dark" ? "light" : "dark");
+      });
+
+      // ---- Navigation ----
+      function showView(route) {
+        document.querySelectorAll(".view").forEach(function (v) { v.hidden = v.dataset.view !== route; });
+        document.querySelectorAll(".nav-item").forEach(function (n) {
+          n.classList.toggle("is-active", n.dataset.route === route);
+        });
+      }
+      document.querySelectorAll(".nav-item").forEach(function (btn) {
+        btn.addEventListener("click", function () { showView(btn.dataset.route); });
+      });
+
+      // ---- Keyword filters ----
+      var activeKeyword = "all";
+      document.querySelectorAll(".keyword-chip").forEach(function (chip) {
+        chip.addEventListener("click", function () {
+          activeKeyword = chip.dataset.keyword;
+          document.querySelectorAll(".keyword-chip").forEach(function (c) { c.classList.remove("is-active"); });
+          chip.classList.add("is-active");
+          filterAndRender();
+        });
+      });
+
+      // ---- Search ----
+      var searchInput = document.getElementById("step-search");
+      if (searchInput) searchInput.addEventListener("input", filterAndRender);
+
+      // ---- Sorting ----
+      var sortKey = null, sortAsc = true;
+      document.querySelectorAll("#step-table th[data-sort]").forEach(function (th) {
+        th.addEventListener("click", function () {
+          var key = th.dataset.sort;
+          if (sortKey === key) { sortAsc = !sortAsc; } else { sortKey = key; sortAsc = true; }
+          document.querySelectorAll("#step-table th").forEach(function (t) { t.classList.remove("sorted"); });
+          th.classList.add("sorted");
+          filterAndRender();
+        });
+      });
+
+      function filterAndRender() {
+        var query = (searchInput ? searchInput.value : "").toLowerCase();
+        var rows = document.querySelectorAll("#step-tbody .step-row");
+        rows.forEach(function (row) {
+          var kw = row.dataset.keyword;
+          var pattern = row.dataset.pattern.toLowerCase();
+          var func = row.dataset.func.toLowerCase();
+          var file = row.dataset.file.toLowerCase();
+          var kwOk = activeKeyword === "all" || kw === activeKeyword;
+          var searchOk = !query || pattern.indexOf(query) >= 0 || func.indexOf(query) >= 0 || file.indexOf(query) >= 0;
+          row.style.display = (kwOk && searchOk) ? "" : "none";
+        });
+        if (sortKey) sortRows();
+      }
+
+      function sortRows() {
+        var tbody = document.getElementById("step-tbody");
+        var rows = Array.from(tbody.querySelectorAll(".step-row"));
+        rows.sort(function (a, b) {
+          var va = a.dataset[sortKey] || "";
+          var vb = b.dataset[sortKey] || "";
+          if (va < vb) return sortAsc ? -1 : 1;
+          if (va > vb) return sortAsc ? 1 : -1;
+          return 0;
+        });
+        rows.forEach(function (r) { tbody.appendChild(r); });
+      }
+
+      // ---- Step detail ----
+      var detail = document.getElementById("step-detail");
+      document.querySelectorAll(".step-row").forEach(function (row) {
+        row.addEventListener("click", function () {
+          document.querySelectorAll(".step-row").forEach(function (r) { r.classList.remove("is-selected"); });
+          row.classList.add("is-selected");
+          var kw = row.dataset.keyword;
+          var pattern = row.dataset.pattern;
+          var file = row.dataset.file;
+          var line = row.dataset.line;
+          var endLine = row.dataset.endLine;
+          var isRegex = row.dataset.isRegex === "true";
+          var source = row.dataset.source;
+          var docstring = row.dataset.docstring;
+
+          document.getElementById("detail-kw").className = "kw-badge kw-" + kw;
+          document.getElementById("detail-kw").textContent = kw;
+          document.getElementById("detail-pattern").textContent = pattern + (isRegex ? " (regex)" : "");
+          document.getElementById("detail-meta").textContent = file + ":" + line + (endLine !== line ? "-" + endLine : "");
+          document.getElementById("detail-source").textContent = source;
+
+          var docEl = document.getElementById("detail-docstring");
+          if (docstring) { docEl.textContent = docstring; docEl.hidden = false; }
+          else { docEl.hidden = true; }
+
+          detail.classList.add("is-open");
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -29,6 +29,7 @@ embedded so the report works offline, on any machine, forever.
 - 📦 **Single HTML file**, works offline, no web server, no CDN
 - 🧩 **Clean architecture** — formatter / collector / models / renderer separation, fully testable
 - 🛠️ **Extensible** — custom CSS/JS, custom title/logo/company, JSON sidecar, future plugin system
+- 📋 **Step catalog** — static analysis formatter that extracts all step definitions with patterns, params, source and metrics
 
 ## Installation
 
