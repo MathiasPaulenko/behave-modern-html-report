@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.0] - 2026-06-30
+
+### Added
+
+- **Step catalog formatter** (`-f steps`): statically analyses `features/steps/` and produces an HTML catalog of all step definitions without running the suite.
+- New `step_scanner` module that uses `ast` to find `@given`, `@when`, `@then`, `@step` decorators.
+- Extracts pattern, function name, file path, line number, parameters, docstring and source code per step.
+- Catalog HTML with searchable/sortable table, keyword filters, metrics view and detail panel.
+- New `bmr.steps_dir` userdata option to customise the steps directory.
+- `StepCatalogFormatter`, `StepCatalog`, `scan_directory`, `scan_file` added to public API.
+- 13 new tests covering the scanner, catalog metrics and HTML rendering.
+- Updated `docs/usage.md`, `docs/configuration.md`, `README.md` and example project.
+
+### Fixed
+
+- Step catalog HTML layout: removed `.layout` wrapper that broke `body{display:grid}` from `report.css`.
+
 ## [2.1.0] - 2026-06-29
 
 ### Added

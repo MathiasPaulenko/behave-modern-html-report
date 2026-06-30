@@ -50,5 +50,5 @@ def test_package_version():
     """The package exposes the expected version and public API."""
     import behave_modern_html_report as bmr
 
-    assert bmr.__version__ == "2.1.0"
+    assert bmr.__version__ == "2.2.0"
     assert "attach_screenshot" in bmr.__all__

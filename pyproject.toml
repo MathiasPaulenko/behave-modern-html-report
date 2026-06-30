@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "behave-modern-html-report"
-version = "2.1.0"
+version = "2.2.0"
 description = "The modern, beautiful, single-file HTML report formatter for Behave."
 readme = "README.md"
 license = { text = "MIT" }
@@ -41,6 +41,7 @@ Issues = "https://github.com/MathiasPaulenko/behave-modern-html-report/issues"
 
 [project.entry-points."behave.formatters"]
 modern = "behave_modern_html_report.formatter:ModernHTMLFormatter"
+steps = "behave_modern_html_report.step_catalog_formatter:StepCatalogFormatter"
 
 [tool.hatch.build.targets.wheel]
 # `packages` already ships every file (Python, .css, .js, .jinja, .svg, …) inside
