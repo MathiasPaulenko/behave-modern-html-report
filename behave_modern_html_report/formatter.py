@@ -73,12 +73,18 @@ class ModernHTMLFormatter(Formatter):  # type: ignore[misc,valid-type]
 
         self._output_path = self._resolve_output_path(stream_opener, config)
 
+        # Keep references to the original Behave objects so that eof()
+        # can read their final status/duration after execution completes.
+        self._behave_feature: Any = None
+        self._behave_scenario: Any = None
+
     # ------------------------------------------------------------------
     # Behave lifecycle
     # ------------------------------------------------------------------
 
     def feature(self, feature: Any) -> None:  # noqa: D401 - behave signature
         """Behave hook: a feature has started."""
+        self._behave_feature = feature
         self._collector.start_feature(feature)
 
     def background(self, background: Any) -> None:
@@ -90,7 +96,14 @@ class ModernHTMLFormatter(Formatter):  # type: ignore[misc,valid-type]
         self._collector.start_rule(rule)
 
     def scenario(self, scenario: Any) -> None:
-        """Behave hook: a scenario has started."""
+        """Behave hook: a scenario has started.
+
+        Finalize the previous scenario (if any) using its original Behave
+        object, which now has the final status/duration.
+        """
+        if self._behave_scenario is not None:
+            self._collector.end_scenario(_FakeFinal(self._behave_scenario))
+        self._behave_scenario = scenario
         self._collector.start_scenario(scenario)
 
     def step(self, step: Any) -> None:
@@ -107,13 +120,13 @@ class ModernHTMLFormatter(Formatter):  # type: ignore[misc,valid-type]
 
     def eof(self) -> None:
         """Behave hook: end of feature; finalize current feature/scenario."""
-        feature = self._collector._current_feature  # noqa: SLF001 - intentional
-        if feature is not None:
-            self._collector.end_feature(_FakeFinal(feature))
+        if self._behave_scenario is not None:
+            self._collector.end_scenario(_FakeFinal(self._behave_scenario))
+            self._behave_scenario = None
 
-        scenario = self._collector._current_scenario  # noqa: SLF001
-        if scenario is not None:
-            self._collector.end_scenario(_FakeFinal(scenario))
+        if self._behave_feature is not None:
+            self._collector.end_feature(_FakeFinal(self._behave_feature))
+            self._behave_feature = None
 
     def close(self) -> None:
         """Behave hook: finalize the execution and write the HTML report."""
