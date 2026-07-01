@@ -52,7 +52,11 @@ def _derive_feature_status(feature: Feature) -> str:
         return STATUS_PENDING
     if statuses and all(s == STATUS_SKIPPED for s in statuses):
         return STATUS_SKIPPED
-    return statuses[0] if statuses else STATUS_UNTESTED
+    if statuses:
+        return statuses[0]
+    # No scenarios: keep the status that the collector set from Behave
+    # (e.g. "passed") rather than defaulting to "untested".
+    return feature.status or STATUS_UNTESTED
 
 
 def _tag_stats() -> dict[str, Any]:
