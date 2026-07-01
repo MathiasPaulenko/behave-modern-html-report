@@ -135,6 +135,62 @@ def after_step(context, step):
 
 The helpers also work with Playwright, Selenium, PIL images, bytes, files, and JSON data.
 
+## Step Catalog
+
+The package also includes a **step catalog** formatter that statically analyses
+your `features/steps/` directory and produces an HTML catalog of all step
+definitions — without running the suite.
+
+Register it in `behave.ini`:
+
+```ini
+[behave.formatters]
+steps = behave_modern_html_report.step_catalog_formatter:StepCatalogFormatter
+```
+
+Then run:
+
+```bash
+behave -f steps -o steps.html
+```
+
+The catalog includes:
+
+- All `@given`, `@when`, `@then` and `@step` decorated functions.
+- Step pattern, function name, file path and line number.
+- Extracted parameters from `{placeholder}` patterns.
+- Function docstrings and source code snippets.
+- Metrics: total steps, by keyword, by file, parameterised, documented, regex.
+- Searchable, sortable table with keyword filters.
+- Detail panel showing the full source code of each step.
+
+You can customise the steps directory with `bmr.steps_dir`:
+
+```ini
+[behave.userdata]
+bmr.steps_dir = features/steps
+```
+
+### Programmatic usage
+
+```python
+from behave_modern_html_report import scan_directory
+from behave_modern_html_report.step_catalog_formatter import render_catalog
+from pathlib import Path
+
+catalog = scan_directory(Path("features/steps"))
+html = render_catalog(catalog, title="My Step Catalog")
+Path("steps.html").write_text(html, encoding="utf-8")
+```
+
+### Screenshots
+
+![Step Catalog](docs/images/step_catalog.png)
+
+![Step detail panel](docs/images/step_catalog_detail.png)
+
+![Step metrics](docs/images/step_catalog_metrics.png)
+
 ## Generate a demo without running Behave
 
 ```bash
