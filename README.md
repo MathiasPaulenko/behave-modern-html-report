@@ -17,8 +17,8 @@ embedded so the report works offline, on any machine, forever.
 - 🌓 **Dark / Light / Auto** themes, modern Material-3 inspired UI
 - 📊 **Interactive charts** (status pie, duration histogram, slowest scenarios, tag pass rate, timeline) — pure vanilla JS, no Chart.js CDN
 - 🏷️ **Tag analytics** page: per-tag counts, pass rate, duration, and a dedicated chart
-- � **Gherkin Rules** support: scenarios under a `Rule` are grouped and tagged correctly (Behave 1.3.x)
-- �🔍 **Instant client-side search** across features, scenarios, steps and tags
+- 📋 **Gherkin Rules** support: scenarios under a `Rule` are grouped and tagged correctly (Behave 1.3.x)
+- 🔍 **Instant client-side search** across features, scenarios, steps and tags
 - 🎚️ **Filter by status** with one click
 - 📁 **Expandable** features → scenarios → steps with rich metadata
 - 🧯 **Modern error viewer** with copy-to-clipboard tracebacks
@@ -27,6 +27,7 @@ embedded so the report works offline, on any machine, forever.
 - 📊 **Inline step duration bars** to spot slow steps at a glance
 - ♿ **Accessible**: keyboard navigation, ARIA labels, reduced-motion support
 - 📦 **Single HTML file**, works offline, no web server, no CDN
+- 📌 **Fixed sidebar** navigation that stays in place while content scrolls
 - 🧩 **Clean architecture** — formatter / collector / models / renderer separation, fully testable
 - 🛠️ **Extensible** — custom CSS/JS, custom title/logo/company, JSON sidecar, future plugin system
 - 📋 **Step catalog** — static analysis formatter that extracts all step definitions with patterns, params, source and metrics
@@ -44,6 +45,7 @@ In your project's `behave.ini` (or `setup.cfg`):
 ```ini
 [behave.formatters]
 modern = behave_modern_html_report.formatter:ModernHTMLFormatter
+steps = behave_modern_html_report.step_catalog_formatter:StepCatalogFormatter
 ```
 
 Then run:
@@ -53,6 +55,12 @@ behave -f modern -o report.html
 ```
 
 Open `report.html` in any browser. Done.
+
+You can also generate a **step catalog** (static analysis of your step definitions, no test execution needed):
+
+```bash
+behave -f steps -o steps.html
+```
 
 ## Configuration
 
@@ -97,6 +105,7 @@ Available options:
 - `bmr.link_to_ci` — "View in CI" button URL.
 - `bmr.json_sidecar` — write `report.json` next to the HTML report.
 - `bmr.custom_css` / `bmr.custom_js` — embed custom CSS/JS files.
+- `bmr.steps_dir` — directory to scan for step definitions when using the `steps` formatter (default `features/steps`).
 
 See [docs/configuration.md](docs/configuration.md) for the full reference.
 
@@ -288,6 +297,7 @@ ruff check .
 - [Usage](docs/usage.md) — installation, basic configuration, and running.
 - [Configuration](docs/configuration.md) — all reporter options and userdata keys.
 - [Report views](docs/views.md) — what each view shows.
+- [Step catalog](#step-catalog) — static analysis of step definitions.
 - [Examples](docs/examples.md) — demo generator and functional Behave project.
 - [Architecture](docs/architecture.md) — how the formatter is structured.
 - [Contributing](docs/contributing.md) — local setup, checks, and conventions.
