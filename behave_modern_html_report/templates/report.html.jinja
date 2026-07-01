@@ -17,6 +17,16 @@
     }
   </style>
   {% endif %}
+  <style>
+    body { height: 100vh; overflow: hidden; }
+    .main { overflow-y: auto; height: 100vh; }
+    .topbar { position: sticky; top: 0; z-index: 10; background: var(--bg); padding-top: 22px; margin-top: -22px; }
+    @media (max-width: 920px) {
+      body { height: auto; overflow: visible; }
+      .main { overflow-y: visible; height: auto; }
+      .topbar { position: relative; margin-top: 0; padding-top: 0; }
+    }
+  </style>
 </head>
 <body>
   {% include "components/icons.html.jinja" %}
