@@ -7,6 +7,13 @@
   <meta name="generator" content="behave-modern-html-report" />
   <style>{{ css|safe }}</style>
   <style>
+    body { height: 100vh; overflow: hidden; }
+    .main { overflow-y: auto; height: 100vh; }
+    @media (max-width: 920px) {
+      body { height: auto; overflow: visible; }
+      .main { overflow-y: visible; height: auto; }
+    }
+
     .catalog-header { margin-bottom: 24px; }
     .catalog-header h1 { font-size: 24px; margin: 0 0 4px; }
     .catalog-header p { color: var(--text-faint); font-size: 14px; margin: 0; }
