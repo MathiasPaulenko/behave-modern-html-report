@@ -185,11 +185,22 @@ Path("steps.html").write_text(html, encoding="utf-8")
 
 ### Screenshots
 
+<details>
+<summary>View screenshots</summary>
+
+**Step Catalog — main view**
+
 ![Step Catalog](docs/images/step_catalog.png)
+
+**Step detail panel**
 
 ![Step detail panel](docs/images/step_catalog_detail.png)
 
+**Step metrics**
+
 ![Step metrics](docs/images/step_catalog_metrics.png)
+
+</details>
 
 ## Generate a demo without running Behave
 
@@ -200,7 +211,10 @@ python examples/demo_generator/generate_demo.py
 This builds `examples/demo_generator/demo-report.html` with a realistic-looking suite —
 useful for previews, screenshots, and design iteration.
 
-## Screenshots
+## Report screenshots
+
+<details>
+<summary>Report views (click to expand)</summary>
 
 ### Dashboard view
 
@@ -233,6 +247,8 @@ useful for previews, screenshots, and design iteration.
 ### Environment view
 
 ![Environment](docs/images/environment.png)
+
+</details>
 
 ## Architecture
 
