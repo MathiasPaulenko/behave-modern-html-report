@@ -4,7 +4,7 @@
     data-feature="{{ scenario.feature_name|lower }}"
     data-rule="{{ scenario.rule_name|lower }}"
     data-duration="{{ scenario.duration }}"
-    data-error="{{ (scenario.error.message|lower) if scenario.error else '' }}">
+    data-error="{{ (scenario.steps | selectattr('error') | map(attribute='error.message') | first | lower) if scenario.steps and (scenario.steps | selectattr('error') | list) else '' }}">
 {% set repro_cmd = "behave " ~ scenario.location if scenario.location else "behave -t @" ~ scenario.tags|join(' -t @') if scenario.tags else 'behave' %}
   <div class="scenario-row-header">
     <button class="scenario-head" aria-expanded="false">

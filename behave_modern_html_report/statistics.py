@@ -16,6 +16,7 @@ from .models import (
     STATUS_UNDEFINED,
     STATUS_UNTESTED,
     STATUS_XFAILED,
+    STATUS_XPASSED,
     Execution,
     Feature,
     Scenario,
@@ -27,7 +28,6 @@ _FAILED_STATUSES = (
     STATUS_ERROR,
     STATUS_HOOK_ERROR,
     STATUS_CLEANUP_ERROR,
-    STATUS_XFAILED,
 )
 
 
@@ -44,12 +44,14 @@ def _derive_feature_status(feature: Feature) -> str:
     statuses = [s.status for s in feature.scenarios]
     if any(s in _FAILED_STATUSES for s in statuses):
         return STATUS_FAILED
-    if statuses and all(s == STATUS_PASSED for s in statuses):
-        return STATUS_PASSED
     if any(s == STATUS_UNDEFINED for s in statuses):
         return STATUS_UNDEFINED
     if any(s == STATUS_PENDING for s in statuses):
         return STATUS_PENDING
+    if any(s == STATUS_PASSED for s in statuses):
+        return STATUS_PASSED
+    if any(s in (STATUS_XFAILED, STATUS_XPASSED) for s in statuses):
+        return STATUS_PASSED
     if statuses and all(s == STATUS_SKIPPED for s in statuses):
         return STATUS_SKIPPED
     if statuses:

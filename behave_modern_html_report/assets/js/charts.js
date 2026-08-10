@@ -230,8 +230,14 @@
   // Helpers
   // ----------------------------------------------------------
   function roundRect(ctx, x, y, w, h, r) {
-    r = Math.min(r, w / 2, h / 2);
+    w = Math.max(w, 0);
+    h = Math.max(h, 0);
+    r = Math.max(0, Math.min(r, w / 2, h / 2));
     ctx.beginPath();
+    if (r === 0) {
+      ctx.rect(x, y, w, h);
+      return;
+    }
     ctx.moveTo(x + r, y);
     ctx.arcTo(x + w, y, x + w, y + h, r);
     ctx.arcTo(x + w, y + h, x, y + h, r);
@@ -241,6 +247,7 @@
   }
 
   function formatDuration(s) {
+    if (s == null || s < 0 || !isFinite(s)) return "0ms";
     if (s < 1) return Math.round(s * 1000) + "ms";
     if (s < 60) return s.toFixed(2) + "s";
     var m = Math.floor(s / 60), sec = Math.round(s - m * 60);

@@ -17,7 +17,12 @@ def format_duration(seconds: float) -> str:
         str: Human-readable representation (e.g. ``500ms``, ``2.50s``).
 
     """
-    if seconds is None:
+    if seconds is None or seconds < 0:
+        return "0ms"
+    try:
+        if seconds != seconds or seconds == float("inf"):  # noqa: PLR0124
+            return "0ms"
+    except (TypeError, OverflowError):
         return "0ms"
     if seconds < 1.0:
         return f"{int(seconds * 1000)}ms"

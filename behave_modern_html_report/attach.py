@@ -69,7 +69,10 @@ def attach_file(context: Any, path: str | Path, name: str | None = None) -> None
     if formatter is None:
         return
     p = Path(path)
-    data = base64.b64encode(p.read_bytes()).decode("ascii")
+    try:
+        data = base64.b64encode(p.read_bytes()).decode("ascii")
+    except OSError as exc:
+        raise OSError(f"Cannot read attachment file '{path}': {exc}") from exc
     mime = guess_mime(p.name)
     formatter.attach(
         Attachment(name=name or p.name, mime_type=mime, data_base64=data)
@@ -141,7 +144,10 @@ def attach_screenshot(context: Any, source: Any, name: str = "screenshot.png") -
     if isinstance(source, (bytes, bytearray)):
         data = bytes(source)
     elif isinstance(source, (str, Path)):
-        data = Path(source).read_bytes()
+        try:
+            data = Path(source).read_bytes()
+        except OSError as exc:
+            raise OSError(f"Cannot read screenshot file '{source}': {exc}") from exc
     else:
         # Selenium WebDriver
         method = getattr(source, "get_screenshot_as_png", None)

@@ -79,9 +79,9 @@ def _extract_pattern(node: ast.expr) -> tuple[str, bool]:
     if isinstance(node, ast.Call):
         func = node.func
         if isinstance(func, ast.Name) and func.id == "re" and node.args and isinstance(node.args[0], ast.Constant):
-            return node.args[0].value, True
+            return str(node.args[0].value), True
         if isinstance(func, ast.Attribute) and func.attr == "compile" and node.args and isinstance(node.args[0], ast.Constant):
-            return node.args[0].value, True
+            return str(node.args[0].value), True
     if isinstance(node, ast.JoinedStr):
         parts = []
         for val in node.values:
@@ -136,7 +136,7 @@ def scan_file(file_path: Path, base_dir: Path | None = None) -> list[StepDefinit
     definitions: list[StepDefinition] = []
 
     for node in ast.walk(tree):
-        if not isinstance(node, ast.FunctionDef):
+        if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
             continue
 
         for decorator in node.decorator_list:

@@ -99,11 +99,16 @@ class Collector:
             ) or key.upper() in {"PATH", "HOME", "USER", "USERPROFILE", "SHELL", "LANG", "TERM"}:
                 env_vars[key] = safe_str(os.environ[key])
 
+        try:
+            hostname = socket.gethostname()
+        except Exception:  # pragma: no cover
+            hostname = ""
+
         return Environment(
             python_version=sys.version.split()[0],
             behave_version=behave_version,
             platform=f"{platform.system()} {platform.release()} ({platform.machine()})",
-            hostname=socket.gethostname(),
+            hostname=hostname,
             cwd=safe_str(os.getcwd()),
             command=" ".join(sys.argv),
             user=user,
@@ -159,13 +164,61 @@ class Collector:
             bg.steps.append(self._make_step(behave_step))
         return bg
 
+    def _make_attachment(self, behave_attachment: Any) -> Attachment:
+        """Convert a Behave embedding object into an Attachment model.
+
+        Args:
+            behave_attachment (Any): Behave embedding object.
+
+        Returns:
+            Attachment: Created attachment model.
+
+        """
+        import base64 as _b64
+
+        mime_type = getattr(behave_attachment, "mime_type", "") or "application/octet-stream"
+        name = getattr(behave_attachment, "filename", "") or getattr(behave_attachment, "name", "") or "attachment"
+
+        raw_data = getattr(behave_attachment, "data", None)
+        if raw_data is None:
+            data_base64 = ""
+        elif isinstance(raw_data, (bytes, bytearray)):
+            data_base64 = _b64.b64encode(raw_data).decode("ascii")
+        elif isinstance(raw_data, str):
+            data_base64 = _b64.b64encode(raw_data.encode("utf-8")).decode("ascii")
+        else:
+            data_base64 = _b64.b64encode(str(raw_data).encode("utf-8")).decode("ascii")
+
+        text = None
+        if mime_type.startswith("text/") or mime_type in ("application/json", "application/xml"):
+            try:
+                if isinstance(raw_data, (bytes, bytearray)):
+                    text = raw_data.decode("utf-8", errors="replace")
+                elif isinstance(raw_data, str):
+                    text = raw_data
+                elif data_base64:
+                    text = _b64.b64decode(data_base64).decode("utf-8", errors="replace")
+            except Exception:
+                text = None
+
+        return Attachment(
+            name=safe_str(name),
+            mime_type=safe_str(mime_type),
+            data_base64=data_base64,
+            text=text,
+        )
+
     def _make_step(self, behave_step: Any) -> Step:
         """Convert a Behave step object into a Step model."""
+        try:
+            duration = float(getattr(behave_step, "duration", 0.0) or 0.0)
+        except (TypeError, ValueError):
+            duration = 0.0
         step = Step(
             keyword=(getattr(behave_step, "keyword", "") or "").strip(),
             name=getattr(behave_step, "name", "") or "",
             status=normalize_status(getattr(behave_step, "status", None)),
-            duration=float(getattr(behave_step, "duration", 0.0) or 0.0),
+            duration=duration,
             location=safe_str(getattr(behave_step, "location", "")),
             text=getattr(behave_step, "text", None),
         )
@@ -228,7 +281,10 @@ class Collector:
         if self._current_feature is None:
             return
         self._current_feature.status = normalize_status(getattr(behave_feature, "status", None))
-        self._current_feature.duration = float(getattr(behave_feature, "duration", 0.0) or 0.0)
+        try:
+            self._current_feature.duration = float(getattr(behave_feature, "duration", 0.0) or 0.0)
+        except (TypeError, ValueError):
+            self._current_feature.duration = 0.0
         self._current_feature = None
         self._current_rule_name = ""
 
@@ -315,7 +371,10 @@ class Collector:
         if self._current_scenario is None:
             return
         self._current_scenario.status = normalize_status(getattr(behave_scenario, "status", None))
-        self._current_scenario.duration = float(getattr(behave_scenario, "duration", 0.0) or 0.0)
+        try:
+            self._current_scenario.duration = float(getattr(behave_scenario, "duration", 0.0) or 0.0)
+        except (TypeError, ValueError):
+            self._current_scenario.duration = 0.0
         self._current_scenario = None
 
     # ------------------------------------------------------------------

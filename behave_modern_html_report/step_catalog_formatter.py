@@ -3,11 +3,11 @@
 Register in ``behave.ini``::
 
     [behave.formatters]
-    steps = behave_modern_html_report.step_catalog_formatter:StepCatalogFormatter
+    steps-catalog = behave_modern_html_report.step_catalog_formatter:StepCatalogFormatter
 
 Then run::
 
-    behave -f steps -o steps.html
+    behave -f steps-catalog -o steps.html
 """
 
 from __future__ import annotations
@@ -32,7 +32,7 @@ from .step_scanner import StepCatalog, scan_directory
 class StepCatalogFormatter(Formatter):  # type: ignore[misc,valid-type]
     """Behave formatter that produces a step definition catalog HTML."""
 
-    name = "steps"
+    name = "steps-catalog"
     description = "Step definition catalog (static analysis)"
 
     def __init__(self, stream_opener: Any, config: Any) -> None:
@@ -64,10 +64,17 @@ class StepCatalogFormatter(Formatter):  # type: ignore[misc,valid-type]
         catalog = scan_directory(steps_dir)
         html = render_catalog(catalog, title=self._title, company=self._company, theme=self._theme)
 
+        # Ensure parent directory exists before opening the stream.
+        out_name = getattr(self._stream_opener, "name", None) or getattr(self._stream_opener, "filename", None)
+        if out_name:
+            Path(out_name).parent.mkdir(parents=True, exist_ok=True)
+
         stream = self._stream_opener.open()
-        stream.write(html)
-        with contextlib.suppress(Exception):
-            stream.close()
+        try:
+            stream.write(html)
+        finally:
+            with contextlib.suppress(Exception):
+                stream.close()
 
 
 def render_catalog(
@@ -114,5 +121,5 @@ def render_catalog(
         data_json=json.dumps(
             {"steps": steps_data, "total": catalog.total, "by_keyword": catalog.by_keyword},
             default=str,
-        ),
+        ).replace("<", "\\u003c").replace(">", "\\u003e"),
     )

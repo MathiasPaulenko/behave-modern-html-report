@@ -278,9 +278,7 @@ class Execution:
             return STATUS_UNDEFINED
         if any(s == STATUS_PENDING for s in statuses):
             return STATUS_PENDING
-        # If any feature passed and none failed, treat as passed
-        # (features with no scenarios may show "untested" but that's OK).
-        if any(s == STATUS_PASSED for s in statuses) and not any(s == STATUS_SKIPPED for s in statuses):
+        if any(s in (STATUS_PASSED, STATUS_XFAILED, STATUS_XPASSED) for s in statuses):
             return STATUS_PASSED
         if statuses and all(s == STATUS_SKIPPED for s in statuses):
             return STATUS_SKIPPED

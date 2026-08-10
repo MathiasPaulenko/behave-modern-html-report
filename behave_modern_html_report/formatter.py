@@ -3,11 +3,11 @@
 Register in `behave.ini`::
 
     [behave.formatters]
-    modern = behave_modern_html_report.formatter:ModernHTMLFormatter
+    modern-html = behave_modern_html_report.formatter:ModernHTMLFormatter
 
 Then run::
 
-    behave -f modern -o report.html
+    behave -f modern-html -o report.html
 """
 
 from __future__ import annotations
@@ -32,7 +32,7 @@ from .utils import guess_mime
 class ModernHTMLFormatter(Formatter):  # type: ignore[misc,valid-type]
     """Behave formatter that produces a modern single-file HTML report."""
 
-    name = "modern"
+    name = "modern-html"
     description = "Modern single-file HTML report"
 
     def __init__(self, stream_opener: Any, config: Any) -> None:
@@ -150,7 +150,10 @@ class ModernHTMLFormatter(Formatter):  # type: ignore[misc,valid-type]
 
         """
         p = Path(path)
-        data = base64.b64encode(p.read_bytes()).decode("ascii")
+        try:
+            data = base64.b64encode(p.read_bytes()).decode("ascii")
+        except OSError as exc:
+            raise OSError(f"Cannot read attachment file '{path}': {exc}") from exc
         self._collector.attach(
             Attachment(
                 name=name or p.name,
@@ -262,5 +265,5 @@ def _read_optional(path: str | None) -> str:
         return ""
     try:
         return Path(path).read_text(encoding="utf-8")
-    except OSError:
+    except (OSError, UnicodeDecodeError):
         return ""

@@ -143,7 +143,8 @@
     if (btn.dataset.copyText) {
       text = btn.dataset.copyText;
     } else {
-      var target = document.querySelector(btn.dataset.copyTarget);
+      var target;
+      try { target = document.querySelector(btn.dataset.copyTarget); } catch (_) { return; }
       if (!target) return;
       text = target.innerText || target.textContent || "";
     }
@@ -170,7 +171,11 @@
   document.addEventListener("click", function (e) {
     var t = e.target.closest("[data-attach-img]");
     if (t && lb && lbContent) {
-      lbContent.innerHTML = '<img alt="" src="' + t.dataset.attachImg + '" />';
+      lbContent.innerHTML = "";
+      var img = document.createElement("img");
+      img.alt = "";
+      img.src = t.dataset.attachImg;
+      lbContent.appendChild(img);
       lb.hidden = false;
       return;
     }
@@ -368,7 +373,12 @@
   function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
 
   // ---- Initial render ----------------------------------------
-  var defaultView = (DATA.default_view && document.querySelector('.nav-item[data-route="' + DATA.default_view + '"]')) ? DATA.default_view : "dashboard";
+  var defaultView = "dashboard";
+  try {
+    if (DATA.default_view && document.querySelector('.nav-item[data-route="' + DATA.default_view + '"]')) {
+      defaultView = DATA.default_view;
+    }
+  } catch (e) {}
   showView(defaultView);
   if (DATA.expand_by_default) {
     document.querySelectorAll(".feature-head, .rule-head, .scenario-head").forEach(function (head) {

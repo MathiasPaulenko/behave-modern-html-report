@@ -115,7 +115,7 @@ class Renderer:
                     "show_copy_command": self.options.show_copy_command,
                 },
                 default=str,
-            ),
+            ).replace("<", "\\u003c").replace(">", "\\u003e"),
             options=self.options,
             css=assets.css_bundle(self.options.custom_css),
             js=assets.js_bundle(self.options.custom_js),
