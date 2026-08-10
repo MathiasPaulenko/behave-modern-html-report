@@ -44,14 +44,14 @@ In your project's `behave.ini` (or `setup.cfg`):
 
 ```ini
 [behave.formatters]
-modern = behave_modern_html_report.formatter:ModernHTMLFormatter
-steps = behave_modern_html_report.step_catalog_formatter:StepCatalogFormatter
+modern-html = behave_modern_html_report.formatter:ModernHTMLFormatter
+steps-catalog = behave_modern_html_report.step_catalog_formatter:StepCatalogFormatter
 ```
 
 Then run:
 
 ```bash
-behave -f modern -o report.html
+behave -f modern-html -o report.html
 ```
 
 Open `report.html` in any browser. Done.
@@ -59,7 +59,7 @@ Open `report.html` in any browser. Done.
 You can also generate a **step catalog** (static analysis of your step definitions, no test execution needed):
 
 ```bash
-behave -f steps -o steps.html
+behave -f steps-catalog -o steps.html
 ```
 
 ## Configuration
@@ -105,7 +105,7 @@ Available options:
 - `bmr.link_to_ci` — "View in CI" button URL.
 - `bmr.json_sidecar` — write `report.json` next to the HTML report.
 - `bmr.custom_css` / `bmr.custom_js` — embed custom CSS/JS files.
-- `bmr.steps_dir` — directory to scan for step definitions when using the `steps` formatter (default `features/steps`).
+- `bmr.steps_dir` — directory to scan for step definitions when using the `steps-catalog` formatter (default `features/steps`).
 
 See [docs/configuration.md](docs/configuration.md) for the full reference.
 
@@ -154,13 +154,13 @@ Register it in `behave.ini`:
 
 ```ini
 [behave.formatters]
-steps = behave_modern_html_report.step_catalog_formatter:StepCatalogFormatter
+steps-catalog = behave_modern_html_report.step_catalog_formatter:StepCatalogFormatter
 ```
 
 Then run:
 
 ```bash
-behave -f steps -o steps.html
+behave -f steps-catalog -o steps.html
 ```
 
 The catalog includes:

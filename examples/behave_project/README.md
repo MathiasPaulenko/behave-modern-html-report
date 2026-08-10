@@ -61,7 +61,7 @@ See the main [Configuration](../../docs/configuration.md) docs for the full list
 Generate a static catalog of all step definitions:
 
 ```bash
-behave -f steps -o steps.html
+behave -f steps-catalog -o steps.html
 ```
 
 Open `steps.html` to see all `@given`, `@when`, `@then` steps with patterns,

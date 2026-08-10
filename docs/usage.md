@@ -12,13 +12,13 @@ Register the formatter in your `behave.ini`:
 
 ```ini
 [behave.formatters]
-modern = behave_modern_html_report.formatter:ModernHTMLFormatter
+modern-html = behave_modern_html_report.formatter:ModernHTMLFormatter
 ```
 
 Then run Behave as usual:
 
 ```bash
-behave -f modern -o report.html
+behave -f modern-html -o report.html
 ```
 
 You can also use it via `setup.cfg` or `tox.ini` with the same `[behave.formatters]` section.
@@ -26,7 +26,7 @@ You can also use it via `setup.cfg` or `tox.ini` with the same `[behave.formatte
 ## Using a single feature file
 
 ```bash
-behave -f modern -o report.html features/login.feature
+behave -f modern-html -o report.html features/login.feature
 ```
 
 ## Combining with other formatters
@@ -35,7 +35,7 @@ Behave supports multiple formatters at once. For example, keep the console
 output while generating the HTML report:
 
 ```bash
-behave -f pretty -o /dev/null -f modern -o report.html
+behave -f pretty -o /dev/null -f modern-html -o report.html
 ```
 
 On Windows use `NUL` instead of `/dev/null`.
@@ -62,13 +62,13 @@ Register it in `behave.ini`:
 
 ```ini
 [behave.formatters]
-steps = behave_modern_html_report.step_catalog_formatter:StepCatalogFormatter
+steps-catalog = behave_modern_html_report.step_catalog_formatter:StepCatalogFormatter
 ```
 
 Then run:
 
 ```bash
-behave -f steps -o steps.html
+behave -f steps-catalog -o steps.html
 ```
 
 The catalog includes:
