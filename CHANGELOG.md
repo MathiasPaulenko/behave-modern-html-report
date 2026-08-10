@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.0] - 2026-08-11
+
+### Changed
+
+- **Breaking**: Renamed entry point `modern` to `modern-html` to avoid collision with `behave-modern-console-report` (which also registered `modern`). Update your `behave.ini` and CLI flags from `-f modern` to `-f modern-html`.
+- **Breaking**: Renamed entry point `steps` to `steps-catalog` to avoid ambiguity with behave's built-in `steps` formatter. Update your `behave.ini` and CLI flags from `-f steps` to `-f steps-catalog`.
+- Added Python 3.13 to supported classifiers.
+
+### Fixed
+
+- Fixed XSS vulnerability in JSON data embedded in `<script>` tags (`json.dumps` does not escape `<` and `>`; now replaced with `\u003c`/`\u003e`).
+- Fixed XSS in lightbox: replaced `innerHTML` injection with DOM API (`createElement`/`appendChild`).
+- Fixed `format_duration` crash on `NaN` and `Infinity` values (Python and JS).
+- Fixed `_derive_feature_status` not handling `xfailed`/`xpassed` statuses (fell through to unreliable `statuses[0]`).
+- Fixed unguarded `float()` calls on duration values in collector (`_make_step`, `end_feature`, `end_scenario`) — now wrapped in try/except.
+- Fixed missing error handling for file reads in `attach_file` (both `attach.py` and `formatter.py`) and `attach_screenshot` — now raises descriptive `OSError`.
+- Fixed unguarded `querySelector` in copy button handler (could throw `SyntaxError` from CSS selector metacharacters in step names).
+- Fixed unguarded `JSON.parse` in step catalog template (could crash all interactivity on malformed data).
+- Fixed unguarded `window.matchMedia` in step catalog template (could crash in browsers without support).
+- Fixed string data in attachments not being base64-encoded, producing broken `data:` URLs.
+- Fixed text extraction in collector to handle string `raw_data` directly instead of encode-then-decode roundtrip.
+
+### Added
+
+- Added 96 regression tests covering all fixed bugs.
+- Added GitHub issue templates, PR template, CODE_OF_CONDUCT, CONTRIBUTING, and SECURITY policy.
+
 ## [2.2.0] - 2026-06-30
 
 ### Added
