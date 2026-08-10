@@ -24,3 +24,7 @@ report.html
 .vscode/
 .idea/
 *.swp
+
+# Local docs and scripts
+docs/
+scripts/
