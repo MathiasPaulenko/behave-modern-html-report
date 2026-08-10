@@ -83,7 +83,7 @@ def sample_execution() -> Execution:
             behave_version="1.2.6",
             platform="Windows 11 (AMD64)",
             hostname="dev-machine",
-            command="behave -f modern -o report.html",
+            command="behave -f modern-html -o report.html",
         ),
         statistics=Statistics(start_time=start, end_time=start + timedelta(seconds=5)),
     )
