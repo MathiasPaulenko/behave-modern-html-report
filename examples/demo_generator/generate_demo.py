@@ -184,7 +184,7 @@ def build_demo_execution() -> Execution:
             platform="Demo OS 1.0 (x86_64)",
             hostname="demo-host",
             cwd="/demo/project",
-            command="behave -f modern -o demo-report.html",
+            command="behave -f modern-html -o demo-report.html",
             user="demo-user",
             cpu_count=8,
             memory_mb=16384,
