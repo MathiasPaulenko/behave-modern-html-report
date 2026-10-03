@@ -5,6 +5,73 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.4.0] - 2026-10-03
+
+### Fixed
+
+- **Attachments now work**: added `attach()` and `embedding()` to
+  `ModernHTMLFormatter`. Previously the `attach_*`/`log` helpers silently did
+  nothing (no formatter exposed `.attach`), and `context.attach()` was ignored
+  because the formatter did not implement `embedding()`.
+- **Background steps no longer duplicated**: executed background steps now land
+  in the per-scenario background block with their real status, instead of
+  appearing twice (once as a forever-`untested` feature template, once in the
+  step list).
+- **Scenario outlines detected**: Behave calls the formatter with expanded
+  `Scenario` instances (`type="scenario"`), so the outline banner and the
+  `Examples` table were never rendered. Detection now uses `_row`/parent
+  outline.
+- **`bmr.json_sidecar` honoured**: `close()` now goes through
+  `render_to_file()`, which writes the JSON sidecar next to the report.
+- **Charts**: `hidpi()` used the already-DPR-scaled buffer height, so every
+  resize/theme toggle multiplied canvas height on HiDPI screens.
+- **Extended statuses visible**: scenarios with `untested`, `error`,
+  `hook_error`, `cleanup_error`, `xfailed`, `xpassed` or `pending_warn` were
+  hidden by any filter/search. They now get filter chips (when present),
+  progress segments, chart colours and CSS badges.
+- **Step catalog**: `data-is-regex` rendered Python `True`/`False` so the
+  "(regex)" suffix never showed; sort by Function/File/Params did nothing
+  (mismatched `data-sort` keys).
+- **Expand all** now expands every level (features → rules → scenarios), not
+  just the first head inside each card.
+- **XSS: Jinja autoescape never applied**: `select_autoescape` covered
+  `.html`/`.xml` but every template is `*.jinja`, so all interpolations
+  rendered unescaped (scenario names, step text, errors…). Autoescape now
+  covers `jinja`/`jinja2` too.
+- **Attachments/logs in hooks**: Behave runs `after_step` before reporting the
+  step result, so `attach_*`/`log` calls there were silently dropped or
+  mis-assigned. They are now buffered and flushed onto the step being added.
+- **Env var secrets redacted**: captured CI env vars whose names contain
+  TOKEN/SECRET/PASSWORD/KEY/AUTH/etc. are masked as `***` in the report.
+- Scenario-level attachments (before the first step) are stored on
+  `Scenario.attachments` and rendered, instead of creating a phantom
+  `(attachment)` step that inflated `total_steps`.
+- `data-error` now includes every error message, not just the first one.
+- Rule groups preserve execution order (Jinja `groupby` reordered
+  alphabetically); added `Feature.rule_groups`.
+- Reproduce command is quoted (`behave "features/x.feature:12"`) so paths with
+  spaces work.
+- `scan_file` no longer crashes when the file is outside `base_dir`.
+- `tag_ranking` sorts by longest duration after failures/count.
+- Example `environment.py` fixed: it lived at the project root where Behave
+  never loaded it (moved to `features/`), used the nonexistent `userdata.set`,
+  called `context.attach(name=)` with the wrong signature, and read the
+  nonexistent `context.features` in `after_all`. Makefile `report` target
+  fixed (`--config-file` is not a real Behave flag).
+- `StepCatalogFormatter` wrote through the behave stream (console encoding),
+  crashing on Windows; it now writes the file itself as UTF-8.
+- Docs: the `docs/` pages were deleted in the previous release while the
+  README still linked them — everything is now consolidated into the README
+  (single source of truth), with screenshots moved to `.github/images/`.
+  Also fixed wrong `log()`/`userdata.set` examples and the
+  "without running the suite" claim for `steps-catalog`, updated SECURITY.md.
+
+### Removed
+
+- `bmr.embed` / `RenderOptions.embed_assets` (parsed but never used).
+- `assets/js/step_catalog.js` (empty placeholder; the catalog interactivity
+  lives inline in the template).
+
 ## [2.3.0] - 2026-08-11
 
 ### Changed

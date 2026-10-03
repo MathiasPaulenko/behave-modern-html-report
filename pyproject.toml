@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "behave-modern-html-report"
-version = "2.3.0"
+version = "2.4.0"
 description = "The modern, beautiful, single-file HTML report formatter for Behave."
 readme = "README.md"
 license = { text = "MIT" }
@@ -54,9 +54,11 @@ include = [
     "behave_modern_html_report",
     "tests",
     "examples",
-    "docs",
+    "scripts",
     "README.md",
     "CHANGELOG.md",
+    "CONTRIBUTING.md",
+    "SECURITY.md",
     "LICENSE",
     "pyproject.toml",
 ]

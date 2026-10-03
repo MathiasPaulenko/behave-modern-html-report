@@ -12,8 +12,10 @@ from behave_modern_html_report.models import (
 
 def test_normalize_status_handles_strings_and_enums():
     """normalize_status converts strings, enums and unknown values safely."""
+
     class E:
         name = "PASSED"
+
     assert normalize_status("passed") == "passed"
     assert normalize_status("FAILED") == "failed"
     assert normalize_status(E()) == "passed"
@@ -50,5 +52,5 @@ def test_package_version():
     """The package exposes the expected version and public API."""
     import behave_modern_html_report as bmr
 
-    assert bmr.__version__ == "2.3.0"
+    assert bmr.__version__ == "2.4.0"
     assert "attach_screenshot" in bmr.__all__
