@@ -9,7 +9,7 @@
 [![CI](https://github.com/MathiasPaulenko/behave-modern-html-report/actions/workflows/ci.yml/badge.svg)](https://github.com/MathiasPaulenko/behave-modern-html-report/actions/workflows/ci.yml)
 
 `behave-modern-html-report` is a drop-in formatter for Behave that produces a single,
-self-contained HTML file — everything (CSS, JS, fonts, icons, attachments) is
+self-contained HTML file — everything (CSS, JS, icons, attachments) is
 embedded so the report works offline, on any machine, forever.
 
 ## Features
@@ -23,7 +23,7 @@ embedded so the report works offline, on any machine, forever.
 - 📁 **Expandable** features → scenarios → steps with rich metadata
 - 🧯 **Modern error viewer** with copy-to-clipboard tracebacks
 - 🖼️ **Attachments**: images (with lightbox), JSON, text, binaries
-- 🚀 **Copy-reproduce-command** per scenario (`behave features/example.feature:3`)
+- 🚀 **Copy-reproduce-command** per scenario (`behave "features/example.feature:3"`)
 - 📊 **Inline step duration bars** to spot slow steps at a glance
 - ♿ **Accessible**: keyboard navigation, ARIA labels, reduced-motion support
 - 📦 **Single HTML file**, works offline, no web server, no CDN
@@ -40,7 +40,7 @@ pip install behave-modern-html-report
 
 ## Quick start
 
-In your project's `behave.ini` (or `setup.cfg`):
+In your project's `behave.ini` (or `setup.cfg` / `tox.ini` with the same section):
 
 ```ini
 [behave.formatters]
@@ -56,15 +56,26 @@ behave -f modern-html -o report.html
 
 Open `report.html` in any browser. Done.
 
-You can also generate a **step catalog** (static analysis of your step definitions, no test execution needed):
+### Useful variations
+
+Run a single feature file:
 
 ```bash
-behave -f steps-catalog -o steps.html
+behave -f modern-html -o report.html features/login.feature
 ```
+
+Keep the console output while generating the report (Behave supports multiple
+formatters at once):
+
+```bash
+behave -f pretty -o /dev/null -f modern-html -o report.html
+```
+
+On Windows use `NUL` instead of `/dev/null`.
 
 ## Configuration
 
-All reporter options are read from `behave`'s `userdata` section. Set them in `behave.ini`, `setup.cfg`, or programmatically from `environment.py`:
+All reporter options are read from `behave`'s `userdata` section. Set them in `behave.ini`, `setup.cfg`, or via `-D` on the command line:
 
 ```ini
 [behave.userdata]
@@ -95,19 +106,58 @@ Available options:
 - `bmr.logo` / `bmr.favicon` — URL or base64 data URI for a logo/favicon.
 - `bmr.theme` — `auto`, `dark` or `light`.
 - `bmr.primary_color` / `bmr.accent_color` — override the report colors.
-- `bmr.default_view` — initial view (`dashboard`, `features`, `scenarios`, ...).
+- `bmr.default_view` — initial view (`dashboard`, `features`, `rules`, `scenarios`, `results`, `tags`, `statistics`, `environment`).
 - `bmr.hidden_views` — comma-separated views to hide (e.g. `rules,statistics`).
-- `bmr.expand_by_default` — expand all sections on load.
-- `bmr.max_slowest` — number of slowest scenarios on the dashboard.
-- `bmr.show_copy_command` — show the copy reproduce command button.
-- `bmr.show_environment_vars` — show the environment variables card.
+- `bmr.expand_by_default` — expand all features, rules and scenarios on load (default `false`).
+- `bmr.max_slowest` — number of slowest scenarios on the dashboard (default `10`).
+- `bmr.show_copy_command` — show the copy reproduce command button (default `true`).
+- `bmr.show_environment_vars` — show the environment variables card (default `true`).
 - `bmr.footer_text` — custom footer line.
 - `bmr.link_to_ci` — "View in CI" button URL.
-- `bmr.json_sidecar` — write `report.json` next to the HTML report.
-- `bmr.custom_css` / `bmr.custom_js` — embed custom CSS/JS files.
+- `bmr.json_sidecar` — write `report.json` next to the HTML report (default `false`).
+- `bmr.custom_css` / `bmr.custom_js` — embed custom CSS/JS files (paths must be readable from where Behave runs).
 - `bmr.steps_dir` — directory to scan for step definitions when using the `steps-catalog` formatter (default `features/steps`).
 
-See [docs/configuration.md](docs/configuration.md) for the full reference.
+Note: `bmr.*` options must be set in `behave.ini` or via `-D` — setting them from
+`environment.py` has no effect, because the formatter reads `userdata` when it
+is instantiated, before `before_all` runs.
+
+### Setting options from the command line
+
+Use `-D` / `--define` to override any option without touching `behave.ini`:
+
+```bash
+behave -f modern-html -o report.html -D bmr.title="API Tests" -D bmr.theme=dark
+```
+
+### Full example `behave.ini`
+
+```ini
+[behave]
+format = modern-html
+outfiles = report.html
+show_skipped = true
+show_timings = true
+
+[behave.formatters]
+modern-html = behave_modern_html_report.formatter:ModernHTMLFormatter
+
+[behave.userdata]
+bmr.title = My Suite
+bmr.company = Acme Inc.
+bmr.theme = auto
+bmr.json_sidecar = true
+```
+
+### Environment variables and secrets
+
+The Environment view captures CI-related environment variables (prefixed `CI`,
+`GITHUB`, `GITLAB`, `BITBUCKET`, `JENKINS`, `TRAVIS`, `CIRCLE`, `BUILD`,
+`AGENT`, `TF_`, `AZURE`, plus `PATH`, `HOME`, `USER`, `SHELL`, `LANG` and
+`TERM`). Names containing `TOKEN`, `SECRET`, `PASSWORD`, `PASSWD`,
+`CREDENTIAL`, `PRIVATE`, `AUTH`, `COOKIE`, `CERT`, `APIKEY`, `API_KEY` or
+`_KEY` are automatically redacted as `***` so secrets are never embedded into
+the report.
 
 ## Behave 1.3.x and Gherkin Rules compatibility
 
@@ -139,16 +189,22 @@ def after_step(context, step):
     if step.status == "failed":
         attach_screenshot(context, context.browser, name="failure.png")
         attach_text(context, str(step.exception), name="error.txt")
-        log(f"URL at failure: {context.browser.current_url}")
+        log(context, f"URL at failure: {context.browser.current_url}")
 ```
 
 The helpers also work with Playwright, Selenium, PIL images, bytes, files, and JSON data.
+Behave's native `context.attach(mime_type, data)` is captured too, via the
+formatter's `embedding()` hook.
+
+> Reminder: `environment.py` hooks must live inside `features/` (Behave only
+> loads `features/environment.py`), not at the project root.
 
 ## Step Catalog
 
 The package also includes a **step catalog** formatter that statically analyses
 your `features/steps/` directory and produces an HTML catalog of all step
-definitions — without running the suite.
+definitions. Behave still executes the suite normally (the catalog ignores the
+test events) — add `--dry-run` if you only want the catalog.
 
 Register it in `behave.ini`:
 
@@ -160,7 +216,7 @@ steps-catalog = behave_modern_html_report.step_catalog_formatter:StepCatalogForm
 Then run:
 
 ```bash
-behave -f steps-catalog -o steps.html
+behave -f steps-catalog -o steps.html --dry-run
 ```
 
 The catalog includes:
@@ -192,33 +248,61 @@ html = render_catalog(catalog, title="My Step Catalog")
 Path("steps.html").write_text(html, encoding="utf-8")
 ```
 
-### Screenshots
+## Report views
 
-<details>
-<summary>View screenshots</summary>
+The generated report is a single-page application with a sidebar navigation.
+Change the initial view with `bmr.default_view` and hide views with
+`bmr.hidden_views`.
 
-**Step Catalog — main view**
+- **Dashboard** — high-level summary: totals, pass rate, status distribution,
+  duration histogram, slowest scenarios, tag pass rate, error distribution, and
+  a one-click summary for Slack or chat.
+- **Features** — all features with status badges, tags, description and
+  duration. Expand a feature to see its scenarios; Compact/Detailed toggle
+  shows or hides rule and scenario details.
+- **Rules** — all Gherkin `Rule` groups across every feature (Behave 1.3.x).
+- **Scenarios** — all scenarios as collapsible cards with steps, background
+  steps, attachments, error traces and scenario outline banners.
+- **Results** — compact table of every scenario with status, feature, rule,
+  duration and tags.
+- **Tags** — per-tag analytics: scenario count, pass rate with colour bars and
+  accumulated duration.
+- **Statistics** — raw metrics: status distribution, duration percentiles,
+  per-feature summary and error distribution by exception type.
+- **Environment** — host and runtime info captured at execution time: Python
+  and Behave versions, platform, hostname, CPU, memory, git data, and CI
+  environment variables (with secret redaction).
 
-![Step Catalog](docs/images/step_catalog.png)
+## Examples
 
-**Step detail panel**
+The repository includes two example projects under `examples/`.
 
-![Step detail panel](docs/images/step_catalog_detail.png)
+### Demo generator
 
-**Step metrics**
-
-![Step metrics](docs/images/step_catalog_metrics.png)
-
-</details>
-
-## Generate a demo without running Behave
+`examples/demo_generator/` builds a synthetic execution and renders it as HTML —
+useful for previews, screenshots and design iteration without a real suite:
 
 ```bash
 python examples/demo_generator/generate_demo.py
 ```
 
-This builds `examples/demo_generator/demo-report.html` with a realistic-looking suite —
-useful for previews, screenshots, and design iteration.
+Output: `examples/demo_generator/demo-report.html`.
+
+### Functional Behave project
+
+`examples/behave_project/` is a complete Behave project with features, steps,
+`environment.py` hooks, and `behave.ini` configured for the formatter:
+
+```bash
+cd examples/behave_project
+pip install -r requirements.txt   # installs behave + this package (-e ../..)
+behave                            # generates report.html
+```
+
+It exercises: backgrounds and scenario outlines, Gherkin `Rule` groups,
+passing/failing/skipped/undefined scenarios, attachments on failure, slow
+scenarios, and custom `bmr.*` userdata options. Run a subset with
+`behave --tags=login|checkout|smoke`.
 
 ## Report screenshots
 
@@ -227,80 +311,110 @@ useful for previews, screenshots, and design iteration.
 
 ### Dashboard view
 
-![Dashboard](docs/images/dashboard.png)
+![Dashboard](https://raw.githubusercontent.com/MathiasPaulenko/behave-modern-html-report/main/.github/images/dashboard.png)
 
 ### Features view
 
-![Features](docs/images/features.png)
+![Features](https://raw.githubusercontent.com/MathiasPaulenko/behave-modern-html-report/main/.github/images/features.png)
 
 ### Rules view
 
-![Rules](docs/images/rules.png)
+![Rules](https://raw.githubusercontent.com/MathiasPaulenko/behave-modern-html-report/main/.github/images/rules.png)
 
 ### Scenarios view
 
-![Scenarios](docs/images/scenarios.png)
+![Scenarios](https://raw.githubusercontent.com/MathiasPaulenko/behave-modern-html-report/main/.github/images/scenarios.png)
 
 ### Results view
 
-![Results](docs/images/results.png)
+![Results](https://raw.githubusercontent.com/MathiasPaulenko/behave-modern-html-report/main/.github/images/results.png)
 
 ### Tags view
 
-![Tags](docs/images/tags.png)
+![Tags](https://raw.githubusercontent.com/MathiasPaulenko/behave-modern-html-report/main/.github/images/tags.png)
 
 ### Statistics view
 
-![Statistics](docs/images/statistics.png)
+![Statistics](https://raw.githubusercontent.com/MathiasPaulenko/behave-modern-html-report/main/.github/images/statistics.png)
 
 ### Environment view
 
-![Environment](docs/images/environment.png)
+![Environment](https://raw.githubusercontent.com/MathiasPaulenko/behave-modern-html-report/main/.github/images/environment.png)
+
+</details>
+
+<details>
+<summary>Step catalog</summary>
+
+![Step Catalog](https://raw.githubusercontent.com/MathiasPaulenko/behave-modern-html-report/main/.github/images/step_catalog.png)
+
+![Step detail panel](https://raw.githubusercontent.com/MathiasPaulenko/behave-modern-html-report/main/.github/images/step_catalog_detail.png)
+
+![Step metrics](https://raw.githubusercontent.com/MathiasPaulenko/behave-modern-html-report/main/.github/images/step_catalog_metrics.png)
 
 </details>
 
 ## Architecture
 
+`behave-modern-html-report` follows a strict layered architecture — each layer
+has a single responsibility and depends only on the layers above it:
+
 ```text
-behave events
-    │
-    ▼
- formatter.py ── thin adapter
-    │
-    ▼
- collector.py ── builds the model tree
-    │
-    ▼
-   models.py  ── pure dataclasses
-                (Execution → Feature → Rule-aware Scenario → Step)
-    │
-    ▼
- statistics.py ── aggregates counters, durations, buckets
-    │
-    ▼
- renderer.py  + templates/ + assets/  ── Jinja2 → single HTML file
+┌──────────────────────────────────────────┐
+│  formatter.py   (Behave adapter)         │  ← only this layer knows about Behave
+├──────────────────────────────────────────┤
+│  collector.py   (event → model builder)  │
+├──────────────────────────────────────────┤
+│  models.py      (pure dataclasses)       │  ← no I/O, no framework imports
+│  statistics.py  (aggregations)           │
+├──────────────────────────────────────────┤
+│  renderer.py    (Jinja2 → single HTML)   │
+│  assets.py      (CSS/JS bundling)        │
+│  templates/     (HTML components)        │
+│  assets/        (CSS / JS / icons)       │
+└──────────────────────────────────────────┘
 ```
 
-The renderer is **independent of Behave**, so any tool that can produce an
-`Execution` object (e.g. a JSON loader) can use it.
+Data flow:
+
+1. Behave invokes the formatter for each feature/scenario/step result.
+2. The formatter delegates to a `Collector`, which builds an `Execution` tree
+   of dataclasses.
+3. On `close()`, the formatter calls `Collector.finalize()` which runs
+   `statistics.compute()` to derive aggregates.
+4. A `Renderer` loads Jinja2 templates and the bundled CSS/JS, embeds
+   everything (and the execution as JSON for client-side rendering), and writes
+   a single `.html` file.
+
+Why it matters:
+
+- **Testability** — the collector accepts duck-typed stubs; the renderer
+  accepts an `Execution`, so both can be tested without ever running Behave.
+- **Reusability** — anything that can build an `Execution` (e.g. a JSON loader)
+  can render the same report.
+- **Future-proofing** — new outputs or plugins only touch one layer.
+
+The renderer never references external URLs: CSS, JS, icons (inline SVG
+sprite), attachments (base64) and the execution payload are all embedded. The
+output file works offline forever.
 
 ## Development
 
 ```bash
+git clone https://github.com/MathiasPaulenko/behave-modern-html-report.git
+cd behave-modern-html-report
+python -m venv .venv
+. .venv/Scripts/activate   # PowerShell: .venv\Scripts\Activate.ps1
 pip install -e ".[dev]"
 pytest
 ruff check .
 ```
 
-## Documentation
+Or use the `Makefile`: `make install-dev`, `make test`, `make lint`,
+`make format`, `make demo`, `make report`.
 
-- [Usage](docs/usage.md) — installation, basic configuration, and running.
-- [Configuration](docs/configuration.md) — all reporter options and userdata keys.
-- [Report views](docs/views.md) — what each view shows.
-- [Step catalog](#step-catalog) — static analysis of step definitions.
-- [Examples](docs/examples.md) — demo generator and functional Behave project.
-- [Architecture](docs/architecture.md) — how the formatter is structured.
-- [Contributing](docs/contributing.md) — local setup, checks, and conventions.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the full process, conventions and
+release steps, and [SECURITY.md](SECURITY.md) for the security policy.
 
 ## License
 

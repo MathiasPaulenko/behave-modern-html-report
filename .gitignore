@@ -19,12 +19,9 @@ htmlcov/
 examples/demo-report.html
 report.html
 *.html.bak
+examples/behave_project/summary.json
 
 # IDE
 .vscode/
 .idea/
 *.swp
-
-# Local docs and scripts
-docs/
-scripts/

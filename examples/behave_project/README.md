@@ -4,9 +4,9 @@ A functional Behave project used to test `behave-modern-html-report`.
 
 ## Features
 
-- **Login**: background, scenario outline, pending/undefined steps.
+- **Login**: background, scenario outline, skipped/undefined steps.
 - **Checkout**: Gherkin `Rule` grouping, background, passing and failing scenarios.
-- **Reporting**: skipped/pending scenario, slow scenario, attachment on failure.
+- **Reporting**: skipped scenario, slow scenario, attachment on failure.
 
 ## Requirements
 
@@ -46,28 +46,25 @@ bmr.show_copy_command = true
 bmr.show_environment_vars = true
 ```
 
-You can also override them from `environment.py`:
+Note: `bmr.*` options must be set in `behave.ini` (or `-D` on the command
+line). The formatter reads `userdata` when it is instantiated, which happens
+before `before_all` runs — overriding them from `environment.py` has no
+effect on the report.
 
-```python
-def before_all(context):
-    context.config.userdata.set("bmr.title", "My Custom Title")
-    context.config.userdata.set("bmr.link_to_ci", "https://ci.example.com/build/123")
-```
-
-See the main [Configuration](../../docs/configuration.md) docs for the full list of options.
+See the main [Configuration](../../README.md#configuration) docs for the full list of options.
 
 ## Step catalog
 
 Generate a static catalog of all step definitions:
 
 ```bash
-behave -f steps-catalog -o steps.html
+behave -f steps-catalog -o steps.html --dry-run
 ```
 
 Open `steps.html` to see all `@given`, `@when`, `@then` steps with patterns,
 parameters, source code and metrics.
 
-See the main [Usage](../../docs/usage.md) docs for more information.
+See the main [README](../../README.md#step-catalog) for more information.
 
 ## Advanced
 
@@ -82,5 +79,5 @@ behave --tags=smoke
 Run without installing the package (from the repo root):
 
 ```bash
-PYTHONPATH=. python -m behave examples/behave_project/features
+PYTHONPATH=. python -m behave -f behave_modern_html_report.formatter:ModernHTMLFormatter -o report.html examples/behave_project/features
 ```
