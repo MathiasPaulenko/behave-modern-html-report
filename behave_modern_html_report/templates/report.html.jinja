@@ -91,6 +91,16 @@
             <em data-count="{{ s }}">0</em>
           </button>
         {% endfor %}
+        {# Extended Behave 1.3.x statuses get a chip only when they occur. #}
+        {% for s in ["untested","error","hook_error","cleanup_error","xfailed","xpassed","pending_warn"] %}
+          {% if status_distribution.get(s) %}
+          <button class="chip chip-{{ s }}" data-filter-status="{{ s }}" aria-pressed="true">
+            <svg class="ico"><use href="#i-{{ s|status_icon }}"/></svg>
+            <span>{{ s|status_label }}</span>
+            <em data-count="{{ s }}">0</em>
+          </button>
+          {% endif %}
+        {% endfor %}
       </div>
       <button id="filters-toggle" class="icon-btn" aria-label="Toggle advanced filters" title="Advanced filters" type="button">
         <svg class="ico"><use href="#i-filter"/></svg>

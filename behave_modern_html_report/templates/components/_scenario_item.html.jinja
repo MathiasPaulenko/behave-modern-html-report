@@ -1,11 +1,12 @@
+{% set all_steps = scenario.background.steps + scenario.steps if scenario.background else scenario.steps %}
 <li class="scenario" data-status="{{ scenario.status }}"
     data-name="{{ scenario.name|lower }}"
     data-tags="{{ scenario.tags|join(',')|lower }}"
     data-feature="{{ scenario.feature_name|lower }}"
     data-rule="{{ scenario.rule_name|lower }}"
     data-duration="{{ scenario.duration }}"
-    data-error="{{ (scenario.steps | selectattr('error') | map(attribute='error.message') | first | lower) if scenario.steps and (scenario.steps | selectattr('error') | list) else '' }}">
-{% set repro_cmd = "behave " ~ scenario.location if scenario.location else "behave -t @" ~ scenario.tags|join(' -t @') if scenario.tags else 'behave' %}
+    data-error="{{ all_steps | selectattr('error') | map(attribute='error.message') | join(' ') | lower }}">
+{% set repro_cmd = 'behave "' ~ scenario.location ~ '"' if scenario.location else "behave -t @" ~ scenario.tags|join(' -t @') if scenario.tags else 'behave' %}
   <div class="scenario-row-header">
     <button class="scenario-head" aria-expanded="false">
       <svg class="ico chev"><use href="#i-chevron"/></svg>
@@ -61,6 +62,19 @@
         {% include "components/step.html.jinja" %}
       {% endfor %}
     </ol>
+
+    {% if scenario.logs %}
+      <details class="logs">
+        <summary>Logs ({{ scenario.logs|length }})</summary>
+        <pre><code>{% for line in scenario.logs %}{{ line }}
+{% endfor %}</code></pre>
+      </details>
+    {% endif %}
+
+    {% if scenario.attachments %}
+      {% set attachments = scenario.attachments %}
+      {% include "components/_attachments.html.jinja" %}
+    {% endif %}
 
     {% if scenario.examples and scenario.examples.headings %}
       <div class="examples-block detailed-only">

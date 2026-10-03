@@ -68,6 +68,7 @@ def normalize_status(value: Any) -> str:
 # Leaf models
 # ---------------------------------------------------------------------------
 
+
 @dataclass(slots=True)
 class Attachment:
     """A file or blob attached to a step or scenario."""
@@ -112,6 +113,7 @@ class DataTable:
 # Tree
 # ---------------------------------------------------------------------------
 
+
 @dataclass(slots=True)
 class Step:
     """A single Gherkin step."""
@@ -150,6 +152,8 @@ class Scenario:
     tags: list[str] = field(default_factory=list)
     steps: list[Step] = field(default_factory=list)
     background: Background | None = None
+    attachments: list[Attachment] = field(default_factory=list)
+    logs: list[str] = field(default_factory=list)
     feature_name: str = ""
     rule_name: str = ""
     is_outline: bool = False
@@ -180,10 +184,22 @@ class Feature:
         """Return the number of scenarios in the feature."""
         return len(self.scenarios)
 
+    @property
+    def rule_groups(self) -> list[tuple[str, list[Scenario]]]:
+        """Group consecutive scenarios by rule name, preserving execution order."""
+        groups: list[tuple[str, list[Scenario]]] = []
+        for scenario in self.scenarios:
+            if not groups or groups[-1][0] != scenario.rule_name:
+                groups.append((scenario.rule_name, [scenario]))
+            else:
+                groups[-1][1].append(scenario)
+        return groups
+
 
 # ---------------------------------------------------------------------------
 # Environment & statistics
 # ---------------------------------------------------------------------------
+
 
 @dataclass(slots=True)
 class Environment:
@@ -274,7 +290,10 @@ class Execution:
         statuses = [f.status for f in self.features]
         if any(s == STATUS_FAILED for s in statuses):
             return STATUS_FAILED
-        if any(s in (STATUS_UNDEFINED, STATUS_ERROR, STATUS_HOOK_ERROR, STATUS_CLEANUP_ERROR) for s in statuses):
+        if any(
+            s in (STATUS_UNDEFINED, STATUS_ERROR, STATUS_HOOK_ERROR, STATUS_CLEANUP_ERROR)
+            for s in statuses
+        ):
             return STATUS_UNDEFINED
         if any(s == STATUS_PENDING for s in statuses):
             return STATUS_PENDING

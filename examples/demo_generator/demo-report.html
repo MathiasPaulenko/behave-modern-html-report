@@ -189,6 +189,13 @@ pre { margin: 0; }
 .chip-skipped  { --chip: var(--c-skipped);   }
 .chip-undefined{ --chip: var(--c-undefined); }
 .chip-pending  { --chip: var(--c-pending);   }
+.chip-untested { --chip: var(--c-untested);  }
+.chip-error,
+.chip-hook_error,
+.chip-cleanup_error { --chip: var(--c-failed);    }
+.chip-xfailed       { --chip: var(--c-skipped);   }
+.chip-xpassed       { --chip: var(--c-undefined); }
+.chip-pending_warn  { --chip: var(--c-pending);   }
 .chip[aria-pressed="true"] { box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--chip) 55%, transparent); }
 .chip .ico { color: var(--chip); }
 
@@ -245,10 +252,17 @@ pre { margin: 0; }
 }
 .status-pill .ico { width: 16px; height: 16px; }
 .status-pill.status-passed   { color: var(--c-passed);    border-color: color-mix(in oklab, var(--c-passed) 50%, var(--border)); }
-.status-pill.status-failed   { color: var(--c-failed);    border-color: color-mix(in oklab, var(--c-failed) 50%, var(--border)); }
+.status-pill.status-failed,
+.status-pill.status-error,
+.status-pill.status-hook_error,
+.status-pill.status-cleanup_error { color: var(--c-failed);    border-color: color-mix(in oklab, var(--c-failed) 50%, var(--border)); }
 .status-pill.status-skipped  { color: var(--c-skipped);   }
 .status-pill.status-undefined{ color: var(--c-undefined); }
-.status-pill.status-pending  { color: var(--c-pending);   }
+.status-pill.status-pending,
+.status-pill.status-pending_warn { color: var(--c-pending);   }
+.status-pill.status-untested { color: var(--c-untested);  }
+.status-pill.status-xfailed  { color: var(--c-skipped);   }
+.status-pill.status-xpassed  { color: var(--c-undefined); }
 
 .status-badge {
   display: inline-flex; align-items: center; gap: 4px;
@@ -258,18 +272,31 @@ pre { margin: 0; }
 }
 .status-badge .ico { width: 12px; height: 12px; }
 .status-badge.status-passed   { --c: var(--c-passed); }
-.status-badge.status-failed   { --c: var(--c-failed); }
+.status-badge.status-failed,
+.status-badge.status-error,
+.status-badge.status-hook_error,
+.status-badge.status-cleanup_error { --c: var(--c-failed); }
 .status-badge.status-skipped  { --c: var(--c-skipped); }
 .status-badge.status-undefined{ --c: var(--c-undefined); }
-.status-badge.status-pending  { --c: var(--c-pending); }
+.status-badge.status-pending,
+.status-badge.status-pending_warn { --c: var(--c-pending); }
 .status-badge.status-untested { --c: var(--text-faint); }
+.status-badge.status-xfailed  { --c: var(--c-skipped); }
+.status-badge.status-xpassed  { --c: var(--c-undefined); }
 
 .status-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--text-faint); flex-shrink: 0; }
 .status-dot.status-passed   { background: var(--c-passed); }
-.status-dot.status-failed   { background: var(--c-failed); }
+.status-dot.status-failed,
+.status-dot.status-error,
+.status-dot.status-hook_error,
+.status-dot.status-cleanup_error { background: var(--c-failed); }
 .status-dot.status-skipped  { background: var(--c-skipped); }
 .status-dot.status-undefined{ background: var(--c-undefined); }
-.status-dot.status-pending  { background: var(--c-pending); }
+.status-dot.status-pending,
+.status-dot.status-pending_warn { background: var(--c-pending); }
+.status-dot.status-untested { background: var(--c-untested); }
+.status-dot.status-xfailed  { background: var(--c-skipped); }
+.status-dot.status-xpassed  { background: var(--c-undefined); }
 
 /* ============================================================
    Features / Scenarios / Steps
@@ -406,10 +433,17 @@ pre { margin: 0; }
 .progress-segment:first-child { border-radius: 999px 0 0 999px; }
 .progress-segment:last-child { border-radius: 0 999px 999px 0; }
 .progress-segment.status-passed   { background: var(--c-passed); }
-.progress-segment.status-failed   { background: var(--c-failed); }
+.progress-segment.status-failed,
+.progress-segment.status-error,
+.progress-segment.status-hook_error,
+.progress-segment.status-cleanup_error { background: var(--c-failed); }
 .progress-segment.status-skipped  { background: var(--c-skipped); }
 .progress-segment.status-undefined{ background: var(--c-undefined); }
-.progress-segment.status-pending  { background: var(--c-pending); }
+.progress-segment.status-pending,
+.progress-segment.status-pending_warn { background: var(--c-pending); }
+.progress-segment.status-untested { background: var(--c-untested); }
+.progress-segment.status-xfailed  { background: var(--c-skipped); }
+.progress-segment.status-xpassed  { background: var(--c-undefined); }
 
 .progress-fill {
   position: absolute; left: 0; top: 0; bottom: 0; border-radius: 999px;
@@ -732,7 +766,7 @@ pre { margin: 0; }
     <div>
       <h1 class="view-title">Behave Modern Report — Demo</h1>
       <p class="view-sub">
-Started 2026-08-10 23:15:26 ·         Duration 1m 1s · 5 features · 25 scenarios
+Started 2026-10-03 09:36:31 ·         Duration 1m 1s · 5 features · 25 scenarios
       </p>
     </div>
     <div class="status-pill status-failed">
@@ -897,88 +931,7 @@ Started 2026-08-10 23:15:26 ·         Duration 1m 1s · 5 features · 25 scenar
 <span class="tag">@checkout</span>          </div>
         </button>
         <div class="feature-body" hidden>
-<p class="desc">Behavior of the checkout subsystem including rules.</p>              <ol class="scenarios">
-<li class="scenario" data-status="passed"
-    data-name="scenario 5: checkout"
-    data-tags="regression,nightly"
-    data-feature="checkout"
-    data-rule=""
-    data-duration="2.005"
-    data-error="">
-  <div class="scenario-row-header">
-    <button class="scenario-head" aria-expanded="false">
-      <svg class="ico chev"><use href="#i-chevron"/></svg>
-      <span class="status-badge status-passed">
-        <svg class="ico"><use href="#i-check"/></svg>
-        Passed
-      </span>
-      <div class="scenario-meta">
-        <span class="scenario-title">Scenario 5: checkout</span>
-        <span class="muted">2.00s</span>
-      </div>
-      <div class="tags">
-<span class="tag">@regression</span><span class="tag">@nightly</span>      </div>
-    </button>
-    <button class="icon-btn copy-btn" title="Copy reproduce command" aria-label="Copy reproduce command"
-            data-copy-text="behave features/Checkout.feature:20" type="button">
-      <svg class="ico"><use href="#i-terminal"/></svg>
-    </button>
-  </div>
-  <div class="scenario-body" hidden>
-<p class="muted small">features/Checkout.feature:20</p>
-
-
-    <ol class="steps">
-<li class="step status-passed">
-  <div class="step-head">
-    <span class="status-badge status-passed" aria-label="Passed">
-      <svg class="ico"><use href="#i-check"/></svg>
-    </span>
-    <span class="kw">Then</span>
-    <span class="step-text">the user opens the dashboard</span>
-    <span class="step-duration-bar" aria-hidden="true" style="width: 38.8646288209607%"></span>
-    <span class="muted small step-duration">356ms</span>
-  </div>
-
-
-
-
-
-</li><li class="step status-passed">
-  <div class="step-head">
-    <span class="status-badge status-passed" aria-label="Passed">
-      <svg class="ico"><use href="#i-check"/></svg>
-    </span>
-    <span class="kw">And</span>
-    <span class="step-text">the cart contains 5 items</span>
-    <span class="step-duration-bar" aria-hidden="true" style="width: 100.0%"></span>
-    <span class="muted small step-duration">916ms</span>
-  </div>
-
-
-
-
-
-</li><li class="step status-skipped">
-  <div class="step-head">
-    <span class="status-badge status-skipped" aria-label="Skipped">
-      <svg class="ico"><use href="#i-skip"/></svg>
-    </span>
-    <span class="kw">Given</span>
-    <span class="step-text">the cart contains 5 items</span>
-    <span class="step-duration-bar" aria-hidden="true" style="width: 80.02183406113537%"></span>
-    <span class="muted small step-duration">733ms</span>
-  </div>
-
-
-
-
-
-</li>    </ol>
-
-  </div>
-</li>              </ol>
-              <div class="rule" data-rule="payment required">
+<p class="desc">Behavior of the checkout subsystem including rules.</p>              <div class="rule" data-rule="payment required">
                 <button class="rule-head" aria-expanded="false">
                   <svg class="ico chev"><use href="#i-chevron"/></svg>
                   <span class="rule-label">Rule</span>
@@ -993,7 +946,7 @@ Started 2026-08-10 23:15:26 ·         Duration 1m 1s · 5 features · 25 scenar
     data-feature="checkout"
     data-rule="payment required"
     data-duration="1.0979999999999999"
-    data-error="">
+    data-error="expected 200 but got 500">
   <div class="scenario-row-header">
     <button class="scenario-head" aria-expanded="false">
       <svg class="ico chev"><use href="#i-chevron"/></svg>
@@ -1009,7 +962,7 @@ Started 2026-08-10 23:15:26 ·         Duration 1m 1s · 5 features · 25 scenar
 <span class="tag">@payment</span>      </div>
     </button>
     <button class="icon-btn copy-btn" title="Copy reproduce command" aria-label="Copy reproduce command"
-            data-copy-text="behave features/Checkout.feature:4" type="button">
+            data-copy-text="behave &#34;features/Checkout.feature:4&#34;" type="button">
       <svg class="ico"><use href="#i-terminal"/></svg>
     </button>
   </div>
@@ -1056,7 +1009,7 @@ Started 2026-08-10 23:15:26 ·         Duration 1m 1s · 5 features · 25 scenar
         </button>
       </div>
       <pre id="err-features-steps-example-py-11the-user-opens-the-dashboard" class="traceback"><code>Traceback (most recent call last):
-  File "features/steps/example.py", line 42, in step_impl
+  File &#34;features/steps/example.py&#34;, line 42, in step_impl
     assert response.status_code == 200
 AssertionError: Expected 200 but got 500</code></pre>
     </div>
@@ -1076,6 +1029,8 @@ AssertionError: Expected 200 but got 500</code></pre>
 
 
 </li>    </ol>
+
+
 
   </div>
 </li><li class="scenario" data-status="undefined"
@@ -1100,7 +1055,7 @@ AssertionError: Expected 200 but got 500</code></pre>
 <span class="tag">@payment</span>      </div>
     </button>
     <button class="icon-btn copy-btn" title="Copy reproduce command" aria-label="Copy reproduce command"
-            data-copy-text="behave features/Checkout.feature:8" type="button">
+            data-copy-text="behave &#34;features/Checkout.feature:8&#34;" type="button">
       <svg class="ico"><use href="#i-terminal"/></svg>
     </button>
   </div>
@@ -1201,6 +1156,8 @@ AssertionError: Expected 200 but got 500</code></pre>
 
 </li>    </ol>
 
+
+
   </div>
 </li>                  </ol>
                 </div>
@@ -1236,7 +1193,7 @@ AssertionError: Expected 200 but got 500</code></pre>
 <span class="tag">@shipping</span>      </div>
     </button>
     <button class="icon-btn copy-btn" title="Copy reproduce command" aria-label="Copy reproduce command"
-            data-copy-text="behave features/Checkout.feature:12" type="button">
+            data-copy-text="behave &#34;features/Checkout.feature:12&#34;" type="button">
       <svg class="ico"><use href="#i-terminal"/></svg>
     </button>
   </div>
@@ -1307,6 +1264,8 @@ AssertionError: Expected 200 but got 500</code></pre>
 
 </li>    </ol>
 
+
+
   </div>
 </li><li class="scenario" data-status="failed"
     data-name="scenario 4: permissions"
@@ -1314,7 +1273,7 @@ AssertionError: Expected 200 but got 500</code></pre>
     data-feature="checkout"
     data-rule="shipping options"
     data-duration="2.735"
-    data-error="">
+    data-error="expected 200 but got 500">
   <div class="scenario-row-header">
     <button class="scenario-head" aria-expanded="false">
       <svg class="ico chev"><use href="#i-chevron"/></svg>
@@ -1330,7 +1289,7 @@ AssertionError: Expected 200 but got 500</code></pre>
 <span class="tag">@shipping</span>      </div>
     </button>
     <button class="icon-btn copy-btn" title="Copy reproduce command" aria-label="Copy reproduce command"
-            data-copy-text="behave features/Checkout.feature:16" type="button">
+            data-copy-text="behave &#34;features/Checkout.feature:16&#34;" type="button">
       <svg class="ico"><use href="#i-terminal"/></svg>
     </button>
   </div>
@@ -1362,7 +1321,7 @@ AssertionError: Expected 200 but got 500</code></pre>
         </button>
       </div>
       <pre id="err-features-steps-example-py-10they-click-the-buy-button" class="traceback"><code>Traceback (most recent call last):
-  File "features/steps/example.py", line 42, in step_impl
+  File &#34;features/steps/example.py&#34;, line 42, in step_impl
     assert response.status_code == 200
 AssertionError: Expected 200 but got 500</code></pre>
     </div>
@@ -1428,10 +1387,95 @@ AssertionError: Expected 200 but got 500</code></pre>
 
 </li>    </ol>
 
+
+
   </div>
 </li>                  </ol>
                 </div>
               </div>
+              <ol class="scenarios">
+<li class="scenario" data-status="passed"
+    data-name="scenario 5: checkout"
+    data-tags="regression,nightly"
+    data-feature="checkout"
+    data-rule=""
+    data-duration="2.005"
+    data-error="">
+  <div class="scenario-row-header">
+    <button class="scenario-head" aria-expanded="false">
+      <svg class="ico chev"><use href="#i-chevron"/></svg>
+      <span class="status-badge status-passed">
+        <svg class="ico"><use href="#i-check"/></svg>
+        Passed
+      </span>
+      <div class="scenario-meta">
+        <span class="scenario-title">Scenario 5: checkout</span>
+        <span class="muted">2.00s</span>
+      </div>
+      <div class="tags">
+<span class="tag">@regression</span><span class="tag">@nightly</span>      </div>
+    </button>
+    <button class="icon-btn copy-btn" title="Copy reproduce command" aria-label="Copy reproduce command"
+            data-copy-text="behave &#34;features/Checkout.feature:20&#34;" type="button">
+      <svg class="ico"><use href="#i-terminal"/></svg>
+    </button>
+  </div>
+  <div class="scenario-body" hidden>
+<p class="muted small">features/Checkout.feature:20</p>
+
+
+    <ol class="steps">
+<li class="step status-passed">
+  <div class="step-head">
+    <span class="status-badge status-passed" aria-label="Passed">
+      <svg class="ico"><use href="#i-check"/></svg>
+    </span>
+    <span class="kw">Then</span>
+    <span class="step-text">the user opens the dashboard</span>
+    <span class="step-duration-bar" aria-hidden="true" style="width: 38.8646288209607%"></span>
+    <span class="muted small step-duration">356ms</span>
+  </div>
+
+
+
+
+
+</li><li class="step status-passed">
+  <div class="step-head">
+    <span class="status-badge status-passed" aria-label="Passed">
+      <svg class="ico"><use href="#i-check"/></svg>
+    </span>
+    <span class="kw">And</span>
+    <span class="step-text">the cart contains 5 items</span>
+    <span class="step-duration-bar" aria-hidden="true" style="width: 100.0%"></span>
+    <span class="muted small step-duration">916ms</span>
+  </div>
+
+
+
+
+
+</li><li class="step status-skipped">
+  <div class="step-head">
+    <span class="status-badge status-skipped" aria-label="Skipped">
+      <svg class="ico"><use href="#i-skip"/></svg>
+    </span>
+    <span class="kw">Given</span>
+    <span class="step-text">the cart contains 5 items</span>
+    <span class="step-duration-bar" aria-hidden="true" style="width: 80.02183406113537%"></span>
+    <span class="muted small step-duration">733ms</span>
+  </div>
+
+
+
+
+
+</li>    </ol>
+
+
+
+  </div>
+</li>              </ol>
         </div>
       </article>
       <article class="feature card" data-status="failed"
@@ -1475,7 +1519,7 @@ AssertionError: Expected 200 but got 500</code></pre>
 <span class="tag">@login</span><span class="tag">@outline</span>      </div>
     </button>
     <button class="icon-btn copy-btn" title="Copy reproduce command" aria-label="Copy reproduce command"
-            data-copy-text="behave features/login.feature:10" type="button">
+            data-copy-text="behave &#34;features/login.feature:10&#34;" type="button">
       <svg class="ico"><use href="#i-terminal"/></svg>
     </button>
   </div>
@@ -1493,7 +1537,7 @@ AssertionError: Expected 200 but got 500</code></pre>
       <svg class="ico"><use href="#i-check"/></svg>
     </span>
     <span class="kw">Given</span>
-    <span class="step-text">the username is "alice"</span>
+    <span class="step-text">the username is &#34;alice&#34;</span>
     <span class="step-duration-bar" aria-hidden="true" style="width: 50.0%"></span>
     <span class="muted small step-duration">100ms</span>
   </div>
@@ -1534,6 +1578,8 @@ AssertionError: Expected 200 but got 500</code></pre>
 
 </li>    </ol>
 
+
+
       <div class="examples-block detailed-only">
         <div class="examples-head">Examples</div>
         <div class="table-wrap">
@@ -1570,7 +1616,7 @@ AssertionError: Expected 200 but got 500</code></pre>
 <span class="tag">@login</span><span class="tag">@outline</span>      </div>
     </button>
     <button class="icon-btn copy-btn" title="Copy reproduce command" aria-label="Copy reproduce command"
-            data-copy-text="behave features/login.feature:20" type="button">
+            data-copy-text="behave &#34;features/login.feature:20&#34;" type="button">
       <svg class="ico"><use href="#i-terminal"/></svg>
     </button>
   </div>
@@ -1588,7 +1634,7 @@ AssertionError: Expected 200 but got 500</code></pre>
       <svg class="ico"><use href="#i-check"/></svg>
     </span>
     <span class="kw">Given</span>
-    <span class="step-text">the username is "eve"</span>
+    <span class="step-text">the username is &#34;eve&#34;</span>
     <span class="step-duration-bar" aria-hidden="true" style="width: 50.0%"></span>
     <span class="muted small step-duration">100ms</span>
   </div>
@@ -1628,6 +1674,8 @@ AssertionError: Expected 200 but got 500</code></pre>
 
 
 </li>    </ol>
+
+
 
       <div class="examples-block detailed-only">
         <div class="examples-head">Examples</div>
@@ -1670,7 +1718,7 @@ AssertionError: Expected 200 but got 500</code></pre>
     data-feature="authentication"
     data-rule=""
     data-duration="1.6669999999999998"
-    data-error="">
+    data-error="expected 200 but got 500">
   <div class="scenario-row-header">
     <button class="scenario-head" aria-expanded="false">
       <svg class="ico chev"><use href="#i-chevron"/></svg>
@@ -1686,7 +1734,7 @@ AssertionError: Expected 200 but got 500</code></pre>
 <span class="tag">@regression</span><span class="tag">@nightly</span><span class="tag">@wip</span>      </div>
     </button>
     <button class="icon-btn copy-btn" title="Copy reproduce command" aria-label="Copy reproduce command"
-            data-copy-text="behave features/Authentication.feature:4" type="button">
+            data-copy-text="behave &#34;features/Authentication.feature:4&#34;" type="button">
       <svg class="ico"><use href="#i-terminal"/></svg>
     </button>
   </div>
@@ -1718,7 +1766,7 @@ AssertionError: Expected 200 but got 500</code></pre>
         </button>
       </div>
       <pre id="err-features-steps-example-py-10the-API-returns-200" class="traceback"><code>Traceback (most recent call last):
-  File "features/steps/example.py", line 42, in step_impl
+  File &#34;features/steps/example.py&#34;, line 42, in step_impl
     assert response.status_code == 200
 AssertionError: Expected 200 but got 500</code></pre>
     </div>
@@ -1754,6 +1802,8 @@ AssertionError: Expected 200 but got 500</code></pre>
 
 </li>    </ol>
 
+
+
   </div>
 </li><li class="scenario" data-status="failed"
     data-name="scenario 2: checkout"
@@ -1761,7 +1811,7 @@ AssertionError: Expected 200 but got 500</code></pre>
     data-feature="authentication"
     data-rule=""
     data-duration="2.127"
-    data-error="">
+    data-error="expected 200 but got 500">
   <div class="scenario-row-header">
     <button class="scenario-head" aria-expanded="false">
       <svg class="ico chev"><use href="#i-chevron"/></svg>
@@ -1777,7 +1827,7 @@ AssertionError: Expected 200 but got 500</code></pre>
 <span class="tag">@api</span><span class="tag">@regression</span><span class="tag">@smoke</span>      </div>
     </button>
     <button class="icon-btn copy-btn" title="Copy reproduce command" aria-label="Copy reproduce command"
-            data-copy-text="behave features/Authentication.feature:8" type="button">
+            data-copy-text="behave &#34;features/Authentication.feature:8&#34;" type="button">
       <svg class="ico"><use href="#i-terminal"/></svg>
     </button>
   </div>
@@ -1869,11 +1919,13 @@ AssertionError: Expected 200 but got 500</code></pre>
         </button>
       </div>
       <pre id="err-features-steps-example-py-14the-cart-contains-3-items" class="traceback"><code>Traceback (most recent call last):
-  File "features/steps/example.py", line 42, in step_impl
+  File &#34;features/steps/example.py&#34;, line 42, in step_impl
     assert response.status_code == 200
 AssertionError: Expected 200 but got 500</code></pre>
     </div>
 </li>    </ol>
+
+
 
   </div>
 </li><li class="scenario" data-status="passed"
@@ -1898,7 +1950,7 @@ AssertionError: Expected 200 but got 500</code></pre>
       </div>
     </button>
     <button class="icon-btn copy-btn" title="Copy reproduce command" aria-label="Copy reproduce command"
-            data-copy-text="behave features/Authentication.feature:12" type="button">
+            data-copy-text="behave &#34;features/Authentication.feature:12&#34;" type="button">
       <svg class="ico"><use href="#i-terminal"/></svg>
     </button>
   </div>
@@ -1954,6 +2006,8 @@ AssertionError: Expected 200 but got 500</code></pre>
 
 </li>    </ol>
 
+
+
   </div>
 </li><li class="scenario" data-status="failed"
     data-name="scenario 4: api contract"
@@ -1961,7 +2015,7 @@ AssertionError: Expected 200 but got 500</code></pre>
     data-feature="authentication"
     data-rule=""
     data-duration="4.6290000000000004"
-    data-error="">
+    data-error="expected 200 but got 500">
   <div class="scenario-row-header">
     <button class="scenario-head" aria-expanded="false">
       <svg class="ico chev"><use href="#i-chevron"/></svg>
@@ -1977,7 +2031,7 @@ AssertionError: Expected 200 but got 500</code></pre>
 <span class="tag">@smoke</span>      </div>
     </button>
     <button class="icon-btn copy-btn" title="Copy reproduce command" aria-label="Copy reproduce command"
-            data-copy-text="behave features/Authentication.feature:16" type="button">
+            data-copy-text="behave &#34;features/Authentication.feature:16&#34;" type="button">
       <svg class="ico"><use href="#i-terminal"/></svg>
     </button>
   </div>
@@ -2069,7 +2123,7 @@ AssertionError: Expected 200 but got 500</code></pre>
         </button>
       </div>
       <pre id="err-features-steps-example-py-14they-click-the-login-button" class="traceback"><code>Traceback (most recent call last):
-  File "features/steps/example.py", line 42, in step_impl
+  File &#34;features/steps/example.py&#34;, line 42, in step_impl
     assert response.status_code == 200
 AssertionError: Expected 200 but got 500</code></pre>
     </div>
@@ -2089,6 +2143,8 @@ AssertionError: Expected 200 but got 500</code></pre>
 
 
 </li>    </ol>
+
+
 
   </div>
 </li><li class="scenario" data-status="undefined"
@@ -2113,7 +2169,7 @@ AssertionError: Expected 200 but got 500</code></pre>
 <span class="tag">@wip</span>      </div>
     </button>
     <button class="icon-btn copy-btn" title="Copy reproduce command" aria-label="Copy reproduce command"
-            data-copy-text="behave features/Authentication.feature:20" type="button">
+            data-copy-text="behave &#34;features/Authentication.feature:20&#34;" type="button">
       <svg class="ico"><use href="#i-terminal"/></svg>
     </button>
   </div>
@@ -2169,6 +2225,8 @@ AssertionError: Expected 200 but got 500</code></pre>
 
 </li>    </ol>
 
+
+
   </div>
 </li><li class="scenario" data-status="passed"
     data-name="scenario 6: checkout"
@@ -2192,7 +2250,7 @@ AssertionError: Expected 200 but got 500</code></pre>
 <span class="tag">@ui</span><span class="tag">@nightly</span>      </div>
     </button>
     <button class="icon-btn copy-btn" title="Copy reproduce command" aria-label="Copy reproduce command"
-            data-copy-text="behave features/Authentication.feature:24" type="button">
+            data-copy-text="behave &#34;features/Authentication.feature:24&#34;" type="button">
       <svg class="ico"><use href="#i-terminal"/></svg>
     </button>
   </div>
@@ -2278,6 +2336,8 @@ AssertionError: Expected 200 but got 500</code></pre>
 
 </li>    </ol>
 
+
+
   </div>
 </li><li class="scenario" data-status="passed"
     data-name="scenario 7: checkout"
@@ -2301,7 +2361,7 @@ AssertionError: Expected 200 but got 500</code></pre>
       </div>
     </button>
     <button class="icon-btn copy-btn" title="Copy reproduce command" aria-label="Copy reproduce command"
-            data-copy-text="behave features/Authentication.feature:28" type="button">
+            data-copy-text="behave &#34;features/Authentication.feature:28&#34;" type="button">
       <svg class="ico"><use href="#i-terminal"/></svg>
     </button>
   </div>
@@ -2372,6 +2432,8 @@ AssertionError: Expected 200 but got 500</code></pre>
 
 </li>    </ol>
 
+
+
   </div>
 </li><li class="scenario" data-status="passed"
     data-name="scenario 8: login flow"
@@ -2395,7 +2457,7 @@ AssertionError: Expected 200 but got 500</code></pre>
 <span class="tag">@regression</span><span class="tag">@wip</span><span class="tag">@api</span>      </div>
     </button>
     <button class="icon-btn copy-btn" title="Copy reproduce command" aria-label="Copy reproduce command"
-            data-copy-text="behave features/Authentication.feature:32" type="button">
+            data-copy-text="behave &#34;features/Authentication.feature:32&#34;" type="button">
       <svg class="ico"><use href="#i-terminal"/></svg>
     </button>
   </div>
@@ -2480,6 +2542,8 @@ AssertionError: Expected 200 but got 500</code></pre>
 
 
 </li>    </ol>
+
+
 
   </div>
 </li>              </ol>
@@ -2526,7 +2590,7 @@ AssertionError: Expected 200 but got 500</code></pre>
 <span class="tag">@ui</span>      </div>
     </button>
     <button class="icon-btn copy-btn" title="Copy reproduce command" aria-label="Copy reproduce command"
-            data-copy-text="behave features/Reporting.feature:4" type="button">
+            data-copy-text="behave &#34;features/Reporting.feature:4&#34;" type="button">
       <svg class="ico"><use href="#i-terminal"/></svg>
     </button>
   </div>
@@ -2612,6 +2676,8 @@ AssertionError: Expected 200 but got 500</code></pre>
 
 </li>    </ol>
 
+
+
   </div>
 </li><li class="scenario" data-status="passed"
     data-name="scenario 2: api contract"
@@ -2635,7 +2701,7 @@ AssertionError: Expected 200 but got 500</code></pre>
 <span class="tag">@wip</span><span class="tag">@regression</span><span class="tag">@ui</span>      </div>
     </button>
     <button class="icon-btn copy-btn" title="Copy reproduce command" aria-label="Copy reproduce command"
-            data-copy-text="behave features/Reporting.feature:8" type="button">
+            data-copy-text="behave &#34;features/Reporting.feature:8&#34;" type="button">
       <svg class="ico"><use href="#i-terminal"/></svg>
     </button>
   </div>
@@ -2691,6 +2757,8 @@ AssertionError: Expected 200 but got 500</code></pre>
 
 </li>    </ol>
 
+
+
   </div>
 </li><li class="scenario" data-status="undefined"
     data-name="scenario 3: checkout"
@@ -2714,7 +2782,7 @@ AssertionError: Expected 200 but got 500</code></pre>
       </div>
     </button>
     <button class="icon-btn copy-btn" title="Copy reproduce command" aria-label="Copy reproduce command"
-            data-copy-text="behave features/Reporting.feature:12" type="button">
+            data-copy-text="behave &#34;features/Reporting.feature:12&#34;" type="button">
       <svg class="ico"><use href="#i-terminal"/></svg>
     </button>
   </div>
@@ -2815,6 +2883,8 @@ AssertionError: Expected 200 but got 500</code></pre>
 
 </li>    </ol>
 
+
+
   </div>
 </li><li class="scenario" data-status="passed"
     data-name="scenario 4: permissions"
@@ -2838,7 +2908,7 @@ AssertionError: Expected 200 but got 500</code></pre>
 <span class="tag">@regression</span><span class="tag">@api</span><span class="tag">@nightly</span>      </div>
     </button>
     <button class="icon-btn copy-btn" title="Copy reproduce command" aria-label="Copy reproduce command"
-            data-copy-text="behave features/Reporting.feature:16" type="button">
+            data-copy-text="behave &#34;features/Reporting.feature:16&#34;" type="button">
       <svg class="ico"><use href="#i-terminal"/></svg>
     </button>
   </div>
@@ -2894,6 +2964,8 @@ AssertionError: Expected 200 but got 500</code></pre>
 
 </li>    </ol>
 
+
+
   </div>
 </li><li class="scenario" data-status="passed"
     data-name="scenario 5: permissions"
@@ -2917,7 +2989,7 @@ AssertionError: Expected 200 but got 500</code></pre>
       </div>
     </button>
     <button class="icon-btn copy-btn" title="Copy reproduce command" aria-label="Copy reproduce command"
-            data-copy-text="behave features/Reporting.feature:20" type="button">
+            data-copy-text="behave &#34;features/Reporting.feature:20&#34;" type="button">
       <svg class="ico"><use href="#i-terminal"/></svg>
     </button>
   </div>
@@ -3003,6 +3075,8 @@ AssertionError: Expected 200 but got 500</code></pre>
 
 </li>    </ol>
 
+
+
   </div>
 </li><li class="scenario" data-status="passed"
     data-name="scenario 6: api contract"
@@ -3026,7 +3100,7 @@ AssertionError: Expected 200 but got 500</code></pre>
 <span class="tag">@smoke</span><span class="tag">@api</span>      </div>
     </button>
     <button class="icon-btn copy-btn" title="Copy reproduce command" aria-label="Copy reproduce command"
-            data-copy-text="behave features/Reporting.feature:24" type="button">
+            data-copy-text="behave &#34;features/Reporting.feature:24&#34;" type="button">
       <svg class="ico"><use href="#i-terminal"/></svg>
     </button>
   </div>
@@ -3127,6 +3201,8 @@ AssertionError: Expected 200 but got 500</code></pre>
 
 </li>    </ol>
 
+
+
   </div>
 </li>              </ol>
         </div>
@@ -3172,7 +3248,7 @@ AssertionError: Expected 200 but got 500</code></pre>
       </div>
     </button>
     <button class="icon-btn copy-btn" title="Copy reproduce command" aria-label="Copy reproduce command"
-            data-copy-text="behave features/Settings.feature:4" type="button">
+            data-copy-text="behave &#34;features/Settings.feature:4&#34;" type="button">
       <svg class="ico"><use href="#i-terminal"/></svg>
     </button>
   </div>
@@ -3228,6 +3304,8 @@ AssertionError: Expected 200 but got 500</code></pre>
 
 </li>    </ol>
 
+
+
   </div>
 </li><li class="scenario" data-status="passed"
     data-name="scenario 2: api contract"
@@ -3251,7 +3329,7 @@ AssertionError: Expected 200 but got 500</code></pre>
       </div>
     </button>
     <button class="icon-btn copy-btn" title="Copy reproduce command" aria-label="Copy reproduce command"
-            data-copy-text="behave features/Settings.feature:8" type="button">
+            data-copy-text="behave &#34;features/Settings.feature:8&#34;" type="button">
       <svg class="ico"><use href="#i-terminal"/></svg>
     </button>
   </div>
@@ -3322,6 +3400,8 @@ AssertionError: Expected 200 but got 500</code></pre>
 
 </li>    </ol>
 
+
+
   </div>
 </li><li class="scenario" data-status="failed"
     data-name="scenario 3: api contract"
@@ -3329,7 +3409,7 @@ AssertionError: Expected 200 but got 500</code></pre>
     data-feature="settings"
     data-rule=""
     data-duration="4.114"
-    data-error="">
+    data-error="expected 200 but got 500">
   <div class="scenario-row-header">
     <button class="scenario-head" aria-expanded="false">
       <svg class="ico chev"><use href="#i-chevron"/></svg>
@@ -3345,7 +3425,7 @@ AssertionError: Expected 200 but got 500</code></pre>
 <span class="tag">@nightly</span><span class="tag">@regression</span><span class="tag">@api</span>      </div>
     </button>
     <button class="icon-btn copy-btn" title="Copy reproduce command" aria-label="Copy reproduce command"
-            data-copy-text="behave features/Settings.feature:12" type="button">
+            data-copy-text="behave &#34;features/Settings.feature:12&#34;" type="button">
       <svg class="ico"><use href="#i-terminal"/></svg>
     </button>
   </div>
@@ -3377,7 +3457,7 @@ AssertionError: Expected 200 but got 500</code></pre>
         </button>
       </div>
       <pre id="err-features-steps-example-py-10the-cart-contains-3-items" class="traceback"><code>Traceback (most recent call last):
-  File "features/steps/example.py", line 42, in step_impl
+  File &#34;features/steps/example.py&#34;, line 42, in step_impl
     assert response.status_code == 200
 AssertionError: Expected 200 but got 500</code></pre>
     </div>
@@ -3458,6 +3538,8 @@ AssertionError: Expected 200 but got 500</code></pre>
 
 </li>    </ol>
 
+
+
   </div>
 </li><li class="scenario" data-status="undefined"
     data-name="scenario 4: checkout"
@@ -3481,7 +3563,7 @@ AssertionError: Expected 200 but got 500</code></pre>
 <span class="tag">@smoke</span><span class="tag">@nightly</span>      </div>
     </button>
     <button class="icon-btn copy-btn" title="Copy reproduce command" aria-label="Copy reproduce command"
-            data-copy-text="behave features/Settings.feature:16" type="button">
+            data-copy-text="behave &#34;features/Settings.feature:16&#34;" type="button">
       <svg class="ico"><use href="#i-terminal"/></svg>
     </button>
   </div>
@@ -3582,6 +3664,8 @@ AssertionError: Expected 200 but got 500</code></pre>
 
 </li>    </ol>
 
+
+
   </div>
 </li>              </ol>
         </div>
@@ -3626,7 +3710,7 @@ AssertionError: Expected 200 but got 500</code></pre>
     data-feature="checkout"
     data-rule="payment required"
     data-duration="1.0979999999999999"
-    data-error="">
+    data-error="expected 200 but got 500">
   <div class="scenario-row-header">
     <button class="scenario-head" aria-expanded="false">
       <svg class="ico chev"><use href="#i-chevron"/></svg>
@@ -3642,7 +3726,7 @@ AssertionError: Expected 200 but got 500</code></pre>
 <span class="tag">@payment</span>      </div>
     </button>
     <button class="icon-btn copy-btn" title="Copy reproduce command" aria-label="Copy reproduce command"
-            data-copy-text="behave features/Checkout.feature:4" type="button">
+            data-copy-text="behave &#34;features/Checkout.feature:4&#34;" type="button">
       <svg class="ico"><use href="#i-terminal"/></svg>
     </button>
   </div>
@@ -3689,7 +3773,7 @@ AssertionError: Expected 200 but got 500</code></pre>
         </button>
       </div>
       <pre id="err-features-steps-example-py-11the-user-opens-the-dashboard" class="traceback"><code>Traceback (most recent call last):
-  File "features/steps/example.py", line 42, in step_impl
+  File &#34;features/steps/example.py&#34;, line 42, in step_impl
     assert response.status_code == 200
 AssertionError: Expected 200 but got 500</code></pre>
     </div>
@@ -3709,6 +3793,8 @@ AssertionError: Expected 200 but got 500</code></pre>
 
 
 </li>    </ol>
+
+
 
   </div>
 </li><li class="scenario" data-status="undefined"
@@ -3733,7 +3819,7 @@ AssertionError: Expected 200 but got 500</code></pre>
 <span class="tag">@payment</span>      </div>
     </button>
     <button class="icon-btn copy-btn" title="Copy reproduce command" aria-label="Copy reproduce command"
-            data-copy-text="behave features/Checkout.feature:8" type="button">
+            data-copy-text="behave &#34;features/Checkout.feature:8&#34;" type="button">
       <svg class="ico"><use href="#i-terminal"/></svg>
     </button>
   </div>
@@ -3833,6 +3919,8 @@ AssertionError: Expected 200 but got 500</code></pre>
 
 
 </li>    </ol>
+
+
 
   </div>
 </li>              </ol>
@@ -3876,7 +3964,7 @@ AssertionError: Expected 200 but got 500</code></pre>
 <span class="tag">@shipping</span>      </div>
     </button>
     <button class="icon-btn copy-btn" title="Copy reproduce command" aria-label="Copy reproduce command"
-            data-copy-text="behave features/Checkout.feature:12" type="button">
+            data-copy-text="behave &#34;features/Checkout.feature:12&#34;" type="button">
       <svg class="ico"><use href="#i-terminal"/></svg>
     </button>
   </div>
@@ -3947,6 +4035,8 @@ AssertionError: Expected 200 but got 500</code></pre>
 
 </li>    </ol>
 
+
+
   </div>
 </li><li class="scenario" data-status="failed"
     data-name="scenario 4: permissions"
@@ -3954,7 +4044,7 @@ AssertionError: Expected 200 but got 500</code></pre>
     data-feature="checkout"
     data-rule="shipping options"
     data-duration="2.735"
-    data-error="">
+    data-error="expected 200 but got 500">
   <div class="scenario-row-header">
     <button class="scenario-head" aria-expanded="false">
       <svg class="ico chev"><use href="#i-chevron"/></svg>
@@ -3970,7 +4060,7 @@ AssertionError: Expected 200 but got 500</code></pre>
 <span class="tag">@shipping</span>      </div>
     </button>
     <button class="icon-btn copy-btn" title="Copy reproduce command" aria-label="Copy reproduce command"
-            data-copy-text="behave features/Checkout.feature:16" type="button">
+            data-copy-text="behave &#34;features/Checkout.feature:16&#34;" type="button">
       <svg class="ico"><use href="#i-terminal"/></svg>
     </button>
   </div>
@@ -4002,7 +4092,7 @@ AssertionError: Expected 200 but got 500</code></pre>
         </button>
       </div>
       <pre id="err-features-steps-example-py-10they-click-the-buy-button" class="traceback"><code>Traceback (most recent call last):
-  File "features/steps/example.py", line 42, in step_impl
+  File &#34;features/steps/example.py&#34;, line 42, in step_impl
     assert response.status_code == 200
 AssertionError: Expected 200 but got 500</code></pre>
     </div>
@@ -4068,6 +4158,8 @@ AssertionError: Expected 200 but got 500</code></pre>
 
 </li>    </ol>
 
+
+
   </div>
 </li>              </ol>
             </div>
@@ -4095,7 +4187,7 @@ AssertionError: Expected 200 but got 500</code></pre>
     data-feature="checkout"
     data-rule="payment required"
     data-duration="1.0979999999999999"
-    data-error="">
+    data-error="expected 200 but got 500">
   <div class="scenario-row-header">
     <button class="scenario-head" aria-expanded="false">
       <svg class="ico chev"><use href="#i-chevron"/></svg>
@@ -4111,7 +4203,7 @@ AssertionError: Expected 200 but got 500</code></pre>
 <span class="tag">@payment</span>      </div>
     </button>
     <button class="icon-btn copy-btn" title="Copy reproduce command" aria-label="Copy reproduce command"
-            data-copy-text="behave features/Checkout.feature:4" type="button">
+            data-copy-text="behave &#34;features/Checkout.feature:4&#34;" type="button">
       <svg class="ico"><use href="#i-terminal"/></svg>
     </button>
   </div>
@@ -4158,7 +4250,7 @@ AssertionError: Expected 200 but got 500</code></pre>
         </button>
       </div>
       <pre id="err-features-steps-example-py-11the-user-opens-the-dashboard" class="traceback"><code>Traceback (most recent call last):
-  File "features/steps/example.py", line 42, in step_impl
+  File &#34;features/steps/example.py&#34;, line 42, in step_impl
     assert response.status_code == 200
 AssertionError: Expected 200 but got 500</code></pre>
     </div>
@@ -4178,6 +4270,8 @@ AssertionError: Expected 200 but got 500</code></pre>
 
 
 </li>    </ol>
+
+
 
   </div>
 </li><li class="scenario" data-status="undefined"
@@ -4202,7 +4296,7 @@ AssertionError: Expected 200 but got 500</code></pre>
 <span class="tag">@payment</span>      </div>
     </button>
     <button class="icon-btn copy-btn" title="Copy reproduce command" aria-label="Copy reproduce command"
-            data-copy-text="behave features/Checkout.feature:8" type="button">
+            data-copy-text="behave &#34;features/Checkout.feature:8&#34;" type="button">
       <svg class="ico"><use href="#i-terminal"/></svg>
     </button>
   </div>
@@ -4303,6 +4397,8 @@ AssertionError: Expected 200 but got 500</code></pre>
 
 </li>    </ol>
 
+
+
   </div>
 </li><li class="scenario" data-status="passed"
     data-name="scenario 3: permissions"
@@ -4326,7 +4422,7 @@ AssertionError: Expected 200 but got 500</code></pre>
 <span class="tag">@shipping</span>      </div>
     </button>
     <button class="icon-btn copy-btn" title="Copy reproduce command" aria-label="Copy reproduce command"
-            data-copy-text="behave features/Checkout.feature:12" type="button">
+            data-copy-text="behave &#34;features/Checkout.feature:12&#34;" type="button">
       <svg class="ico"><use href="#i-terminal"/></svg>
     </button>
   </div>
@@ -4397,6 +4493,8 @@ AssertionError: Expected 200 but got 500</code></pre>
 
 </li>    </ol>
 
+
+
   </div>
 </li><li class="scenario" data-status="failed"
     data-name="scenario 4: permissions"
@@ -4404,7 +4502,7 @@ AssertionError: Expected 200 but got 500</code></pre>
     data-feature="checkout"
     data-rule="shipping options"
     data-duration="2.735"
-    data-error="">
+    data-error="expected 200 but got 500">
   <div class="scenario-row-header">
     <button class="scenario-head" aria-expanded="false">
       <svg class="ico chev"><use href="#i-chevron"/></svg>
@@ -4420,7 +4518,7 @@ AssertionError: Expected 200 but got 500</code></pre>
 <span class="tag">@shipping</span>      </div>
     </button>
     <button class="icon-btn copy-btn" title="Copy reproduce command" aria-label="Copy reproduce command"
-            data-copy-text="behave features/Checkout.feature:16" type="button">
+            data-copy-text="behave &#34;features/Checkout.feature:16&#34;" type="button">
       <svg class="ico"><use href="#i-terminal"/></svg>
     </button>
   </div>
@@ -4452,7 +4550,7 @@ AssertionError: Expected 200 but got 500</code></pre>
         </button>
       </div>
       <pre id="err-features-steps-example-py-10they-click-the-buy-button" class="traceback"><code>Traceback (most recent call last):
-  File "features/steps/example.py", line 42, in step_impl
+  File &#34;features/steps/example.py&#34;, line 42, in step_impl
     assert response.status_code == 200
 AssertionError: Expected 200 but got 500</code></pre>
     </div>
@@ -4518,6 +4616,8 @@ AssertionError: Expected 200 but got 500</code></pre>
 
 </li>    </ol>
 
+
+
   </div>
 </li><li class="scenario" data-status="passed"
     data-name="scenario 5: checkout"
@@ -4541,7 +4641,7 @@ AssertionError: Expected 200 but got 500</code></pre>
 <span class="tag">@regression</span><span class="tag">@nightly</span>      </div>
     </button>
     <button class="icon-btn copy-btn" title="Copy reproduce command" aria-label="Copy reproduce command"
-            data-copy-text="behave features/Checkout.feature:20" type="button">
+            data-copy-text="behave &#34;features/Checkout.feature:20&#34;" type="button">
       <svg class="ico"><use href="#i-terminal"/></svg>
     </button>
   </div>
@@ -4597,6 +4697,8 @@ AssertionError: Expected 200 but got 500</code></pre>
 
 </li>    </ol>
 
+
+
   </div>
 </li><li class="scenario" data-status="passed"
     data-name="outline example: login with valid credentials"
@@ -4620,7 +4722,7 @@ AssertionError: Expected 200 but got 500</code></pre>
 <span class="tag">@login</span><span class="tag">@outline</span>      </div>
     </button>
     <button class="icon-btn copy-btn" title="Copy reproduce command" aria-label="Copy reproduce command"
-            data-copy-text="behave features/login.feature:10" type="button">
+            data-copy-text="behave &#34;features/login.feature:10&#34;" type="button">
       <svg class="ico"><use href="#i-terminal"/></svg>
     </button>
   </div>
@@ -4638,7 +4740,7 @@ AssertionError: Expected 200 but got 500</code></pre>
       <svg class="ico"><use href="#i-check"/></svg>
     </span>
     <span class="kw">Given</span>
-    <span class="step-text">the username is "alice"</span>
+    <span class="step-text">the username is &#34;alice&#34;</span>
     <span class="step-duration-bar" aria-hidden="true" style="width: 50.0%"></span>
     <span class="muted small step-duration">100ms</span>
   </div>
@@ -4679,6 +4781,8 @@ AssertionError: Expected 200 but got 500</code></pre>
 
 </li>    </ol>
 
+
+
       <div class="examples-block detailed-only">
         <div class="examples-head">Examples</div>
         <div class="table-wrap">
@@ -4715,7 +4819,7 @@ AssertionError: Expected 200 but got 500</code></pre>
 <span class="tag">@login</span><span class="tag">@outline</span>      </div>
     </button>
     <button class="icon-btn copy-btn" title="Copy reproduce command" aria-label="Copy reproduce command"
-            data-copy-text="behave features/login.feature:20" type="button">
+            data-copy-text="behave &#34;features/login.feature:20&#34;" type="button">
       <svg class="ico"><use href="#i-terminal"/></svg>
     </button>
   </div>
@@ -4733,7 +4837,7 @@ AssertionError: Expected 200 but got 500</code></pre>
       <svg class="ico"><use href="#i-check"/></svg>
     </span>
     <span class="kw">Given</span>
-    <span class="step-text">the username is "eve"</span>
+    <span class="step-text">the username is &#34;eve&#34;</span>
     <span class="step-duration-bar" aria-hidden="true" style="width: 50.0%"></span>
     <span class="muted small step-duration">100ms</span>
   </div>
@@ -4774,6 +4878,8 @@ AssertionError: Expected 200 but got 500</code></pre>
 
 </li>    </ol>
 
+
+
       <div class="examples-block detailed-only">
         <div class="examples-head">Examples</div>
         <div class="table-wrap">
@@ -4793,7 +4899,7 @@ AssertionError: Expected 200 but got 500</code></pre>
     data-feature="authentication"
     data-rule=""
     data-duration="1.6669999999999998"
-    data-error="">
+    data-error="expected 200 but got 500">
   <div class="scenario-row-header">
     <button class="scenario-head" aria-expanded="false">
       <svg class="ico chev"><use href="#i-chevron"/></svg>
@@ -4809,7 +4915,7 @@ AssertionError: Expected 200 but got 500</code></pre>
 <span class="tag">@regression</span><span class="tag">@nightly</span><span class="tag">@wip</span>      </div>
     </button>
     <button class="icon-btn copy-btn" title="Copy reproduce command" aria-label="Copy reproduce command"
-            data-copy-text="behave features/Authentication.feature:4" type="button">
+            data-copy-text="behave &#34;features/Authentication.feature:4&#34;" type="button">
       <svg class="ico"><use href="#i-terminal"/></svg>
     </button>
   </div>
@@ -4841,7 +4947,7 @@ AssertionError: Expected 200 but got 500</code></pre>
         </button>
       </div>
       <pre id="err-features-steps-example-py-10the-API-returns-200" class="traceback"><code>Traceback (most recent call last):
-  File "features/steps/example.py", line 42, in step_impl
+  File &#34;features/steps/example.py&#34;, line 42, in step_impl
     assert response.status_code == 200
 AssertionError: Expected 200 but got 500</code></pre>
     </div>
@@ -4877,6 +4983,8 @@ AssertionError: Expected 200 but got 500</code></pre>
 
 </li>    </ol>
 
+
+
   </div>
 </li><li class="scenario" data-status="failed"
     data-name="scenario 2: checkout"
@@ -4884,7 +4992,7 @@ AssertionError: Expected 200 but got 500</code></pre>
     data-feature="authentication"
     data-rule=""
     data-duration="2.127"
-    data-error="">
+    data-error="expected 200 but got 500">
   <div class="scenario-row-header">
     <button class="scenario-head" aria-expanded="false">
       <svg class="ico chev"><use href="#i-chevron"/></svg>
@@ -4900,7 +5008,7 @@ AssertionError: Expected 200 but got 500</code></pre>
 <span class="tag">@api</span><span class="tag">@regression</span><span class="tag">@smoke</span>      </div>
     </button>
     <button class="icon-btn copy-btn" title="Copy reproduce command" aria-label="Copy reproduce command"
-            data-copy-text="behave features/Authentication.feature:8" type="button">
+            data-copy-text="behave &#34;features/Authentication.feature:8&#34;" type="button">
       <svg class="ico"><use href="#i-terminal"/></svg>
     </button>
   </div>
@@ -4992,11 +5100,13 @@ AssertionError: Expected 200 but got 500</code></pre>
         </button>
       </div>
       <pre id="err-features-steps-example-py-14the-cart-contains-3-items" class="traceback"><code>Traceback (most recent call last):
-  File "features/steps/example.py", line 42, in step_impl
+  File &#34;features/steps/example.py&#34;, line 42, in step_impl
     assert response.status_code == 200
 AssertionError: Expected 200 but got 500</code></pre>
     </div>
 </li>    </ol>
+
+
 
   </div>
 </li><li class="scenario" data-status="passed"
@@ -5021,7 +5131,7 @@ AssertionError: Expected 200 but got 500</code></pre>
       </div>
     </button>
     <button class="icon-btn copy-btn" title="Copy reproduce command" aria-label="Copy reproduce command"
-            data-copy-text="behave features/Authentication.feature:12" type="button">
+            data-copy-text="behave &#34;features/Authentication.feature:12&#34;" type="button">
       <svg class="ico"><use href="#i-terminal"/></svg>
     </button>
   </div>
@@ -5077,6 +5187,8 @@ AssertionError: Expected 200 but got 500</code></pre>
 
 </li>    </ol>
 
+
+
   </div>
 </li><li class="scenario" data-status="failed"
     data-name="scenario 4: api contract"
@@ -5084,7 +5196,7 @@ AssertionError: Expected 200 but got 500</code></pre>
     data-feature="authentication"
     data-rule=""
     data-duration="4.6290000000000004"
-    data-error="">
+    data-error="expected 200 but got 500">
   <div class="scenario-row-header">
     <button class="scenario-head" aria-expanded="false">
       <svg class="ico chev"><use href="#i-chevron"/></svg>
@@ -5100,7 +5212,7 @@ AssertionError: Expected 200 but got 500</code></pre>
 <span class="tag">@smoke</span>      </div>
     </button>
     <button class="icon-btn copy-btn" title="Copy reproduce command" aria-label="Copy reproduce command"
-            data-copy-text="behave features/Authentication.feature:16" type="button">
+            data-copy-text="behave &#34;features/Authentication.feature:16&#34;" type="button">
       <svg class="ico"><use href="#i-terminal"/></svg>
     </button>
   </div>
@@ -5192,7 +5304,7 @@ AssertionError: Expected 200 but got 500</code></pre>
         </button>
       </div>
       <pre id="err-features-steps-example-py-14they-click-the-login-button" class="traceback"><code>Traceback (most recent call last):
-  File "features/steps/example.py", line 42, in step_impl
+  File &#34;features/steps/example.py&#34;, line 42, in step_impl
     assert response.status_code == 200
 AssertionError: Expected 200 but got 500</code></pre>
     </div>
@@ -5212,6 +5324,8 @@ AssertionError: Expected 200 but got 500</code></pre>
 
 
 </li>    </ol>
+
+
 
   </div>
 </li><li class="scenario" data-status="undefined"
@@ -5236,7 +5350,7 @@ AssertionError: Expected 200 but got 500</code></pre>
 <span class="tag">@wip</span>      </div>
     </button>
     <button class="icon-btn copy-btn" title="Copy reproduce command" aria-label="Copy reproduce command"
-            data-copy-text="behave features/Authentication.feature:20" type="button">
+            data-copy-text="behave &#34;features/Authentication.feature:20&#34;" type="button">
       <svg class="ico"><use href="#i-terminal"/></svg>
     </button>
   </div>
@@ -5292,6 +5406,8 @@ AssertionError: Expected 200 but got 500</code></pre>
 
 </li>    </ol>
 
+
+
   </div>
 </li><li class="scenario" data-status="passed"
     data-name="scenario 6: checkout"
@@ -5315,7 +5431,7 @@ AssertionError: Expected 200 but got 500</code></pre>
 <span class="tag">@ui</span><span class="tag">@nightly</span>      </div>
     </button>
     <button class="icon-btn copy-btn" title="Copy reproduce command" aria-label="Copy reproduce command"
-            data-copy-text="behave features/Authentication.feature:24" type="button">
+            data-copy-text="behave &#34;features/Authentication.feature:24&#34;" type="button">
       <svg class="ico"><use href="#i-terminal"/></svg>
     </button>
   </div>
@@ -5401,6 +5517,8 @@ AssertionError: Expected 200 but got 500</code></pre>
 
 </li>    </ol>
 
+
+
   </div>
 </li><li class="scenario" data-status="passed"
     data-name="scenario 7: checkout"
@@ -5424,7 +5542,7 @@ AssertionError: Expected 200 but got 500</code></pre>
       </div>
     </button>
     <button class="icon-btn copy-btn" title="Copy reproduce command" aria-label="Copy reproduce command"
-            data-copy-text="behave features/Authentication.feature:28" type="button">
+            data-copy-text="behave &#34;features/Authentication.feature:28&#34;" type="button">
       <svg class="ico"><use href="#i-terminal"/></svg>
     </button>
   </div>
@@ -5495,6 +5613,8 @@ AssertionError: Expected 200 but got 500</code></pre>
 
 </li>    </ol>
 
+
+
   </div>
 </li><li class="scenario" data-status="passed"
     data-name="scenario 8: login flow"
@@ -5518,7 +5638,7 @@ AssertionError: Expected 200 but got 500</code></pre>
 <span class="tag">@regression</span><span class="tag">@wip</span><span class="tag">@api</span>      </div>
     </button>
     <button class="icon-btn copy-btn" title="Copy reproduce command" aria-label="Copy reproduce command"
-            data-copy-text="behave features/Authentication.feature:32" type="button">
+            data-copy-text="behave &#34;features/Authentication.feature:32&#34;" type="button">
       <svg class="ico"><use href="#i-terminal"/></svg>
     </button>
   </div>
@@ -5604,6 +5724,8 @@ AssertionError: Expected 200 but got 500</code></pre>
 
 </li>    </ol>
 
+
+
   </div>
 </li><li class="scenario" data-status="passed"
     data-name="scenario 1: permissions"
@@ -5627,7 +5749,7 @@ AssertionError: Expected 200 but got 500</code></pre>
 <span class="tag">@ui</span>      </div>
     </button>
     <button class="icon-btn copy-btn" title="Copy reproduce command" aria-label="Copy reproduce command"
-            data-copy-text="behave features/Reporting.feature:4" type="button">
+            data-copy-text="behave &#34;features/Reporting.feature:4&#34;" type="button">
       <svg class="ico"><use href="#i-terminal"/></svg>
     </button>
   </div>
@@ -5713,6 +5835,8 @@ AssertionError: Expected 200 but got 500</code></pre>
 
 </li>    </ol>
 
+
+
   </div>
 </li><li class="scenario" data-status="passed"
     data-name="scenario 2: api contract"
@@ -5736,7 +5860,7 @@ AssertionError: Expected 200 but got 500</code></pre>
 <span class="tag">@wip</span><span class="tag">@regression</span><span class="tag">@ui</span>      </div>
     </button>
     <button class="icon-btn copy-btn" title="Copy reproduce command" aria-label="Copy reproduce command"
-            data-copy-text="behave features/Reporting.feature:8" type="button">
+            data-copy-text="behave &#34;features/Reporting.feature:8&#34;" type="button">
       <svg class="ico"><use href="#i-terminal"/></svg>
     </button>
   </div>
@@ -5792,6 +5916,8 @@ AssertionError: Expected 200 but got 500</code></pre>
 
 </li>    </ol>
 
+
+
   </div>
 </li><li class="scenario" data-status="undefined"
     data-name="scenario 3: checkout"
@@ -5815,7 +5941,7 @@ AssertionError: Expected 200 but got 500</code></pre>
       </div>
     </button>
     <button class="icon-btn copy-btn" title="Copy reproduce command" aria-label="Copy reproduce command"
-            data-copy-text="behave features/Reporting.feature:12" type="button">
+            data-copy-text="behave &#34;features/Reporting.feature:12&#34;" type="button">
       <svg class="ico"><use href="#i-terminal"/></svg>
     </button>
   </div>
@@ -5916,6 +6042,8 @@ AssertionError: Expected 200 but got 500</code></pre>
 
 </li>    </ol>
 
+
+
   </div>
 </li><li class="scenario" data-status="passed"
     data-name="scenario 4: permissions"
@@ -5939,7 +6067,7 @@ AssertionError: Expected 200 but got 500</code></pre>
 <span class="tag">@regression</span><span class="tag">@api</span><span class="tag">@nightly</span>      </div>
     </button>
     <button class="icon-btn copy-btn" title="Copy reproduce command" aria-label="Copy reproduce command"
-            data-copy-text="behave features/Reporting.feature:16" type="button">
+            data-copy-text="behave &#34;features/Reporting.feature:16&#34;" type="button">
       <svg class="ico"><use href="#i-terminal"/></svg>
     </button>
   </div>
@@ -5995,6 +6123,8 @@ AssertionError: Expected 200 but got 500</code></pre>
 
 </li>    </ol>
 
+
+
   </div>
 </li><li class="scenario" data-status="passed"
     data-name="scenario 5: permissions"
@@ -6018,7 +6148,7 @@ AssertionError: Expected 200 but got 500</code></pre>
       </div>
     </button>
     <button class="icon-btn copy-btn" title="Copy reproduce command" aria-label="Copy reproduce command"
-            data-copy-text="behave features/Reporting.feature:20" type="button">
+            data-copy-text="behave &#34;features/Reporting.feature:20&#34;" type="button">
       <svg class="ico"><use href="#i-terminal"/></svg>
     </button>
   </div>
@@ -6104,6 +6234,8 @@ AssertionError: Expected 200 but got 500</code></pre>
 
 </li>    </ol>
 
+
+
   </div>
 </li><li class="scenario" data-status="passed"
     data-name="scenario 6: api contract"
@@ -6127,7 +6259,7 @@ AssertionError: Expected 200 but got 500</code></pre>
 <span class="tag">@smoke</span><span class="tag">@api</span>      </div>
     </button>
     <button class="icon-btn copy-btn" title="Copy reproduce command" aria-label="Copy reproduce command"
-            data-copy-text="behave features/Reporting.feature:24" type="button">
+            data-copy-text="behave &#34;features/Reporting.feature:24&#34;" type="button">
       <svg class="ico"><use href="#i-terminal"/></svg>
     </button>
   </div>
@@ -6228,6 +6360,8 @@ AssertionError: Expected 200 but got 500</code></pre>
 
 </li>    </ol>
 
+
+
   </div>
 </li><li class="scenario" data-status="passed"
     data-name="scenario 1: permissions"
@@ -6251,7 +6385,7 @@ AssertionError: Expected 200 but got 500</code></pre>
       </div>
     </button>
     <button class="icon-btn copy-btn" title="Copy reproduce command" aria-label="Copy reproduce command"
-            data-copy-text="behave features/Settings.feature:4" type="button">
+            data-copy-text="behave &#34;features/Settings.feature:4&#34;" type="button">
       <svg class="ico"><use href="#i-terminal"/></svg>
     </button>
   </div>
@@ -6307,6 +6441,8 @@ AssertionError: Expected 200 but got 500</code></pre>
 
 </li>    </ol>
 
+
+
   </div>
 </li><li class="scenario" data-status="passed"
     data-name="scenario 2: api contract"
@@ -6330,7 +6466,7 @@ AssertionError: Expected 200 but got 500</code></pre>
       </div>
     </button>
     <button class="icon-btn copy-btn" title="Copy reproduce command" aria-label="Copy reproduce command"
-            data-copy-text="behave features/Settings.feature:8" type="button">
+            data-copy-text="behave &#34;features/Settings.feature:8&#34;" type="button">
       <svg class="ico"><use href="#i-terminal"/></svg>
     </button>
   </div>
@@ -6401,6 +6537,8 @@ AssertionError: Expected 200 but got 500</code></pre>
 
 </li>    </ol>
 
+
+
   </div>
 </li><li class="scenario" data-status="failed"
     data-name="scenario 3: api contract"
@@ -6408,7 +6546,7 @@ AssertionError: Expected 200 but got 500</code></pre>
     data-feature="settings"
     data-rule=""
     data-duration="4.114"
-    data-error="">
+    data-error="expected 200 but got 500">
   <div class="scenario-row-header">
     <button class="scenario-head" aria-expanded="false">
       <svg class="ico chev"><use href="#i-chevron"/></svg>
@@ -6424,7 +6562,7 @@ AssertionError: Expected 200 but got 500</code></pre>
 <span class="tag">@nightly</span><span class="tag">@regression</span><span class="tag">@api</span>      </div>
     </button>
     <button class="icon-btn copy-btn" title="Copy reproduce command" aria-label="Copy reproduce command"
-            data-copy-text="behave features/Settings.feature:12" type="button">
+            data-copy-text="behave &#34;features/Settings.feature:12&#34;" type="button">
       <svg class="ico"><use href="#i-terminal"/></svg>
     </button>
   </div>
@@ -6456,7 +6594,7 @@ AssertionError: Expected 200 but got 500</code></pre>
         </button>
       </div>
       <pre id="err-features-steps-example-py-10the-cart-contains-3-items" class="traceback"><code>Traceback (most recent call last):
-  File "features/steps/example.py", line 42, in step_impl
+  File &#34;features/steps/example.py&#34;, line 42, in step_impl
     assert response.status_code == 200
 AssertionError: Expected 200 but got 500</code></pre>
     </div>
@@ -6537,6 +6675,8 @@ AssertionError: Expected 200 but got 500</code></pre>
 
 </li>    </ol>
 
+
+
   </div>
 </li><li class="scenario" data-status="undefined"
     data-name="scenario 4: checkout"
@@ -6560,7 +6700,7 @@ AssertionError: Expected 200 but got 500</code></pre>
 <span class="tag">@smoke</span><span class="tag">@nightly</span>      </div>
     </button>
     <button class="icon-btn copy-btn" title="Copy reproduce command" aria-label="Copy reproduce command"
-            data-copy-text="behave features/Settings.feature:16" type="button">
+            data-copy-text="behave &#34;features/Settings.feature:16&#34;" type="button">
       <svg class="ico"><use href="#i-terminal"/></svg>
     </button>
   </div>
@@ -6661,6 +6801,8 @@ AssertionError: Expected 200 but got 500</code></pre>
 
 </li>    </ol>
 
+
+
   </div>
 </li>  </ol>
 </section><section class="view" data-view="results" hidden>
@@ -6690,7 +6832,7 @@ AssertionError: Expected 200 but got 500</code></pre>
                 data-feature="checkout"
                 data-rule="payment required"
                 data-duration="1.0979999999999999"
-                data-error="">
+                data-error="expected 200 but got 500">
               <td>
                 <span class="status-badge status-failed">
                   <svg class="ico"><use href="#i-x"/></svg>
@@ -6756,7 +6898,7 @@ AssertionError: Expected 200 but got 500</code></pre>
                 data-feature="checkout"
                 data-rule="shipping options"
                 data-duration="2.735"
-                data-error="">
+                data-error="expected 200 but got 500">
               <td>
                 <span class="status-badge status-failed">
                   <svg class="ico"><use href="#i-x"/></svg>
@@ -6844,7 +6986,7 @@ AssertionError: Expected 200 but got 500</code></pre>
                 data-feature="authentication"
                 data-rule=""
                 data-duration="1.6669999999999998"
-                data-error="">
+                data-error="expected 200 but got 500">
               <td>
                 <span class="status-badge status-failed">
                   <svg class="ico"><use href="#i-x"/></svg>
@@ -6866,7 +7008,7 @@ AssertionError: Expected 200 but got 500</code></pre>
                 data-feature="authentication"
                 data-rule=""
                 data-duration="2.127"
-                data-error="">
+                data-error="expected 200 but got 500">
               <td>
                 <span class="status-badge status-failed">
                   <svg class="ico"><use href="#i-x"/></svg>
@@ -6910,7 +7052,7 @@ AssertionError: Expected 200 but got 500</code></pre>
                 data-feature="authentication"
                 data-rule=""
                 data-duration="4.6290000000000004"
-                data-error="">
+                data-error="expected 200 but got 500">
               <td>
                 <span class="status-badge status-failed">
                   <svg class="ico"><use href="#i-x"/></svg>
@@ -7196,7 +7338,7 @@ AssertionError: Expected 200 but got 500</code></pre>
                 data-feature="settings"
                 data-rule=""
                 data-duration="4.114"
-                data-error="">
+                data-error="expected 200 but got 500">
               <td>
                 <span class="status-badge status-failed">
                   <svg class="ico"><use href="#i-x"/></svg>
@@ -7238,8 +7380,12 @@ AssertionError: Expected 200 but got 500</code></pre>
     </table>
   </div>
 </section><section class="view" data-view="tags" hidden>
-  <h2 class="section-title">Tags</h2>
-  <p class="section-subtitle">Per-tag scenario counts, pass rate, and accumulated duration.</p>
+  <header class="view-header">
+    <div>
+      <h1 class="view-title">Tags</h1>
+      <p class="view-sub">Per-tag scenario counts, pass rate, and accumulated duration.</p>
+    </div>
+  </header>
 
   <div class="card">
     <div class="card-header">
@@ -7304,20 +7450,6 @@ AssertionError: Expected 200 but got 500</code></pre>
                   <td>16.59s</td>
                 </tr>
                 <tr>
-                  <td><span class="tag-pill">@checkout</span></td>
-                  <td>5</td>
-                  <td class="num-pass">2</td>
-                  <td class="num-fail">2</td>
-                  <td>1</td>
-                  <td>
-                    <div class="progress-bar">
-                      <span class="progress-fill pass-low" style="width: 40.0%"></span>
-                      <span class="progress-label">40.0%</span>
-                    </div>
-                  </td>
-                  <td>10.70s</td>
-                </tr>
-                <tr>
                   <td><span class="tag-pill">@api</span></td>
                   <td>5</td>
                   <td class="num-pass">3</td>
@@ -7330,6 +7462,20 @@ AssertionError: Expected 200 but got 500</code></pre>
                     </div>
                   </td>
                   <td>15.42s</td>
+                </tr>
+                <tr>
+                  <td><span class="tag-pill">@checkout</span></td>
+                  <td>5</td>
+                  <td class="num-pass">2</td>
+                  <td class="num-fail">2</td>
+                  <td>1</td>
+                  <td>
+                    <div class="progress-bar">
+                      <span class="progress-fill pass-low" style="width: 40.0%"></span>
+                      <span class="progress-label">40.0%</span>
+                    </div>
+                  </td>
+                  <td>10.70s</td>
                 </tr>
                 <tr>
                   <td><span class="tag-pill">@smoke</span></td>
@@ -7346,20 +7492,6 @@ AssertionError: Expected 200 but got 500</code></pre>
                   <td>13.14s</td>
                 </tr>
                 <tr>
-                  <td><span class="tag-pill">@wip</span></td>
-                  <td>4</td>
-                  <td class="num-pass">2</td>
-                  <td class="num-fail">1</td>
-                  <td>1</td>
-                  <td>
-                    <div class="progress-bar">
-                      <span class="progress-fill pass-medium" style="width: 50.0%"></span>
-                      <span class="progress-label">50.0%</span>
-                    </div>
-                  </td>
-                  <td>7.42s</td>
-                </tr>
-                <tr>
                   <td><span class="tag-pill">@settings</span></td>
                   <td>4</td>
                   <td class="num-pass">2</td>
@@ -7374,21 +7506,21 @@ AssertionError: Expected 200 but got 500</code></pre>
                   <td>11.39s</td>
                 </tr>
                 <tr>
-                  <td><span class="tag-pill">@outline</span></td>
-                  <td>2</td>
-                  <td class="num-pass">1</td>
+                  <td><span class="tag-pill">@wip</span></td>
+                  <td>4</td>
+                  <td class="num-pass">2</td>
                   <td class="num-fail">1</td>
-                  <td>0</td>
+                  <td>1</td>
                   <td>
                     <div class="progress-bar">
                       <span class="progress-fill pass-medium" style="width: 50.0%"></span>
                       <span class="progress-label">50.0%</span>
                     </div>
                   </td>
-                  <td>800ms</td>
+                  <td>7.42s</td>
                 </tr>
                 <tr>
-                  <td><span class="tag-pill">@login</span></td>
+                  <td><span class="tag-pill">@shipping</span></td>
                   <td>2</td>
                   <td class="num-pass">1</td>
                   <td class="num-fail">1</td>
@@ -7399,7 +7531,7 @@ AssertionError: Expected 200 but got 500</code></pre>
                       <span class="progress-label">50.0%</span>
                     </div>
                   </td>
-                  <td>800ms</td>
+                  <td>4.36s</td>
                 </tr>
                 <tr>
                   <td><span class="tag-pill">@payment</span></td>
@@ -7416,7 +7548,7 @@ AssertionError: Expected 200 but got 500</code></pre>
                   <td>4.33s</td>
                 </tr>
                 <tr>
-                  <td><span class="tag-pill">@shipping</span></td>
+                  <td><span class="tag-pill">@login</span></td>
                   <td>2</td>
                   <td class="num-pass">1</td>
                   <td class="num-fail">1</td>
@@ -7427,7 +7559,21 @@ AssertionError: Expected 200 but got 500</code></pre>
                       <span class="progress-label">50.0%</span>
                     </div>
                   </td>
-                  <td>4.36s</td>
+                  <td>800ms</td>
+                </tr>
+                <tr>
+                  <td><span class="tag-pill">@outline</span></td>
+                  <td>2</td>
+                  <td class="num-pass">1</td>
+                  <td class="num-fail">1</td>
+                  <td>0</td>
+                  <td>
+                    <div class="progress-bar">
+                      <span class="progress-fill pass-medium" style="width: 50.0%"></span>
+                      <span class="progress-label">50.0%</span>
+                    </div>
+                  </td>
+                  <td>800ms</td>
                 </tr>
                 <tr>
                   <td><span class="tag-pill">@reporting</span></td>
@@ -7709,9 +7855,9 @@ AssertionError: Expected 200 but got 500</code></pre>
         <dt>Host</dt><dd>demo-host</dd>
 <dt>User</dt><dd>demo-user</dd><dt>CPUs</dt><dd>8</dd><dt>Memory</dt><dd>16384 MB</dd>        <dt>Working dir</dt><dd>/demo/project</dd>
         <dt>Command</dt><dd><code>behave -f modern-html -o demo-report.html</code></dd>
-        <dt>Generated</dt><dd>2026-08-10 23:16:08</dd>
-          <dt>Started</dt><dd>2026-08-10 23:15:26</dd>
-          <dt>Ended</dt><dd>2026-08-10 23:16:08</dd>
+        <dt>Generated</dt><dd>2026-10-03 09:37:13</dd>
+          <dt>Started</dt><dd>2026-10-03 09:36:31</dd>
+          <dt>Ended</dt><dd>2026-10-03 09:37:13</dd>
         <dt>Duration</dt><dd>1m 1s</dd>
       </dl>
     </div>
@@ -7742,7 +7888,7 @@ AssertionError: Expected 200 but got 500</code></pre>
   </div>
 </section>
     <footer class="footer">
-      Generated by <strong>behave-modern-html-report</strong> · 2026-08-10 23:16:08
+      Generated by <strong>behave-modern-html-report</strong> · 2026-10-03 09:37:13
 <span class="footer-custom"> · Generated by the demo script</span>    </footer>
   </main>
 
@@ -7751,7 +7897,7 @@ AssertionError: Expected 200 but got 500</code></pre>
     <div class="lightbox-content"></div>
   </div>
 
-  <script id="bmr-data" type="application/json">{"execution": {"title": "Behave Modern Report \u2014 Demo", "features": [{"name": "Checkout", "status": "failed", "duration": 10.701, "description": "Behavior of the checkout subsystem including rules.", "location": "features/checkout.feature:1", "tags": ["checkout"], "scenarios": [{"name": "Scenario 1: permissions", "status": "failed", "duration": 1.0979999999999999, "description": "", "location": "features/Checkout.feature:4", "tags": ["payment"], "steps": [{"keyword": "When", "name": "the user opens the dashboard", "status": "passed", "duration": 0.814, "location": "features/steps/example.py:10", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the user opens the dashboard", "status": "failed", "duration": 0.041, "location": "features/steps/example.py:11", "text": null, "table": null, "error": {"message": "Expected 200 but got 500", "traceback": "Traceback (most recent call last):\n  File \"features/steps/example.py\", line 42, in step_impl\n    assert response.status_code == 200\nAssertionError: Expected 200 but got 500", "exception_type": "AssertionError"}, "attachments": [], "logs": []}, {"keyword": "When", "name": "the cart contains 1 items", "status": "passed", "duration": 0.243, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "feature_name": "Checkout", "rule_name": "Payment required", "is_outline": false, "outline_name": "", "examples": null}, {"name": "Scenario 2: reporting", "status": "undefined", "duration": 3.235, "description": "", "location": "features/Checkout.feature:8", "tags": ["payment"], "steps": [{"keyword": "Then", "name": "the response payload matches the schema", "status": "undefined", "duration": 0.412, "location": "features/steps/example.py:10", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "the user opens the dashboard", "status": "passed", "duration": 0.459, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Then", "name": "the user opens the dashboard", "status": "passed", "duration": 0.877, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the cart contains 2 items", "status": "skipped", "duration": 0.355, "location": "features/steps/example.py:13", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "the user opens the dashboard", "status": "passed", "duration": 0.795, "location": "features/steps/example.py:14", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the response payload matches the schema", "status": "passed", "duration": 0.337, "location": "features/steps/example.py:15", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "feature_name": "Checkout", "rule_name": "Payment required", "is_outline": false, "outline_name": "", "examples": null}, {"name": "Scenario 3: permissions", "status": "passed", "duration": 1.6280000000000001, "description": "", "location": "features/Checkout.feature:12", "tags": ["shipping"], "steps": [{"keyword": "Then", "name": "the cart contains 2 items", "status": "passed", "duration": 0.764, "location": "features/steps/example.py:10", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "the response payload matches the schema", "status": "skipped", "duration": 0.328, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "the user opens the dashboard", "status": "skipped", "duration": 0.279, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Then", "name": "the user opens the dashboard", "status": "passed", "duration": 0.257, "location": "features/steps/example.py:13", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "feature_name": "Checkout", "rule_name": "Shipping options", "is_outline": false, "outline_name": "", "examples": null}, {"name": "Scenario 4: permissions", "status": "failed", "duration": 2.735, "description": "", "location": "features/Checkout.feature:16", "tags": ["shipping"], "steps": [{"keyword": "And", "name": "they click the buy button", "status": "failed", "duration": 0.322, "location": "features/steps/example.py:10", "text": null, "table": null, "error": {"message": "Expected 200 but got 500", "traceback": "Traceback (most recent call last):\n  File \"features/steps/example.py\", line 42, in step_impl\n    assert response.status_code == 200\nAssertionError: Expected 200 but got 500", "exception_type": "AssertionError"}, "attachments": [], "logs": []}, {"keyword": "Then", "name": "the cart contains 7 items", "status": "passed", "duration": 0.482, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "the user opens the dashboard", "status": "passed", "duration": 0.908, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "the response payload matches the schema", "status": "passed", "duration": 0.718, "location": "features/steps/example.py:13", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "And", "name": "the cart contains 8 items", "status": "passed", "duration": 0.305, "location": "features/steps/example.py:14", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "feature_name": "Checkout", "rule_name": "Shipping options", "is_outline": false, "outline_name": "", "examples": null}, {"name": "Scenario 5: checkout", "status": "passed", "duration": 2.005, "description": "", "location": "features/Checkout.feature:20", "tags": ["regression", "nightly"], "steps": [{"keyword": "Then", "name": "the user opens the dashboard", "status": "passed", "duration": 0.356, "location": "features/steps/example.py:10", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "And", "name": "the cart contains 5 items", "status": "passed", "duration": 0.916, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the cart contains 5 items", "status": "skipped", "duration": 0.733, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "feature_name": "Checkout", "rule_name": "", "is_outline": false, "outline_name": "", "examples": null}], "background": null}, {"name": "User Login", "status": "failed", "duration": 0.8, "description": "Login scenarios with background and outline examples.", "location": "features/login.feature:1", "tags": ["login"], "scenarios": [{"name": "Outline example: Login with valid credentials", "status": "passed", "duration": 0.4, "description": "", "location": "features/login.feature:10", "tags": ["login", "outline"], "steps": [{"keyword": "Given", "name": "the username is \"alice\"", "status": "passed", "duration": 0.1, "location": "", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "the user logs in", "status": "passed", "duration": 0.2, "location": "", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Then", "name": "the dashboard is shown", "status": "passed", "duration": 0.1, "location": "", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "feature_name": "User Login", "rule_name": "", "is_outline": true, "outline_name": "Login with valid credentials", "examples": {"headings": ["username", "password"], "rows": [["alice", "secret1"], ["bob", "secret2"], ["carol", "secret3"]]}}, {"name": "Outline example: Login with invalid credentials", "status": "failed", "duration": 0.4, "description": "", "location": "features/login.feature:20", "tags": ["login", "outline"], "steps": [{"keyword": "Given", "name": "the username is \"eve\"", "status": "passed", "duration": 0.1, "location": "", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "the user logs in", "status": "passed", "duration": 0.2, "location": "", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Then", "name": "the error is shown", "status": "failed", "duration": 0.1, "location": "", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "feature_name": "User Login", "rule_name": "", "is_outline": true, "outline_name": "Login with invalid credentials", "examples": {"headings": ["username", "password"], "rows": [["eve", "wrong"], ["mallory", "bad"]]}}], "background": {"name": "Setup a test user", "keyword": "Background", "steps": [{"keyword": "Given", "name": "the database is reset", "status": "passed", "duration": 0.2, "location": "", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "And", "name": "the user is authenticated", "status": "passed", "duration": 0.15, "location": "", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "location": "features/login.feature:3"}}, {"name": "Authentication", "status": "failed", "duration": 20.413000000000004, "description": "Behavior of the authentication subsystem.", "location": "features/authentication.feature:1", "tags": ["authentication"], "scenarios": [{"name": "Scenario 1: permissions", "status": "failed", "duration": 1.6669999999999998, "description": "", "location": "features/Authentication.feature:4", "tags": ["regression", "nightly", "wip"], "steps": [{"keyword": "Given", "name": "the API returns 200", "status": "failed", "duration": 0.291, "location": "features/steps/example.py:10", "text": null, "table": null, "error": {"message": "Expected 200 but got 500", "traceback": "Traceback (most recent call last):\n  File \"features/steps/example.py\", line 42, in step_impl\n    assert response.status_code == 200\nAssertionError: Expected 200 but got 500", "exception_type": "AssertionError"}, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the user opens the dashboard", "status": "passed", "duration": 1.174, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "the cart contains 8 items", "status": "skipped", "duration": 0.202, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "feature_name": "Authentication", "rule_name": "", "is_outline": false, "outline_name": "", "examples": null}, {"name": "Scenario 2: checkout", "status": "failed", "duration": 2.127, "description": "", "location": "features/Authentication.feature:8", "tags": ["api", "regression", "smoke"], "steps": [{"keyword": "And", "name": "the user opens the dashboard", "status": "passed", "duration": 0.301, "location": "features/steps/example.py:10", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Then", "name": "they click the login button", "status": "passed", "duration": 0.708, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "they click the buy button", "status": "passed", "duration": 0.086, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Then", "name": "they click the login button", "status": "passed", "duration": 0.338, "location": "features/steps/example.py:13", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "the cart contains 3 items", "status": "failed", "duration": 0.694, "location": "features/steps/example.py:14", "text": null, "table": null, "error": {"message": "Expected 200 but got 500", "traceback": "Traceback (most recent call last):\n  File \"features/steps/example.py\", line 42, in step_impl\n    assert response.status_code == 200\nAssertionError: Expected 200 but got 500", "exception_type": "AssertionError"}, "attachments": [], "logs": []}], "background": null, "feature_name": "Authentication", "rule_name": "", "is_outline": false, "outline_name": "", "examples": null}, {"name": "Scenario 3: checkout", "status": "passed", "duration": 1.4500000000000002, "description": "", "location": "features/Authentication.feature:12", "tags": [], "steps": [{"keyword": "And", "name": "the user opens the dashboard", "status": "passed", "duration": 0.81, "location": "features/steps/example.py:10", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the user opens the dashboard", "status": "passed", "duration": 0.302, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "And", "name": "they click the login button", "status": "passed", "duration": 0.338, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "feature_name": "Authentication", "rule_name": "", "is_outline": false, "outline_name": "", "examples": null}, {"name": "Scenario 4: API contract", "status": "failed", "duration": 4.6290000000000004, "description": "", "location": "features/Authentication.feature:16", "tags": ["smoke"], "steps": [{"keyword": "Given", "name": "the user opens the dashboard", "status": "skipped", "duration": 1.163, "location": "features/steps/example.py:10", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "the response payload matches the schema", "status": "passed", "duration": 0.26, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the user opens the dashboard", "status": "passed", "duration": 1.182, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "And", "name": "the cart contains 7 items", "status": "passed", "duration": 0.796, "location": "features/steps/example.py:13", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "they click the login button", "status": "failed", "duration": 1.163, "location": "features/steps/example.py:14", "text": null, "table": null, "error": {"message": "Expected 200 but got 500", "traceback": "Traceback (most recent call last):\n  File \"features/steps/example.py\", line 42, in step_impl\n    assert response.status_code == 200\nAssertionError: Expected 200 but got 500", "exception_type": "AssertionError"}, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the user opens the dashboard", "status": "undefined", "duration": 0.065, "location": "features/steps/example.py:15", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "feature_name": "Authentication", "rule_name": "", "is_outline": false, "outline_name": "", "examples": null}, {"name": "Scenario 5: API contract", "status": "undefined", "duration": 0.5409999999999999, "description": "", "location": "features/Authentication.feature:20", "tags": ["wip"], "steps": [{"keyword": "Given", "name": "the response payload matches the schema", "status": "passed", "duration": 0.148, "location": "features/steps/example.py:10", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "the cart contains 1 items", "status": "undefined", "duration": 0.103, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Then", "name": "the API returns 200", "status": "undefined", "duration": 0.29, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "feature_name": "Authentication", "rule_name": "", "is_outline": false, "outline_name": "", "examples": null}, {"name": "Scenario 6: checkout", "status": "passed", "duration": 4.559, "description": "", "location": "features/Authentication.feature:24", "tags": ["ui", "nightly"], "steps": [{"keyword": "Given", "name": "the user opens the dashboard", "status": "passed", "duration": 0.647, "location": "features/steps/example.py:10", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Then", "name": "the user opens the dashboard", "status": "skipped", "duration": 1.056, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Then", "name": "the cart contains 8 items", "status": "passed", "duration": 0.846, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the API returns 200", "status": "skipped", "duration": 1.118, "location": "features/steps/example.py:13", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "the user opens the dashboard", "status": "passed", "duration": 0.892, "location": "features/steps/example.py:14", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "feature_name": "Authentication", "rule_name": "", "is_outline": false, "outline_name": "", "examples": null}, {"name": "Scenario 7: checkout", "status": "passed", "duration": 2.131, "description": "", "location": "features/Authentication.feature:28", "tags": [], "steps": [{"keyword": "Then", "name": "the API returns 200", "status": "passed", "duration": 1.087, "location": "features/steps/example.py:10", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the API returns 200", "status": "passed", "duration": 0.058, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "they click the buy button", "status": "passed", "duration": 0.891, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "And", "name": "the user opens the dashboard", "status": "skipped", "duration": 0.095, "location": "features/steps/example.py:13", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "feature_name": "Authentication", "rule_name": "", "is_outline": false, "outline_name": "", "examples": null}, {"name": "Scenario 8: login flow", "status": "passed", "duration": 3.309, "description": "", "location": "features/Authentication.feature:32", "tags": ["regression", "wip", "api"], "steps": [{"keyword": "And", "name": "the API returns 200", "status": "passed", "duration": 0.441, "location": "features/steps/example.py:10", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Then", "name": "the user opens the dashboard", "status": "passed", "duration": 0.428, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "And", "name": "they click the buy button", "status": "skipped", "duration": 1.038, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "And", "name": "the API returns 200", "status": "passed", "duration": 0.94, "location": "features/steps/example.py:13", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "the user opens the dashboard", "status": "passed", "duration": 0.462, "location": "features/steps/example.py:14", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "feature_name": "Authentication", "rule_name": "", "is_outline": false, "outline_name": "", "examples": null}], "background": null}, {"name": "Reporting", "status": "undefined", "duration": 17.707, "description": "Behavior of the reporting subsystem.", "location": "features/reporting.feature:1", "tags": ["reporting"], "scenarios": [{"name": "Scenario 1: permissions", "status": "passed", "duration": 2.773, "description": "", "location": "features/Reporting.feature:4", "tags": ["ui"], "steps": [{"keyword": "When", "name": "the response payload matches the schema", "status": "passed", "duration": 0.397, "location": "features/steps/example.py:10", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Then", "name": "the response payload matches the schema", "status": "passed", "duration": 0.817, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Then", "name": "the API returns 200", "status": "skipped", "duration": 0.218, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the API returns 200", "status": "passed", "duration": 0.876, "location": "features/steps/example.py:13", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "And", "name": "the user opens the dashboard", "status": "passed", "duration": 0.465, "location": "features/steps/example.py:14", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "feature_name": "Reporting", "rule_name": "", "is_outline": false, "outline_name": "", "examples": null}, {"name": "Scenario 2: API contract", "status": "passed", "duration": 1.907, "description": "", "location": "features/Reporting.feature:8", "tags": ["wip", "regression", "ui"], "steps": [{"keyword": "When", "name": "the user opens the dashboard", "status": "passed", "duration": 1.139, "location": "features/steps/example.py:10", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Then", "name": "the API returns 200", "status": "passed", "duration": 0.611, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Then", "name": "the cart contains 5 items", "status": "passed", "duration": 0.157, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "feature_name": "Reporting", "rule_name": "", "is_outline": false, "outline_name": "", "examples": null}, {"name": "Scenario 3: checkout", "status": "undefined", "duration": 2.983, "description": "", "location": "features/Reporting.feature:12", "tags": [], "steps": [{"keyword": "Then", "name": "the response payload matches the schema", "status": "passed", "duration": 0.944, "location": "features/steps/example.py:10", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "And", "name": "they click the submit button", "status": "passed", "duration": 0.616, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the cart contains 9 items", "status": "passed", "duration": 0.406, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Then", "name": "they click the login button", "status": "passed", "duration": 0.034, "location": "features/steps/example.py:13", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "And", "name": "the response payload matches the schema", "status": "passed", "duration": 0.5, "location": "features/steps/example.py:14", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "the response payload matches the schema", "status": "undefined", "duration": 0.483, "location": "features/steps/example.py:15", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "feature_name": "Reporting", "rule_name": "", "is_outline": false, "outline_name": "", "examples": null}, {"name": "Scenario 4: permissions", "status": "passed", "duration": 1.866, "description": "", "location": "features/Reporting.feature:16", "tags": ["regression", "api", "nightly"], "steps": [{"keyword": "When", "name": "the response payload matches the schema", "status": "passed", "duration": 0.065, "location": "features/steps/example.py:10", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the response payload matches the schema", "status": "passed", "duration": 0.803, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Then", "name": "the response payload matches the schema", "status": "skipped", "duration": 0.998, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "feature_name": "Reporting", "rule_name": "", "is_outline": false, "outline_name": "", "examples": null}, {"name": "Scenario 5: permissions", "status": "passed", "duration": 4.176, "description": "", "location": "features/Reporting.feature:20", "tags": [], "steps": [{"keyword": "And", "name": "the API returns 200", "status": "passed", "duration": 0.531, "location": "features/steps/example.py:10", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "the API returns 200", "status": "passed", "duration": 1.072, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "the response payload matches the schema", "status": "passed", "duration": 0.834, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the API returns 200", "status": "passed", "duration": 0.653, "location": "features/steps/example.py:13", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the response payload matches the schema", "status": "passed", "duration": 1.086, "location": "features/steps/example.py:14", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "feature_name": "Reporting", "rule_name": "", "is_outline": false, "outline_name": "", "examples": null}, {"name": "Scenario 6: API contract", "status": "passed", "duration": 4.002, "description": "", "location": "features/Reporting.feature:24", "tags": ["smoke", "api"], "steps": [{"keyword": "Then", "name": "the cart contains 7 items", "status": "passed", "duration": 0.898, "location": "features/steps/example.py:10", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "the API returns 200", "status": "skipped", "duration": 0.526, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "And", "name": "they click the submit button", "status": "passed", "duration": 1.009, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the user opens the dashboard", "status": "passed", "duration": 0.773, "location": "features/steps/example.py:13", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "And", "name": "the API returns 200", "status": "passed", "duration": 0.458, "location": "features/steps/example.py:14", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "And", "name": "the response payload matches the schema", "status": "passed", "duration": 0.338, "location": "features/steps/example.py:15", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "feature_name": "Reporting", "rule_name": "", "is_outline": false, "outline_name": "", "examples": null}], "background": null}, {"name": "Settings", "status": "failed", "duration": 11.391, "description": "Behavior of the settings subsystem.", "location": "features/settings.feature:1", "tags": ["settings"], "scenarios": [{"name": "Scenario 1: permissions", "status": "passed", "duration": 1.268, "description": "", "location": "features/Settings.feature:4", "tags": [], "steps": [{"keyword": "When", "name": "the user opens the dashboard", "status": "passed", "duration": 0.906, "location": "features/steps/example.py:10", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "they click the login button", "status": "passed", "duration": 0.156, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "the API returns 200", "status": "passed", "duration": 0.206, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "feature_name": "Settings", "rule_name": "", "is_outline": false, "outline_name": "", "examples": null}, {"name": "Scenario 2: API contract", "status": "passed", "duration": 3.63, "description": "", "location": "features/Settings.feature:8", "tags": [], "steps": [{"keyword": "Given", "name": "the response payload matches the schema", "status": "passed", "duration": 1.13, "location": "features/steps/example.py:10", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the user opens the dashboard", "status": "passed", "duration": 0.838, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the API returns 200", "status": "passed", "duration": 0.642, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the user opens the dashboard", "status": "passed", "duration": 1.02, "location": "features/steps/example.py:13", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "feature_name": "Settings", "rule_name": "", "is_outline": false, "outline_name": "", "examples": null}, {"name": "Scenario 3: API contract", "status": "failed", "duration": 4.114, "description": "", "location": "features/Settings.feature:12", "tags": ["nightly", "regression", "api"], "steps": [{"keyword": "When", "name": "the cart contains 3 items", "status": "failed", "duration": 1.159, "location": "features/steps/example.py:10", "text": null, "table": null, "error": {"message": "Expected 200 but got 500", "traceback": "Traceback (most recent call last):\n  File \"features/steps/example.py\", line 42, in step_impl\n    assert response.status_code == 200\nAssertionError: Expected 200 but got 500", "exception_type": "AssertionError"}, "attachments": [], "logs": []}, {"keyword": "And", "name": "the cart contains 7 items", "status": "passed", "duration": 0.326, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "they click the submit button", "status": "passed", "duration": 0.902, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "And", "name": "the response payload matches the schema", "status": "undefined", "duration": 1.022, "location": "features/steps/example.py:13", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "And", "name": "the API returns 200", "status": "passed", "duration": 0.412, "location": "features/steps/example.py:14", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the user opens the dashboard", "status": "passed", "duration": 0.293, "location": "features/steps/example.py:15", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "feature_name": "Settings", "rule_name": "", "is_outline": false, "outline_name": "", "examples": null}, {"name": "Scenario 4: checkout", "status": "undefined", "duration": 2.379, "description": "", "location": "features/Settings.feature:16", "tags": ["smoke", "nightly"], "steps": [{"keyword": "Given", "name": "the response payload matches the schema", "status": "passed", "duration": 0.832, "location": "features/steps/example.py:10", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Then", "name": "the cart contains 9 items", "status": "passed", "duration": 0.416, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Then", "name": "the API returns 200", "status": "skipped", "duration": 0.371, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the API returns 200", "status": "passed", "duration": 0.148, "location": "features/steps/example.py:13", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "the response payload matches the schema", "status": "skipped", "duration": 0.335, "location": "features/steps/example.py:14", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Then", "name": "the API returns 200", "status": "undefined", "duration": 0.277, "location": "features/steps/example.py:15", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "feature_name": "Settings", "rule_name": "", "is_outline": false, "outline_name": "", "examples": null}], "background": null}], "environment": {"python_version": "3.12.1", "behave_version": "1.2.6", "platform": "Demo OS 1.0 (x86_64)", "hostname": "demo-host", "cwd": "/demo/project", "command": "behave -f modern-html -o demo-report.html", "user": "demo-user", "cpu_count": 8, "memory_mb": 16384, "git_branch": "main", "git_commit": "a1b2c3d", "git_remote": "https://github.com/demo/project.git", "env_vars": {"CI": "false", "PATH": "/usr/bin:/bin", "HOME": "/home/demo", "SHELL": "/bin/bash"}, "extra": {"CI": "false", "Branch": "main"}}, "statistics": {"total_features": 5, "total_scenarios": 25, "total_steps": 108, "by_status": {"passed": 14, "failed": 7, "skipped": 0, "undefined": 4, "pending": 0, "pending_warn": 0, "untested": 0, "error": 0, "hook_error": 0, "cleanup_error": 0, "xfailed": 0, "xpassed": 0}, "by_tag": {"payment": {"count": 2, "duration": 4.333, "passed": 0, "failed": 1, "skipped": 0, "undefined": 1, "pending": 0, "pending_warn": 0, "untested": 0, "error": 0, "hook_error": 0, "cleanup_error": 0, "xfailed": 0, "xpassed": 0}, "checkout": {"count": 5, "duration": 10.701, "passed": 2, "failed": 2, "skipped": 0, "undefined": 1, "pending": 0, "pending_warn": 0, "untested": 0, "error": 0, "hook_error": 0, "cleanup_error": 0, "xfailed": 0, "xpassed": 0}, "shipping": {"count": 2, "duration": 4.3629999999999995, "passed": 1, "failed": 1, "skipped": 0, "undefined": 0, "pending": 0, "pending_warn": 0, "untested": 0, "error": 0, "hook_error": 0, "cleanup_error": 0, "xfailed": 0, "xpassed": 0}, "nightly": {"count": 6, "duration": 16.59, "passed": 3, "failed": 2, "skipped": 0, "undefined": 1, "pending": 0, "pending_warn": 0, "untested": 0, "error": 0, "hook_error": 0, "cleanup_error": 0, "xfailed": 0, "xpassed": 0}, "regression": {"count": 7, "duration": 16.995, "passed": 4, "failed": 3, "skipped": 0, "undefined": 0, "pending": 0, "pending_warn": 0, "untested": 0, "error": 0, "hook_error": 0, "cleanup_error": 0, "xfailed": 0, "xpassed": 0}, "outline": {"count": 2, "duration": 0.8, "passed": 1, "failed": 1, "skipped": 0, "undefined": 0, "pending": 0, "pending_warn": 0, "untested": 0, "error": 0, "hook_error": 0, "cleanup_error": 0, "xfailed": 0, "xpassed": 0}, "login": {"count": 2, "duration": 0.8, "passed": 1, "failed": 1, "skipped": 0, "undefined": 0, "pending": 0, "pending_warn": 0, "untested": 0, "error": 0, "hook_error": 0, "cleanup_error": 0, "xfailed": 0, "xpassed": 0}, "authentication": {"count": 8, "duration": 20.413000000000004, "passed": 4, "failed": 3, "skipped": 0, "undefined": 1, "pending": 0, "pending_warn": 0, "untested": 0, "error": 0, "hook_error": 0, "cleanup_error": 0, "xfailed": 0, "xpassed": 0}, "wip": {"count": 4, "duration": 7.4239999999999995, "passed": 2, "failed": 1, "skipped": 0, "undefined": 1, "pending": 0, "pending_warn": 0, "untested": 0, "error": 0, "hook_error": 0, "cleanup_error": 0, "xfailed": 0, "xpassed": 0}, "smoke": {"count": 4, "duration": 13.136999999999999, "passed": 1, "failed": 2, "skipped": 0, "undefined": 1, "pending": 0, "pending_warn": 0, "untested": 0, "error": 0, "hook_error": 0, "cleanup_error": 0, "xfailed": 0, "xpassed": 0}, "api": {"count": 5, "duration": 15.418, "passed": 3, "failed": 2, "skipped": 0, "undefined": 0, "pending": 0, "pending_warn": 0, "untested": 0, "error": 0, "hook_error": 0, "cleanup_error": 0, "xfailed": 0, "xpassed": 0}, "ui": {"count": 3, "duration": 9.239, "passed": 3, "failed": 0, "skipped": 0, "undefined": 0, "pending": 0, "pending_warn": 0, "untested": 0, "error": 0, "hook_error": 0, "cleanup_error": 0, "xfailed": 0, "xpassed": 0}, "reporting": {"count": 6, "duration": 17.707, "passed": 5, "failed": 0, "skipped": 0, "undefined": 1, "pending": 0, "pending_warn": 0, "untested": 0, "error": 0, "hook_error": 0, "cleanup_error": 0, "xfailed": 0, "xpassed": 0}, "settings": {"count": 4, "duration": 11.391, "passed": 2, "failed": 1, "skipped": 0, "undefined": 1, "pending": 0, "pending_warn": 0, "untested": 0, "error": 0, "hook_error": 0, "cleanup_error": 0, "xfailed": 0, "xpassed": 0}}, "duration": 61.01200000000001, "start_time": "2026-08-10T23:15:26.612767", "end_time": "2026-08-10T23:16:08.614837", "error_count": 7, "rule_count": 2, "rule_failed_count": 2, "total_attachments": 0, "total_logs": 0, "slowest_step_duration": 1.182, "avg_scenario_duration": 2.44048, "common_exception_type": "AssertionError"}, "generated_at": "2026-08-10T23:16:08.614857"}, "slowest": [{"name": "Scenario 4: API contract", "status": "failed", "duration": 4.6290000000000004, "description": "", "location": "features/Authentication.feature:16", "tags": ["smoke"], "steps": [{"keyword": "Given", "name": "the user opens the dashboard", "status": "skipped", "duration": 1.163, "location": "features/steps/example.py:10", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "the response payload matches the schema", "status": "passed", "duration": 0.26, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the user opens the dashboard", "status": "passed", "duration": 1.182, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "And", "name": "the cart contains 7 items", "status": "passed", "duration": 0.796, "location": "features/steps/example.py:13", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "they click the login button", "status": "failed", "duration": 1.163, "location": "features/steps/example.py:14", "text": null, "table": null, "error": {"message": "Expected 200 but got 500", "traceback": "Traceback (most recent call last):\n  File \"features/steps/example.py\", line 42, in step_impl\n    assert response.status_code == 200\nAssertionError: Expected 200 but got 500", "exception_type": "AssertionError"}, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the user opens the dashboard", "status": "undefined", "duration": 0.065, "location": "features/steps/example.py:15", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "feature_name": "Authentication", "rule_name": "", "is_outline": false, "outline_name": "", "examples": null}, {"name": "Scenario 6: checkout", "status": "passed", "duration": 4.559, "description": "", "location": "features/Authentication.feature:24", "tags": ["ui", "nightly"], "steps": [{"keyword": "Given", "name": "the user opens the dashboard", "status": "passed", "duration": 0.647, "location": "features/steps/example.py:10", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Then", "name": "the user opens the dashboard", "status": "skipped", "duration": 1.056, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Then", "name": "the cart contains 8 items", "status": "passed", "duration": 0.846, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the API returns 200", "status": "skipped", "duration": 1.118, "location": "features/steps/example.py:13", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "the user opens the dashboard", "status": "passed", "duration": 0.892, "location": "features/steps/example.py:14", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "feature_name": "Authentication", "rule_name": "", "is_outline": false, "outline_name": "", "examples": null}, {"name": "Scenario 5: permissions", "status": "passed", "duration": 4.176, "description": "", "location": "features/Reporting.feature:20", "tags": [], "steps": [{"keyword": "And", "name": "the API returns 200", "status": "passed", "duration": 0.531, "location": "features/steps/example.py:10", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "the API returns 200", "status": "passed", "duration": 1.072, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "the response payload matches the schema", "status": "passed", "duration": 0.834, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the API returns 200", "status": "passed", "duration": 0.653, "location": "features/steps/example.py:13", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the response payload matches the schema", "status": "passed", "duration": 1.086, "location": "features/steps/example.py:14", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "feature_name": "Reporting", "rule_name": "", "is_outline": false, "outline_name": "", "examples": null}, {"name": "Scenario 3: API contract", "status": "failed", "duration": 4.114, "description": "", "location": "features/Settings.feature:12", "tags": ["nightly", "regression", "api"], "steps": [{"keyword": "When", "name": "the cart contains 3 items", "status": "failed", "duration": 1.159, "location": "features/steps/example.py:10", "text": null, "table": null, "error": {"message": "Expected 200 but got 500", "traceback": "Traceback (most recent call last):\n  File \"features/steps/example.py\", line 42, in step_impl\n    assert response.status_code == 200\nAssertionError: Expected 200 but got 500", "exception_type": "AssertionError"}, "attachments": [], "logs": []}, {"keyword": "And", "name": "the cart contains 7 items", "status": "passed", "duration": 0.326, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "they click the submit button", "status": "passed", "duration": 0.902, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "And", "name": "the response payload matches the schema", "status": "undefined", "duration": 1.022, "location": "features/steps/example.py:13", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "And", "name": "the API returns 200", "status": "passed", "duration": 0.412, "location": "features/steps/example.py:14", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the user opens the dashboard", "status": "passed", "duration": 0.293, "location": "features/steps/example.py:15", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "feature_name": "Settings", "rule_name": "", "is_outline": false, "outline_name": "", "examples": null}, {"name": "Scenario 6: API contract", "status": "passed", "duration": 4.002, "description": "", "location": "features/Reporting.feature:24", "tags": ["smoke", "api"], "steps": [{"keyword": "Then", "name": "the cart contains 7 items", "status": "passed", "duration": 0.898, "location": "features/steps/example.py:10", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "the API returns 200", "status": "skipped", "duration": 0.526, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "And", "name": "they click the submit button", "status": "passed", "duration": 1.009, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the user opens the dashboard", "status": "passed", "duration": 0.773, "location": "features/steps/example.py:13", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "And", "name": "the API returns 200", "status": "passed", "duration": 0.458, "location": "features/steps/example.py:14", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "And", "name": "the response payload matches the schema", "status": "passed", "duration": 0.338, "location": "features/steps/example.py:15", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "feature_name": "Reporting", "rule_name": "", "is_outline": false, "outline_name": "", "examples": null}, {"name": "Scenario 2: API contract", "status": "passed", "duration": 3.63, "description": "", "location": "features/Settings.feature:8", "tags": [], "steps": [{"keyword": "Given", "name": "the response payload matches the schema", "status": "passed", "duration": 1.13, "location": "features/steps/example.py:10", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the user opens the dashboard", "status": "passed", "duration": 0.838, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the API returns 200", "status": "passed", "duration": 0.642, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the user opens the dashboard", "status": "passed", "duration": 1.02, "location": "features/steps/example.py:13", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "feature_name": "Settings", "rule_name": "", "is_outline": false, "outline_name": "", "examples": null}, {"name": "Scenario 8: login flow", "status": "passed", "duration": 3.309, "description": "", "location": "features/Authentication.feature:32", "tags": ["regression", "wip", "api"], "steps": [{"keyword": "And", "name": "the API returns 200", "status": "passed", "duration": 0.441, "location": "features/steps/example.py:10", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Then", "name": "the user opens the dashboard", "status": "passed", "duration": 0.428, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "And", "name": "they click the buy button", "status": "skipped", "duration": 1.038, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "And", "name": "the API returns 200", "status": "passed", "duration": 0.94, "location": "features/steps/example.py:13", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "the user opens the dashboard", "status": "passed", "duration": 0.462, "location": "features/steps/example.py:14", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "feature_name": "Authentication", "rule_name": "", "is_outline": false, "outline_name": "", "examples": null}, {"name": "Scenario 2: reporting", "status": "undefined", "duration": 3.235, "description": "", "location": "features/Checkout.feature:8", "tags": ["payment"], "steps": [{"keyword": "Then", "name": "the response payload matches the schema", "status": "undefined", "duration": 0.412, "location": "features/steps/example.py:10", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "the user opens the dashboard", "status": "passed", "duration": 0.459, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Then", "name": "the user opens the dashboard", "status": "passed", "duration": 0.877, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the cart contains 2 items", "status": "skipped", "duration": 0.355, "location": "features/steps/example.py:13", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "the user opens the dashboard", "status": "passed", "duration": 0.795, "location": "features/steps/example.py:14", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the response payload matches the schema", "status": "passed", "duration": 0.337, "location": "features/steps/example.py:15", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "feature_name": "Checkout", "rule_name": "Payment required", "is_outline": false, "outline_name": "", "examples": null}, {"name": "Scenario 3: checkout", "status": "undefined", "duration": 2.983, "description": "", "location": "features/Reporting.feature:12", "tags": [], "steps": [{"keyword": "Then", "name": "the response payload matches the schema", "status": "passed", "duration": 0.944, "location": "features/steps/example.py:10", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "And", "name": "they click the submit button", "status": "passed", "duration": 0.616, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the cart contains 9 items", "status": "passed", "duration": 0.406, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Then", "name": "they click the login button", "status": "passed", "duration": 0.034, "location": "features/steps/example.py:13", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "And", "name": "the response payload matches the schema", "status": "passed", "duration": 0.5, "location": "features/steps/example.py:14", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "the response payload matches the schema", "status": "undefined", "duration": 0.483, "location": "features/steps/example.py:15", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "feature_name": "Reporting", "rule_name": "", "is_outline": false, "outline_name": "", "examples": null}, {"name": "Scenario 1: permissions", "status": "passed", "duration": 2.773, "description": "", "location": "features/Reporting.feature:4", "tags": ["ui"], "steps": [{"keyword": "When", "name": "the response payload matches the schema", "status": "passed", "duration": 0.397, "location": "features/steps/example.py:10", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Then", "name": "the response payload matches the schema", "status": "passed", "duration": 0.817, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Then", "name": "the API returns 200", "status": "skipped", "duration": 0.218, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the API returns 200", "status": "passed", "duration": 0.876, "location": "features/steps/example.py:13", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "And", "name": "the user opens the dashboard", "status": "passed", "duration": 0.465, "location": "features/steps/example.py:14", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "feature_name": "Reporting", "rule_name": "", "is_outline": false, "outline_name": "", "examples": null}], "buckets": {"<100ms": 0, "100ms-500ms": 2, "500ms-1s": 1, "1s-5s": 22, "5s-30s": 0, ">30s": 0}, "tags": [{"name": "authentication", "count": 8, "passed": 4, "failed": 3, "skipped": 0, "undefined": 1, "pending": 0, "error": 0, "duration": 20.413000000000004, "pass_rate": 50.0}, {"name": "regression", "count": 7, "passed": 4, "failed": 3, "skipped": 0, "undefined": 0, "pending": 0, "error": 0, "duration": 16.995, "pass_rate": 57.14285714285714}, {"name": "nightly", "count": 6, "passed": 3, "failed": 2, "skipped": 0, "undefined": 1, "pending": 0, "error": 0, "duration": 16.59, "pass_rate": 50.0}, {"name": "checkout", "count": 5, "passed": 2, "failed": 2, "skipped": 0, "undefined": 1, "pending": 0, "error": 0, "duration": 10.701, "pass_rate": 40.0}, {"name": "api", "count": 5, "passed": 3, "failed": 2, "skipped": 0, "undefined": 0, "pending": 0, "error": 0, "duration": 15.418, "pass_rate": 60.0}, {"name": "smoke", "count": 4, "passed": 1, "failed": 2, "skipped": 0, "undefined": 1, "pending": 0, "error": 0, "duration": 13.136999999999999, "pass_rate": 25.0}, {"name": "wip", "count": 4, "passed": 2, "failed": 1, "skipped": 0, "undefined": 1, "pending": 0, "error": 0, "duration": 7.4239999999999995, "pass_rate": 50.0}, {"name": "settings", "count": 4, "passed": 2, "failed": 1, "skipped": 0, "undefined": 1, "pending": 0, "error": 0, "duration": 11.391, "pass_rate": 50.0}, {"name": "outline", "count": 2, "passed": 1, "failed": 1, "skipped": 0, "undefined": 0, "pending": 0, "error": 0, "duration": 0.8, "pass_rate": 50.0}, {"name": "login", "count": 2, "passed": 1, "failed": 1, "skipped": 0, "undefined": 0, "pending": 0, "error": 0, "duration": 0.8, "pass_rate": 50.0}, {"name": "payment", "count": 2, "passed": 0, "failed": 1, "skipped": 0, "undefined": 1, "pending": 0, "error": 0, "duration": 4.333, "pass_rate": 0.0}, {"name": "shipping", "count": 2, "passed": 1, "failed": 1, "skipped": 0, "undefined": 0, "pending": 0, "error": 0, "duration": 4.3629999999999995, "pass_rate": 50.0}, {"name": "reporting", "count": 6, "passed": 5, "failed": 0, "skipped": 0, "undefined": 1, "pending": 0, "error": 0, "duration": 17.707, "pass_rate": 83.33333333333334}, {"name": "ui", "count": 3, "passed": 3, "failed": 0, "skipped": 0, "undefined": 0, "pending": 0, "error": 0, "duration": 9.239, "pass_rate": 100.0}], "errors": {"AssertionError": 6}, "default_view": "dashboard", "hidden_views": [], "expand_by_default": false, "show_copy_command": true}</script>
+  <script id="bmr-data" type="application/json">{"execution": {"title": "Behave Modern Report \u2014 Demo", "features": [{"name": "Checkout", "status": "failed", "duration": 10.701, "description": "Behavior of the checkout subsystem including rules.", "location": "features/checkout.feature:1", "tags": ["checkout"], "scenarios": [{"name": "Scenario 1: permissions", "status": "failed", "duration": 1.0979999999999999, "description": "", "location": "features/Checkout.feature:4", "tags": ["payment"], "steps": [{"keyword": "When", "name": "the user opens the dashboard", "status": "passed", "duration": 0.814, "location": "features/steps/example.py:10", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the user opens the dashboard", "status": "failed", "duration": 0.041, "location": "features/steps/example.py:11", "text": null, "table": null, "error": {"message": "Expected 200 but got 500", "traceback": "Traceback (most recent call last):\n  File \"features/steps/example.py\", line 42, in step_impl\n    assert response.status_code == 200\nAssertionError: Expected 200 but got 500", "exception_type": "AssertionError"}, "attachments": [], "logs": []}, {"keyword": "When", "name": "the cart contains 1 items", "status": "passed", "duration": 0.243, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "attachments": [], "logs": [], "feature_name": "Checkout", "rule_name": "Payment required", "is_outline": false, "outline_name": "", "examples": null}, {"name": "Scenario 2: reporting", "status": "undefined", "duration": 3.235, "description": "", "location": "features/Checkout.feature:8", "tags": ["payment"], "steps": [{"keyword": "Then", "name": "the response payload matches the schema", "status": "undefined", "duration": 0.412, "location": "features/steps/example.py:10", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "the user opens the dashboard", "status": "passed", "duration": 0.459, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Then", "name": "the user opens the dashboard", "status": "passed", "duration": 0.877, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the cart contains 2 items", "status": "skipped", "duration": 0.355, "location": "features/steps/example.py:13", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "the user opens the dashboard", "status": "passed", "duration": 0.795, "location": "features/steps/example.py:14", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the response payload matches the schema", "status": "passed", "duration": 0.337, "location": "features/steps/example.py:15", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "attachments": [], "logs": [], "feature_name": "Checkout", "rule_name": "Payment required", "is_outline": false, "outline_name": "", "examples": null}, {"name": "Scenario 3: permissions", "status": "passed", "duration": 1.6280000000000001, "description": "", "location": "features/Checkout.feature:12", "tags": ["shipping"], "steps": [{"keyword": "Then", "name": "the cart contains 2 items", "status": "passed", "duration": 0.764, "location": "features/steps/example.py:10", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "the response payload matches the schema", "status": "skipped", "duration": 0.328, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "the user opens the dashboard", "status": "skipped", "duration": 0.279, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Then", "name": "the user opens the dashboard", "status": "passed", "duration": 0.257, "location": "features/steps/example.py:13", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "attachments": [], "logs": [], "feature_name": "Checkout", "rule_name": "Shipping options", "is_outline": false, "outline_name": "", "examples": null}, {"name": "Scenario 4: permissions", "status": "failed", "duration": 2.735, "description": "", "location": "features/Checkout.feature:16", "tags": ["shipping"], "steps": [{"keyword": "And", "name": "they click the buy button", "status": "failed", "duration": 0.322, "location": "features/steps/example.py:10", "text": null, "table": null, "error": {"message": "Expected 200 but got 500", "traceback": "Traceback (most recent call last):\n  File \"features/steps/example.py\", line 42, in step_impl\n    assert response.status_code == 200\nAssertionError: Expected 200 but got 500", "exception_type": "AssertionError"}, "attachments": [], "logs": []}, {"keyword": "Then", "name": "the cart contains 7 items", "status": "passed", "duration": 0.482, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "the user opens the dashboard", "status": "passed", "duration": 0.908, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "the response payload matches the schema", "status": "passed", "duration": 0.718, "location": "features/steps/example.py:13", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "And", "name": "the cart contains 8 items", "status": "passed", "duration": 0.305, "location": "features/steps/example.py:14", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "attachments": [], "logs": [], "feature_name": "Checkout", "rule_name": "Shipping options", "is_outline": false, "outline_name": "", "examples": null}, {"name": "Scenario 5: checkout", "status": "passed", "duration": 2.005, "description": "", "location": "features/Checkout.feature:20", "tags": ["regression", "nightly"], "steps": [{"keyword": "Then", "name": "the user opens the dashboard", "status": "passed", "duration": 0.356, "location": "features/steps/example.py:10", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "And", "name": "the cart contains 5 items", "status": "passed", "duration": 0.916, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the cart contains 5 items", "status": "skipped", "duration": 0.733, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "attachments": [], "logs": [], "feature_name": "Checkout", "rule_name": "", "is_outline": false, "outline_name": "", "examples": null}], "background": null}, {"name": "User Login", "status": "failed", "duration": 0.8, "description": "Login scenarios with background and outline examples.", "location": "features/login.feature:1", "tags": ["login"], "scenarios": [{"name": "Outline example: Login with valid credentials", "status": "passed", "duration": 0.4, "description": "", "location": "features/login.feature:10", "tags": ["login", "outline"], "steps": [{"keyword": "Given", "name": "the username is \"alice\"", "status": "passed", "duration": 0.1, "location": "", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "the user logs in", "status": "passed", "duration": 0.2, "location": "", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Then", "name": "the dashboard is shown", "status": "passed", "duration": 0.1, "location": "", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "attachments": [], "logs": [], "feature_name": "User Login", "rule_name": "", "is_outline": true, "outline_name": "Login with valid credentials", "examples": {"headings": ["username", "password"], "rows": [["alice", "secret1"], ["bob", "secret2"], ["carol", "secret3"]]}}, {"name": "Outline example: Login with invalid credentials", "status": "failed", "duration": 0.4, "description": "", "location": "features/login.feature:20", "tags": ["login", "outline"], "steps": [{"keyword": "Given", "name": "the username is \"eve\"", "status": "passed", "duration": 0.1, "location": "", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "the user logs in", "status": "passed", "duration": 0.2, "location": "", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Then", "name": "the error is shown", "status": "failed", "duration": 0.1, "location": "", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "attachments": [], "logs": [], "feature_name": "User Login", "rule_name": "", "is_outline": true, "outline_name": "Login with invalid credentials", "examples": {"headings": ["username", "password"], "rows": [["eve", "wrong"], ["mallory", "bad"]]}}], "background": {"name": "Setup a test user", "keyword": "Background", "steps": [{"keyword": "Given", "name": "the database is reset", "status": "passed", "duration": 0.2, "location": "", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "And", "name": "the user is authenticated", "status": "passed", "duration": 0.15, "location": "", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "location": "features/login.feature:3"}}, {"name": "Authentication", "status": "failed", "duration": 20.413000000000004, "description": "Behavior of the authentication subsystem.", "location": "features/authentication.feature:1", "tags": ["authentication"], "scenarios": [{"name": "Scenario 1: permissions", "status": "failed", "duration": 1.6669999999999998, "description": "", "location": "features/Authentication.feature:4", "tags": ["regression", "nightly", "wip"], "steps": [{"keyword": "Given", "name": "the API returns 200", "status": "failed", "duration": 0.291, "location": "features/steps/example.py:10", "text": null, "table": null, "error": {"message": "Expected 200 but got 500", "traceback": "Traceback (most recent call last):\n  File \"features/steps/example.py\", line 42, in step_impl\n    assert response.status_code == 200\nAssertionError: Expected 200 but got 500", "exception_type": "AssertionError"}, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the user opens the dashboard", "status": "passed", "duration": 1.174, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "the cart contains 8 items", "status": "skipped", "duration": 0.202, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "attachments": [], "logs": [], "feature_name": "Authentication", "rule_name": "", "is_outline": false, "outline_name": "", "examples": null}, {"name": "Scenario 2: checkout", "status": "failed", "duration": 2.127, "description": "", "location": "features/Authentication.feature:8", "tags": ["api", "regression", "smoke"], "steps": [{"keyword": "And", "name": "the user opens the dashboard", "status": "passed", "duration": 0.301, "location": "features/steps/example.py:10", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Then", "name": "they click the login button", "status": "passed", "duration": 0.708, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "they click the buy button", "status": "passed", "duration": 0.086, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Then", "name": "they click the login button", "status": "passed", "duration": 0.338, "location": "features/steps/example.py:13", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "the cart contains 3 items", "status": "failed", "duration": 0.694, "location": "features/steps/example.py:14", "text": null, "table": null, "error": {"message": "Expected 200 but got 500", "traceback": "Traceback (most recent call last):\n  File \"features/steps/example.py\", line 42, in step_impl\n    assert response.status_code == 200\nAssertionError: Expected 200 but got 500", "exception_type": "AssertionError"}, "attachments": [], "logs": []}], "background": null, "attachments": [], "logs": [], "feature_name": "Authentication", "rule_name": "", "is_outline": false, "outline_name": "", "examples": null}, {"name": "Scenario 3: checkout", "status": "passed", "duration": 1.4500000000000002, "description": "", "location": "features/Authentication.feature:12", "tags": [], "steps": [{"keyword": "And", "name": "the user opens the dashboard", "status": "passed", "duration": 0.81, "location": "features/steps/example.py:10", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the user opens the dashboard", "status": "passed", "duration": 0.302, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "And", "name": "they click the login button", "status": "passed", "duration": 0.338, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "attachments": [], "logs": [], "feature_name": "Authentication", "rule_name": "", "is_outline": false, "outline_name": "", "examples": null}, {"name": "Scenario 4: API contract", "status": "failed", "duration": 4.6290000000000004, "description": "", "location": "features/Authentication.feature:16", "tags": ["smoke"], "steps": [{"keyword": "Given", "name": "the user opens the dashboard", "status": "skipped", "duration": 1.163, "location": "features/steps/example.py:10", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "the response payload matches the schema", "status": "passed", "duration": 0.26, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the user opens the dashboard", "status": "passed", "duration": 1.182, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "And", "name": "the cart contains 7 items", "status": "passed", "duration": 0.796, "location": "features/steps/example.py:13", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "they click the login button", "status": "failed", "duration": 1.163, "location": "features/steps/example.py:14", "text": null, "table": null, "error": {"message": "Expected 200 but got 500", "traceback": "Traceback (most recent call last):\n  File \"features/steps/example.py\", line 42, in step_impl\n    assert response.status_code == 200\nAssertionError: Expected 200 but got 500", "exception_type": "AssertionError"}, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the user opens the dashboard", "status": "undefined", "duration": 0.065, "location": "features/steps/example.py:15", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "attachments": [], "logs": [], "feature_name": "Authentication", "rule_name": "", "is_outline": false, "outline_name": "", "examples": null}, {"name": "Scenario 5: API contract", "status": "undefined", "duration": 0.5409999999999999, "description": "", "location": "features/Authentication.feature:20", "tags": ["wip"], "steps": [{"keyword": "Given", "name": "the response payload matches the schema", "status": "passed", "duration": 0.148, "location": "features/steps/example.py:10", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "the cart contains 1 items", "status": "undefined", "duration": 0.103, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Then", "name": "the API returns 200", "status": "undefined", "duration": 0.29, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "attachments": [], "logs": [], "feature_name": "Authentication", "rule_name": "", "is_outline": false, "outline_name": "", "examples": null}, {"name": "Scenario 6: checkout", "status": "passed", "duration": 4.559, "description": "", "location": "features/Authentication.feature:24", "tags": ["ui", "nightly"], "steps": [{"keyword": "Given", "name": "the user opens the dashboard", "status": "passed", "duration": 0.647, "location": "features/steps/example.py:10", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Then", "name": "the user opens the dashboard", "status": "skipped", "duration": 1.056, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Then", "name": "the cart contains 8 items", "status": "passed", "duration": 0.846, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the API returns 200", "status": "skipped", "duration": 1.118, "location": "features/steps/example.py:13", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "the user opens the dashboard", "status": "passed", "duration": 0.892, "location": "features/steps/example.py:14", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "attachments": [], "logs": [], "feature_name": "Authentication", "rule_name": "", "is_outline": false, "outline_name": "", "examples": null}, {"name": "Scenario 7: checkout", "status": "passed", "duration": 2.131, "description": "", "location": "features/Authentication.feature:28", "tags": [], "steps": [{"keyword": "Then", "name": "the API returns 200", "status": "passed", "duration": 1.087, "location": "features/steps/example.py:10", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the API returns 200", "status": "passed", "duration": 0.058, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "they click the buy button", "status": "passed", "duration": 0.891, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "And", "name": "the user opens the dashboard", "status": "skipped", "duration": 0.095, "location": "features/steps/example.py:13", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "attachments": [], "logs": [], "feature_name": "Authentication", "rule_name": "", "is_outline": false, "outline_name": "", "examples": null}, {"name": "Scenario 8: login flow", "status": "passed", "duration": 3.309, "description": "", "location": "features/Authentication.feature:32", "tags": ["regression", "wip", "api"], "steps": [{"keyword": "And", "name": "the API returns 200", "status": "passed", "duration": 0.441, "location": "features/steps/example.py:10", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Then", "name": "the user opens the dashboard", "status": "passed", "duration": 0.428, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "And", "name": "they click the buy button", "status": "skipped", "duration": 1.038, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "And", "name": "the API returns 200", "status": "passed", "duration": 0.94, "location": "features/steps/example.py:13", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "the user opens the dashboard", "status": "passed", "duration": 0.462, "location": "features/steps/example.py:14", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "attachments": [], "logs": [], "feature_name": "Authentication", "rule_name": "", "is_outline": false, "outline_name": "", "examples": null}], "background": null}, {"name": "Reporting", "status": "undefined", "duration": 17.707, "description": "Behavior of the reporting subsystem.", "location": "features/reporting.feature:1", "tags": ["reporting"], "scenarios": [{"name": "Scenario 1: permissions", "status": "passed", "duration": 2.773, "description": "", "location": "features/Reporting.feature:4", "tags": ["ui"], "steps": [{"keyword": "When", "name": "the response payload matches the schema", "status": "passed", "duration": 0.397, "location": "features/steps/example.py:10", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Then", "name": "the response payload matches the schema", "status": "passed", "duration": 0.817, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Then", "name": "the API returns 200", "status": "skipped", "duration": 0.218, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the API returns 200", "status": "passed", "duration": 0.876, "location": "features/steps/example.py:13", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "And", "name": "the user opens the dashboard", "status": "passed", "duration": 0.465, "location": "features/steps/example.py:14", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "attachments": [], "logs": [], "feature_name": "Reporting", "rule_name": "", "is_outline": false, "outline_name": "", "examples": null}, {"name": "Scenario 2: API contract", "status": "passed", "duration": 1.907, "description": "", "location": "features/Reporting.feature:8", "tags": ["wip", "regression", "ui"], "steps": [{"keyword": "When", "name": "the user opens the dashboard", "status": "passed", "duration": 1.139, "location": "features/steps/example.py:10", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Then", "name": "the API returns 200", "status": "passed", "duration": 0.611, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Then", "name": "the cart contains 5 items", "status": "passed", "duration": 0.157, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "attachments": [], "logs": [], "feature_name": "Reporting", "rule_name": "", "is_outline": false, "outline_name": "", "examples": null}, {"name": "Scenario 3: checkout", "status": "undefined", "duration": 2.983, "description": "", "location": "features/Reporting.feature:12", "tags": [], "steps": [{"keyword": "Then", "name": "the response payload matches the schema", "status": "passed", "duration": 0.944, "location": "features/steps/example.py:10", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "And", "name": "they click the submit button", "status": "passed", "duration": 0.616, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the cart contains 9 items", "status": "passed", "duration": 0.406, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Then", "name": "they click the login button", "status": "passed", "duration": 0.034, "location": "features/steps/example.py:13", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "And", "name": "the response payload matches the schema", "status": "passed", "duration": 0.5, "location": "features/steps/example.py:14", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "the response payload matches the schema", "status": "undefined", "duration": 0.483, "location": "features/steps/example.py:15", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "attachments": [], "logs": [], "feature_name": "Reporting", "rule_name": "", "is_outline": false, "outline_name": "", "examples": null}, {"name": "Scenario 4: permissions", "status": "passed", "duration": 1.866, "description": "", "location": "features/Reporting.feature:16", "tags": ["regression", "api", "nightly"], "steps": [{"keyword": "When", "name": "the response payload matches the schema", "status": "passed", "duration": 0.065, "location": "features/steps/example.py:10", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the response payload matches the schema", "status": "passed", "duration": 0.803, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Then", "name": "the response payload matches the schema", "status": "skipped", "duration": 0.998, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "attachments": [], "logs": [], "feature_name": "Reporting", "rule_name": "", "is_outline": false, "outline_name": "", "examples": null}, {"name": "Scenario 5: permissions", "status": "passed", "duration": 4.176, "description": "", "location": "features/Reporting.feature:20", "tags": [], "steps": [{"keyword": "And", "name": "the API returns 200", "status": "passed", "duration": 0.531, "location": "features/steps/example.py:10", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "the API returns 200", "status": "passed", "duration": 1.072, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "the response payload matches the schema", "status": "passed", "duration": 0.834, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the API returns 200", "status": "passed", "duration": 0.653, "location": "features/steps/example.py:13", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the response payload matches the schema", "status": "passed", "duration": 1.086, "location": "features/steps/example.py:14", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "attachments": [], "logs": [], "feature_name": "Reporting", "rule_name": "", "is_outline": false, "outline_name": "", "examples": null}, {"name": "Scenario 6: API contract", "status": "passed", "duration": 4.002, "description": "", "location": "features/Reporting.feature:24", "tags": ["smoke", "api"], "steps": [{"keyword": "Then", "name": "the cart contains 7 items", "status": "passed", "duration": 0.898, "location": "features/steps/example.py:10", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "the API returns 200", "status": "skipped", "duration": 0.526, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "And", "name": "they click the submit button", "status": "passed", "duration": 1.009, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the user opens the dashboard", "status": "passed", "duration": 0.773, "location": "features/steps/example.py:13", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "And", "name": "the API returns 200", "status": "passed", "duration": 0.458, "location": "features/steps/example.py:14", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "And", "name": "the response payload matches the schema", "status": "passed", "duration": 0.338, "location": "features/steps/example.py:15", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "attachments": [], "logs": [], "feature_name": "Reporting", "rule_name": "", "is_outline": false, "outline_name": "", "examples": null}], "background": null}, {"name": "Settings", "status": "failed", "duration": 11.391, "description": "Behavior of the settings subsystem.", "location": "features/settings.feature:1", "tags": ["settings"], "scenarios": [{"name": "Scenario 1: permissions", "status": "passed", "duration": 1.268, "description": "", "location": "features/Settings.feature:4", "tags": [], "steps": [{"keyword": "When", "name": "the user opens the dashboard", "status": "passed", "duration": 0.906, "location": "features/steps/example.py:10", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "they click the login button", "status": "passed", "duration": 0.156, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "the API returns 200", "status": "passed", "duration": 0.206, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "attachments": [], "logs": [], "feature_name": "Settings", "rule_name": "", "is_outline": false, "outline_name": "", "examples": null}, {"name": "Scenario 2: API contract", "status": "passed", "duration": 3.63, "description": "", "location": "features/Settings.feature:8", "tags": [], "steps": [{"keyword": "Given", "name": "the response payload matches the schema", "status": "passed", "duration": 1.13, "location": "features/steps/example.py:10", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the user opens the dashboard", "status": "passed", "duration": 0.838, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the API returns 200", "status": "passed", "duration": 0.642, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the user opens the dashboard", "status": "passed", "duration": 1.02, "location": "features/steps/example.py:13", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "attachments": [], "logs": [], "feature_name": "Settings", "rule_name": "", "is_outline": false, "outline_name": "", "examples": null}, {"name": "Scenario 3: API contract", "status": "failed", "duration": 4.114, "description": "", "location": "features/Settings.feature:12", "tags": ["nightly", "regression", "api"], "steps": [{"keyword": "When", "name": "the cart contains 3 items", "status": "failed", "duration": 1.159, "location": "features/steps/example.py:10", "text": null, "table": null, "error": {"message": "Expected 200 but got 500", "traceback": "Traceback (most recent call last):\n  File \"features/steps/example.py\", line 42, in step_impl\n    assert response.status_code == 200\nAssertionError: Expected 200 but got 500", "exception_type": "AssertionError"}, "attachments": [], "logs": []}, {"keyword": "And", "name": "the cart contains 7 items", "status": "passed", "duration": 0.326, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "they click the submit button", "status": "passed", "duration": 0.902, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "And", "name": "the response payload matches the schema", "status": "undefined", "duration": 1.022, "location": "features/steps/example.py:13", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "And", "name": "the API returns 200", "status": "passed", "duration": 0.412, "location": "features/steps/example.py:14", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the user opens the dashboard", "status": "passed", "duration": 0.293, "location": "features/steps/example.py:15", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "attachments": [], "logs": [], "feature_name": "Settings", "rule_name": "", "is_outline": false, "outline_name": "", "examples": null}, {"name": "Scenario 4: checkout", "status": "undefined", "duration": 2.379, "description": "", "location": "features/Settings.feature:16", "tags": ["smoke", "nightly"], "steps": [{"keyword": "Given", "name": "the response payload matches the schema", "status": "passed", "duration": 0.832, "location": "features/steps/example.py:10", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Then", "name": "the cart contains 9 items", "status": "passed", "duration": 0.416, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Then", "name": "the API returns 200", "status": "skipped", "duration": 0.371, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the API returns 200", "status": "passed", "duration": 0.148, "location": "features/steps/example.py:13", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "the response payload matches the schema", "status": "skipped", "duration": 0.335, "location": "features/steps/example.py:14", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Then", "name": "the API returns 200", "status": "undefined", "duration": 0.277, "location": "features/steps/example.py:15", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "attachments": [], "logs": [], "feature_name": "Settings", "rule_name": "", "is_outline": false, "outline_name": "", "examples": null}], "background": null}], "environment": {"python_version": "3.12.1", "behave_version": "1.2.6", "platform": "Demo OS 1.0 (x86_64)", "hostname": "demo-host", "cwd": "/demo/project", "command": "behave -f modern-html -o demo-report.html", "user": "demo-user", "cpu_count": 8, "memory_mb": 16384, "git_branch": "main", "git_commit": "a1b2c3d", "git_remote": "https://github.com/demo/project.git", "env_vars": {"CI": "false", "PATH": "/usr/bin:/bin", "HOME": "/home/demo", "SHELL": "/bin/bash"}, "extra": {"CI": "false", "Branch": "main"}}, "statistics": {"total_features": 5, "total_scenarios": 25, "total_steps": 108, "by_status": {"passed": 14, "failed": 7, "skipped": 0, "undefined": 4, "pending": 0, "pending_warn": 0, "untested": 0, "error": 0, "hook_error": 0, "cleanup_error": 0, "xfailed": 0, "xpassed": 0}, "by_tag": {"payment": {"count": 2, "duration": 4.333, "passed": 0, "failed": 1, "skipped": 0, "undefined": 1, "pending": 0, "pending_warn": 0, "untested": 0, "error": 0, "hook_error": 0, "cleanup_error": 0, "xfailed": 0, "xpassed": 0}, "checkout": {"count": 5, "duration": 10.701, "passed": 2, "failed": 2, "skipped": 0, "undefined": 1, "pending": 0, "pending_warn": 0, "untested": 0, "error": 0, "hook_error": 0, "cleanup_error": 0, "xfailed": 0, "xpassed": 0}, "shipping": {"count": 2, "duration": 4.3629999999999995, "passed": 1, "failed": 1, "skipped": 0, "undefined": 0, "pending": 0, "pending_warn": 0, "untested": 0, "error": 0, "hook_error": 0, "cleanup_error": 0, "xfailed": 0, "xpassed": 0}, "regression": {"count": 7, "duration": 16.995, "passed": 4, "failed": 3, "skipped": 0, "undefined": 0, "pending": 0, "pending_warn": 0, "untested": 0, "error": 0, "hook_error": 0, "cleanup_error": 0, "xfailed": 0, "xpassed": 0}, "nightly": {"count": 6, "duration": 16.59, "passed": 3, "failed": 2, "skipped": 0, "undefined": 1, "pending": 0, "pending_warn": 0, "untested": 0, "error": 0, "hook_error": 0, "cleanup_error": 0, "xfailed": 0, "xpassed": 0}, "login": {"count": 2, "duration": 0.8, "passed": 1, "failed": 1, "skipped": 0, "undefined": 0, "pending": 0, "pending_warn": 0, "untested": 0, "error": 0, "hook_error": 0, "cleanup_error": 0, "xfailed": 0, "xpassed": 0}, "outline": {"count": 2, "duration": 0.8, "passed": 1, "failed": 1, "skipped": 0, "undefined": 0, "pending": 0, "pending_warn": 0, "untested": 0, "error": 0, "hook_error": 0, "cleanup_error": 0, "xfailed": 0, "xpassed": 0}, "wip": {"count": 4, "duration": 7.4239999999999995, "passed": 2, "failed": 1, "skipped": 0, "undefined": 1, "pending": 0, "pending_warn": 0, "untested": 0, "error": 0, "hook_error": 0, "cleanup_error": 0, "xfailed": 0, "xpassed": 0}, "authentication": {"count": 8, "duration": 20.413000000000004, "passed": 4, "failed": 3, "skipped": 0, "undefined": 1, "pending": 0, "pending_warn": 0, "untested": 0, "error": 0, "hook_error": 0, "cleanup_error": 0, "xfailed": 0, "xpassed": 0}, "smoke": {"count": 4, "duration": 13.136999999999999, "passed": 1, "failed": 2, "skipped": 0, "undefined": 1, "pending": 0, "pending_warn": 0, "untested": 0, "error": 0, "hook_error": 0, "cleanup_error": 0, "xfailed": 0, "xpassed": 0}, "api": {"count": 5, "duration": 15.418, "passed": 3, "failed": 2, "skipped": 0, "undefined": 0, "pending": 0, "pending_warn": 0, "untested": 0, "error": 0, "hook_error": 0, "cleanup_error": 0, "xfailed": 0, "xpassed": 0}, "ui": {"count": 3, "duration": 9.239, "passed": 3, "failed": 0, "skipped": 0, "undefined": 0, "pending": 0, "pending_warn": 0, "untested": 0, "error": 0, "hook_error": 0, "cleanup_error": 0, "xfailed": 0, "xpassed": 0}, "reporting": {"count": 6, "duration": 17.707, "passed": 5, "failed": 0, "skipped": 0, "undefined": 1, "pending": 0, "pending_warn": 0, "untested": 0, "error": 0, "hook_error": 0, "cleanup_error": 0, "xfailed": 0, "xpassed": 0}, "settings": {"count": 4, "duration": 11.391, "passed": 2, "failed": 1, "skipped": 0, "undefined": 1, "pending": 0, "pending_warn": 0, "untested": 0, "error": 0, "hook_error": 0, "cleanup_error": 0, "xfailed": 0, "xpassed": 0}}, "duration": 61.01200000000001, "start_time": "2026-10-03T09:36:31.754971", "end_time": "2026-10-03T09:37:13.758546", "error_count": 7, "rule_count": 2, "rule_failed_count": 2, "total_attachments": 0, "total_logs": 0, "slowest_step_duration": 1.182, "avg_scenario_duration": 2.44048, "common_exception_type": "AssertionError"}, "generated_at": "2026-10-03T09:37:13.758554"}, "slowest": [{"name": "Scenario 4: API contract", "status": "failed", "duration": 4.6290000000000004, "description": "", "location": "features/Authentication.feature:16", "tags": ["smoke"], "steps": [{"keyword": "Given", "name": "the user opens the dashboard", "status": "skipped", "duration": 1.163, "location": "features/steps/example.py:10", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "the response payload matches the schema", "status": "passed", "duration": 0.26, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the user opens the dashboard", "status": "passed", "duration": 1.182, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "And", "name": "the cart contains 7 items", "status": "passed", "duration": 0.796, "location": "features/steps/example.py:13", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "they click the login button", "status": "failed", "duration": 1.163, "location": "features/steps/example.py:14", "text": null, "table": null, "error": {"message": "Expected 200 but got 500", "traceback": "Traceback (most recent call last):\n  File \"features/steps/example.py\", line 42, in step_impl\n    assert response.status_code == 200\nAssertionError: Expected 200 but got 500", "exception_type": "AssertionError"}, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the user opens the dashboard", "status": "undefined", "duration": 0.065, "location": "features/steps/example.py:15", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "attachments": [], "logs": [], "feature_name": "Authentication", "rule_name": "", "is_outline": false, "outline_name": "", "examples": null}, {"name": "Scenario 6: checkout", "status": "passed", "duration": 4.559, "description": "", "location": "features/Authentication.feature:24", "tags": ["ui", "nightly"], "steps": [{"keyword": "Given", "name": "the user opens the dashboard", "status": "passed", "duration": 0.647, "location": "features/steps/example.py:10", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Then", "name": "the user opens the dashboard", "status": "skipped", "duration": 1.056, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Then", "name": "the cart contains 8 items", "status": "passed", "duration": 0.846, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the API returns 200", "status": "skipped", "duration": 1.118, "location": "features/steps/example.py:13", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "the user opens the dashboard", "status": "passed", "duration": 0.892, "location": "features/steps/example.py:14", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "attachments": [], "logs": [], "feature_name": "Authentication", "rule_name": "", "is_outline": false, "outline_name": "", "examples": null}, {"name": "Scenario 5: permissions", "status": "passed", "duration": 4.176, "description": "", "location": "features/Reporting.feature:20", "tags": [], "steps": [{"keyword": "And", "name": "the API returns 200", "status": "passed", "duration": 0.531, "location": "features/steps/example.py:10", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "the API returns 200", "status": "passed", "duration": 1.072, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "the response payload matches the schema", "status": "passed", "duration": 0.834, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the API returns 200", "status": "passed", "duration": 0.653, "location": "features/steps/example.py:13", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the response payload matches the schema", "status": "passed", "duration": 1.086, "location": "features/steps/example.py:14", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "attachments": [], "logs": [], "feature_name": "Reporting", "rule_name": "", "is_outline": false, "outline_name": "", "examples": null}, {"name": "Scenario 3: API contract", "status": "failed", "duration": 4.114, "description": "", "location": "features/Settings.feature:12", "tags": ["nightly", "regression", "api"], "steps": [{"keyword": "When", "name": "the cart contains 3 items", "status": "failed", "duration": 1.159, "location": "features/steps/example.py:10", "text": null, "table": null, "error": {"message": "Expected 200 but got 500", "traceback": "Traceback (most recent call last):\n  File \"features/steps/example.py\", line 42, in step_impl\n    assert response.status_code == 200\nAssertionError: Expected 200 but got 500", "exception_type": "AssertionError"}, "attachments": [], "logs": []}, {"keyword": "And", "name": "the cart contains 7 items", "status": "passed", "duration": 0.326, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "they click the submit button", "status": "passed", "duration": 0.902, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "And", "name": "the response payload matches the schema", "status": "undefined", "duration": 1.022, "location": "features/steps/example.py:13", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "And", "name": "the API returns 200", "status": "passed", "duration": 0.412, "location": "features/steps/example.py:14", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the user opens the dashboard", "status": "passed", "duration": 0.293, "location": "features/steps/example.py:15", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "attachments": [], "logs": [], "feature_name": "Settings", "rule_name": "", "is_outline": false, "outline_name": "", "examples": null}, {"name": "Scenario 6: API contract", "status": "passed", "duration": 4.002, "description": "", "location": "features/Reporting.feature:24", "tags": ["smoke", "api"], "steps": [{"keyword": "Then", "name": "the cart contains 7 items", "status": "passed", "duration": 0.898, "location": "features/steps/example.py:10", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "the API returns 200", "status": "skipped", "duration": 0.526, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "And", "name": "they click the submit button", "status": "passed", "duration": 1.009, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the user opens the dashboard", "status": "passed", "duration": 0.773, "location": "features/steps/example.py:13", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "And", "name": "the API returns 200", "status": "passed", "duration": 0.458, "location": "features/steps/example.py:14", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "And", "name": "the response payload matches the schema", "status": "passed", "duration": 0.338, "location": "features/steps/example.py:15", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "attachments": [], "logs": [], "feature_name": "Reporting", "rule_name": "", "is_outline": false, "outline_name": "", "examples": null}, {"name": "Scenario 2: API contract", "status": "passed", "duration": 3.63, "description": "", "location": "features/Settings.feature:8", "tags": [], "steps": [{"keyword": "Given", "name": "the response payload matches the schema", "status": "passed", "duration": 1.13, "location": "features/steps/example.py:10", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the user opens the dashboard", "status": "passed", "duration": 0.838, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the API returns 200", "status": "passed", "duration": 0.642, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the user opens the dashboard", "status": "passed", "duration": 1.02, "location": "features/steps/example.py:13", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "attachments": [], "logs": [], "feature_name": "Settings", "rule_name": "", "is_outline": false, "outline_name": "", "examples": null}, {"name": "Scenario 8: login flow", "status": "passed", "duration": 3.309, "description": "", "location": "features/Authentication.feature:32", "tags": ["regression", "wip", "api"], "steps": [{"keyword": "And", "name": "the API returns 200", "status": "passed", "duration": 0.441, "location": "features/steps/example.py:10", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Then", "name": "the user opens the dashboard", "status": "passed", "duration": 0.428, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "And", "name": "they click the buy button", "status": "skipped", "duration": 1.038, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "And", "name": "the API returns 200", "status": "passed", "duration": 0.94, "location": "features/steps/example.py:13", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "the user opens the dashboard", "status": "passed", "duration": 0.462, "location": "features/steps/example.py:14", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "attachments": [], "logs": [], "feature_name": "Authentication", "rule_name": "", "is_outline": false, "outline_name": "", "examples": null}, {"name": "Scenario 2: reporting", "status": "undefined", "duration": 3.235, "description": "", "location": "features/Checkout.feature:8", "tags": ["payment"], "steps": [{"keyword": "Then", "name": "the response payload matches the schema", "status": "undefined", "duration": 0.412, "location": "features/steps/example.py:10", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "the user opens the dashboard", "status": "passed", "duration": 0.459, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Then", "name": "the user opens the dashboard", "status": "passed", "duration": 0.877, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the cart contains 2 items", "status": "skipped", "duration": 0.355, "location": "features/steps/example.py:13", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "the user opens the dashboard", "status": "passed", "duration": 0.795, "location": "features/steps/example.py:14", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the response payload matches the schema", "status": "passed", "duration": 0.337, "location": "features/steps/example.py:15", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "attachments": [], "logs": [], "feature_name": "Checkout", "rule_name": "Payment required", "is_outline": false, "outline_name": "", "examples": null}, {"name": "Scenario 3: checkout", "status": "undefined", "duration": 2.983, "description": "", "location": "features/Reporting.feature:12", "tags": [], "steps": [{"keyword": "Then", "name": "the response payload matches the schema", "status": "passed", "duration": 0.944, "location": "features/steps/example.py:10", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "And", "name": "they click the submit button", "status": "passed", "duration": 0.616, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the cart contains 9 items", "status": "passed", "duration": 0.406, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Then", "name": "they click the login button", "status": "passed", "duration": 0.034, "location": "features/steps/example.py:13", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "And", "name": "the response payload matches the schema", "status": "passed", "duration": 0.5, "location": "features/steps/example.py:14", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "When", "name": "the response payload matches the schema", "status": "undefined", "duration": 0.483, "location": "features/steps/example.py:15", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "attachments": [], "logs": [], "feature_name": "Reporting", "rule_name": "", "is_outline": false, "outline_name": "", "examples": null}, {"name": "Scenario 1: permissions", "status": "passed", "duration": 2.773, "description": "", "location": "features/Reporting.feature:4", "tags": ["ui"], "steps": [{"keyword": "When", "name": "the response payload matches the schema", "status": "passed", "duration": 0.397, "location": "features/steps/example.py:10", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Then", "name": "the response payload matches the schema", "status": "passed", "duration": 0.817, "location": "features/steps/example.py:11", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Then", "name": "the API returns 200", "status": "skipped", "duration": 0.218, "location": "features/steps/example.py:12", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "Given", "name": "the API returns 200", "status": "passed", "duration": 0.876, "location": "features/steps/example.py:13", "text": null, "table": null, "error": null, "attachments": [], "logs": []}, {"keyword": "And", "name": "the user opens the dashboard", "status": "passed", "duration": 0.465, "location": "features/steps/example.py:14", "text": null, "table": null, "error": null, "attachments": [], "logs": []}], "background": null, "attachments": [], "logs": [], "feature_name": "Reporting", "rule_name": "", "is_outline": false, "outline_name": "", "examples": null}], "buckets": {"\u003c100ms": 0, "100ms-500ms": 2, "500ms-1s": 1, "1s-5s": 22, "5s-30s": 0, "\u003e30s": 0}, "tags": [{"name": "authentication", "count": 8, "passed": 4, "failed": 3, "skipped": 0, "undefined": 1, "pending": 0, "error": 0, "duration": 20.413000000000004, "pass_rate": 50.0}, {"name": "regression", "count": 7, "passed": 4, "failed": 3, "skipped": 0, "undefined": 0, "pending": 0, "error": 0, "duration": 16.995, "pass_rate": 57.14285714285714}, {"name": "nightly", "count": 6, "passed": 3, "failed": 2, "skipped": 0, "undefined": 1, "pending": 0, "error": 0, "duration": 16.59, "pass_rate": 50.0}, {"name": "api", "count": 5, "passed": 3, "failed": 2, "skipped": 0, "undefined": 0, "pending": 0, "error": 0, "duration": 15.418, "pass_rate": 60.0}, {"name": "checkout", "count": 5, "passed": 2, "failed": 2, "skipped": 0, "undefined": 1, "pending": 0, "error": 0, "duration": 10.701, "pass_rate": 40.0}, {"name": "smoke", "count": 4, "passed": 1, "failed": 2, "skipped": 0, "undefined": 1, "pending": 0, "error": 0, "duration": 13.136999999999999, "pass_rate": 25.0}, {"name": "settings", "count": 4, "passed": 2, "failed": 1, "skipped": 0, "undefined": 1, "pending": 0, "error": 0, "duration": 11.391, "pass_rate": 50.0}, {"name": "wip", "count": 4, "passed": 2, "failed": 1, "skipped": 0, "undefined": 1, "pending": 0, "error": 0, "duration": 7.4239999999999995, "pass_rate": 50.0}, {"name": "shipping", "count": 2, "passed": 1, "failed": 1, "skipped": 0, "undefined": 0, "pending": 0, "error": 0, "duration": 4.3629999999999995, "pass_rate": 50.0}, {"name": "payment", "count": 2, "passed": 0, "failed": 1, "skipped": 0, "undefined": 1, "pending": 0, "error": 0, "duration": 4.333, "pass_rate": 0.0}, {"name": "login", "count": 2, "passed": 1, "failed": 1, "skipped": 0, "undefined": 0, "pending": 0, "error": 0, "duration": 0.8, "pass_rate": 50.0}, {"name": "outline", "count": 2, "passed": 1, "failed": 1, "skipped": 0, "undefined": 0, "pending": 0, "error": 0, "duration": 0.8, "pass_rate": 50.0}, {"name": "reporting", "count": 6, "passed": 5, "failed": 0, "skipped": 0, "undefined": 1, "pending": 0, "error": 0, "duration": 17.707, "pass_rate": 83.33333333333334}, {"name": "ui", "count": 3, "passed": 3, "failed": 0, "skipped": 0, "undefined": 0, "pending": 0, "error": 0, "duration": 9.239, "pass_rate": 100.0}], "errors": {"AssertionError": 6}, "default_view": "dashboard", "hidden_views": [], "expand_by_default": false, "show_copy_command": true}</script>
   <script>/* ============================================================
    Behave Modern Report — tiny chart library
    Vanilla, zero-dependency Canvas charts: pie, bar, hbar.
@@ -7769,7 +7915,7 @@ AssertionError: Expected 200 but got 500</code></pre>
     var dpr = window.devicePixelRatio || 1;
     var rect = canvas.getBoundingClientRect();
     var w = rect.width || canvas.width || 320;
-    var h = canvas.height ? canvas.height : 200;
+    var h = rect.height || canvas.height || 200;
     canvas.width = Math.floor(w * dpr);
     canvas.height = Math.floor(h * dpr);
     canvas.style.width = w + "px";
@@ -7984,8 +8130,14 @@ AssertionError: Expected 200 but got 500</code></pre>
   // Helpers
   // ----------------------------------------------------------
   function roundRect(ctx, x, y, w, h, r) {
-    r = Math.min(r, w / 2, h / 2);
+    w = Math.max(w, 0);
+    h = Math.max(h, 0);
+    r = Math.max(0, Math.min(r, w / 2, h / 2));
     ctx.beginPath();
+    if (r === 0) {
+      ctx.rect(x, y, w, h);
+      return;
+    }
     ctx.moveTo(x + r, y);
     ctx.arcTo(x + w, y, x + w, y + h, r);
     ctx.arcTo(x + w, y + h, x, y + h, r);
@@ -7995,6 +8147,7 @@ AssertionError: Expected 200 but got 500</code></pre>
   }
 
   function formatDuration(s) {
+    if (s == null || s < 0 || !isFinite(s)) return "0ms";
     if (s < 1) return Math.round(s * 1000) + "ms";
     if (s < 60) return s.toFixed(2) + "s";
     var m = Math.floor(s / 60), sec = Math.round(s - m * 60);
@@ -8026,6 +8179,11 @@ AssertionError: Expected 200 but got 500</code></pre>
       pending:   getCss("--c-pending",   "#8b5cf6"),
       untested:  getCss("--c-untested",  "#64748b"),
     };
+    // Extended Behave 1.3.x statuses reuse the closest base color.
+    PALETTE.error = PALETTE.hook_error = PALETTE.cleanup_error = PALETTE.failed;
+    PALETTE.xfailed = PALETTE.skipped;
+    PALETTE.xpassed = PALETTE.undefined;
+    PALETTE.pending_warn = PALETTE.pending;
   }
 
   function getCss(name, fallback) {
@@ -8097,15 +8255,17 @@ AssertionError: Expected 200 but got 500</code></pre>
     var collapseBtn = e.target.closest("[data-collapse-all]");
     if (expandBtn) {
       document.querySelectorAll(expandBtn.dataset.expandAll).forEach(function (el) {
-        var head = el.querySelector(".feature-head, .rule-head, .scenario-head");
-        if (head) toggleSection(head, true);
+        el.querySelectorAll(".feature-head, .rule-head, .scenario-head").forEach(function (head) {
+          toggleSection(head, true);
+        });
       });
       return;
     }
     if (collapseBtn) {
       document.querySelectorAll(collapseBtn.dataset.collapseAll).forEach(function (el) {
-        var head = el.querySelector(".feature-head, .rule-head, .scenario-head");
-        if (head) toggleSection(head, false);
+        el.querySelectorAll(".feature-head, .rule-head, .scenario-head").forEach(function (head) {
+          toggleSection(head, false);
+        });
       });
       return;
     }
@@ -8149,7 +8309,8 @@ AssertionError: Expected 200 but got 500</code></pre>
     if (btn.dataset.copyText) {
       text = btn.dataset.copyText;
     } else {
-      var target = document.querySelector(btn.dataset.copyTarget);
+      var target;
+      try { target = document.querySelector(btn.dataset.copyTarget); } catch (_) { return; }
       if (!target) return;
       text = target.innerText || target.textContent || "";
     }
@@ -8176,7 +8337,11 @@ AssertionError: Expected 200 but got 500</code></pre>
   document.addEventListener("click", function (e) {
     var t = e.target.closest("[data-attach-img]");
     if (t && lb && lbContent) {
-      lbContent.innerHTML = '<img alt="" src="' + t.dataset.attachImg + '" />';
+      lbContent.innerHTML = "";
+      var img = document.createElement("img");
+      img.alt = "";
+      img.src = t.dataset.attachImg;
+      lbContent.appendChild(img);
       lb.hidden = false;
       return;
     }
@@ -8195,7 +8360,8 @@ AssertionError: Expected 200 but got 500</code></pre>
   // ---- Search + Filters --------------------------------------
   var searchInput = document.getElementById("global-search");
   var filterChips = document.querySelectorAll("[data-filter-status]");
-  var activeStatuses = new Set(Array.prototype.map.call(filterChips, function (c) { return c.dataset.filterStatus; }));
+  var chipStatuses = new Set(Array.prototype.map.call(filterChips, function (c) { return c.dataset.filterStatus; }));
+  var activeStatuses = new Set(chipStatuses);
   var filtersToggle = document.getElementById("filters-toggle");
   var advancedFilters = document.getElementById("advanced-filters");
   var filterTags = document.getElementById("filter-tags");
@@ -8240,7 +8406,9 @@ AssertionError: Expected 200 but got 500</code></pre>
     var rule = el.dataset.rule || "";
     var duration = parseFloat(el.dataset.duration || "0") || 0;
     var error = el.dataset.error || "";
-    var matchStatus = activeStatuses.has(status);
+    // Statuses without a filter chip (e.g. Behave 1.3.x extended statuses
+    // when no chip was rendered) are never filtered out.
+    var matchStatus = !chipStatuses.has(status) || activeStatuses.has(status);
     var matchQuery = !q || name.indexOf(q) >= 0 || tags.indexOf(q) >= 0 || feat.indexOf(q) >= 0 || rule.indexOf(q) >= 0;
     if (searchError && q) matchQuery = matchQuery || error.indexOf(q) >= 0;
     var matchTags = !tagFilter.length || tagFilter.every(function (t) { return tags.indexOf(t) >= 0; });
@@ -8281,7 +8449,7 @@ AssertionError: Expected 200 but got 500</code></pre>
       var status = f.dataset.status;
       var name = f.dataset.name || "";
       var tags = f.dataset.tags || "";
-      var matchStatus = activeStatuses.has(status);
+      var matchStatus = !chipStatuses.has(status) || activeStatuses.has(status);
       var matchQuery = !q || name.indexOf(q) >= 0 || tags.indexOf(q) >= 0;
       f.classList.toggle("is-hidden", !(anyScenario || anyRule || (matchStatus && matchQuery)));
     });
@@ -8298,7 +8466,11 @@ AssertionError: Expected 200 but got 500</code></pre>
   // ---- Charts ------------------------------------------------
   function statusValues() {
     var s = (DATA.execution && DATA.execution.statistics && DATA.execution.statistics.by_status) || {};
-    var order = ["passed", "failed", "skipped", "undefined", "pending"];
+    var order = [
+      "passed", "failed", "skipped", "undefined", "pending",
+      "untested", "error", "hook_error", "cleanup_error",
+      "xfailed", "xpassed", "pending_warn",
+    ];
     return {
       labels: order.map(function (k) { return cap(k); }),
       values: order.map(function (k) { return s[k] || 0; }),
@@ -8374,7 +8546,16 @@ AssertionError: Expected 200 but got 500</code></pre>
   function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
 
   // ---- Initial render ----------------------------------------
-  var defaultView = (DATA.default_view && document.querySelector('.nav-item[data-route="' + DATA.default_view + '"]')) ? DATA.default_view : "dashboard";
+  var defaultView = "dashboard";
+  try {
+    if (DATA.default_view && document.querySelector('.nav-item[data-route="' + DATA.default_view + '"]')) {
+      defaultView = DATA.default_view;
+    } else if (!document.querySelector('.nav-item[data-route="' + defaultView + '"]')) {
+      // Configured default is missing/hidden: fall back to the first nav item.
+      var first = document.querySelector(".nav-item");
+      if (first) defaultView = first.dataset.route;
+    }
+  } catch (e) {}
   showView(defaultView);
   if (DATA.expand_by_default) {
     document.querySelectorAll(".feature-head, .rule-head, .scenario-head").forEach(function (head) {

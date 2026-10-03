@@ -15,7 +15,7 @@
     var dpr = window.devicePixelRatio || 1;
     var rect = canvas.getBoundingClientRect();
     var w = rect.width || canvas.width || 320;
-    var h = canvas.height ? canvas.height : 200;
+    var h = rect.height || canvas.height || 200;
     canvas.width = Math.floor(w * dpr);
     canvas.height = Math.floor(h * dpr);
     canvas.style.width = w + "px";

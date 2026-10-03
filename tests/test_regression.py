@@ -24,6 +24,7 @@ from behave_modern_html_report.utils import format_duration
 # BUG 1: Version mismatch between __init__.py and pyproject.toml
 # ---------------------------------------------------------------------------
 
+
 def test_version_matches_pyproject():
     """__version__ in __init__.py must match version in pyproject.toml."""
     import behave_modern_html_report as bmr
@@ -43,6 +44,7 @@ def test_version_matches_pyproject():
 # BUG 2 & 3: Formatter class name attributes must match entry point names
 # ---------------------------------------------------------------------------
 
+
 def test_formatter_name_matches_entry_point():
     """ModernHTMLFormatter.name must be 'modern-html' to match the entry point."""
     assert ModernHTMLFormatter.name == "modern-html"
@@ -57,6 +59,7 @@ def test_step_catalog_formatter_name_matches_entry_point():
 # BUG 4: _derive_feature_status returns order-dependent status for mixed
 #         non-failed scenarios (e.g. [skipped, passed] -> "skipped")
 # ---------------------------------------------------------------------------
+
 
 def test_derive_feature_status_passed_with_mixed_passed_skipped():
     """A feature with both passed and skipped scenarios should be 'passed'."""
@@ -100,6 +103,7 @@ def test_derive_feature_status_passed_order_independent():
 #         passed+skipped features (should be "passed")
 # ---------------------------------------------------------------------------
 
+
 def test_overall_status_passed_with_mixed_passed_skipped():
     """Overall status should be 'passed' when some features pass and others skip."""
     execution = Execution(
@@ -115,6 +119,7 @@ def test_overall_status_passed_with_mixed_passed_skipped():
 # BUG 6: _read_optional doesn't catch UnicodeDecodeError
 # ---------------------------------------------------------------------------
 
+
 def test_read_optional_handles_non_utf8_file(tmp_path):
     """_read_optional should return empty string for non-UTF-8 files."""
     p = tmp_path / "bad.css"
@@ -125,6 +130,7 @@ def test_read_optional_handles_non_utf8_file(tmp_path):
 # ---------------------------------------------------------------------------
 # BUG 7: StepCatalogFormatter.close() doesn't create parent directories
 # ---------------------------------------------------------------------------
+
 
 def test_step_catalog_formatter_creates_parent_dirs(tmp_path):
     """StepCatalogFormatter should create parent directories for output."""
@@ -168,12 +174,13 @@ def test_step_catalog_formatter_creates_parent_dirs(tmp_path):
     formatter = StepCatalogFormatter(stream_opener, config)
     formatter.close()
     assert output_path.parent.exists()
-    assert "<!doctype html>" in mock_stream.content
+    assert "<!doctype html>" in output_path.read_text(encoding="utf-8")
 
 
 # ---------------------------------------------------------------------------
 # BUG 12: _extract_pattern can return non-string pattern for re.compile(42)
 # ---------------------------------------------------------------------------
+
 
 def test_scan_file_non_string_regex_pattern(tmp_path):
     """scan_file should handle non-string regex arguments gracefully."""
@@ -195,6 +202,7 @@ def test_scan_file_non_string_regex_pattern(tmp_path):
 # BUG 13: format_duration doesn't handle negative values
 # ---------------------------------------------------------------------------
 
+
 def test_format_duration_negative():
     """format_duration should return '0ms' for negative values."""
     assert format_duration(-1.0) == "0ms"
@@ -204,6 +212,7 @@ def test_format_duration_negative():
 # ---------------------------------------------------------------------------
 # BUG 14: socket.gethostname() not in try/except
 # ---------------------------------------------------------------------------
+
 
 def test_collector_hostname_safe_on_failure(monkeypatch):
     """Collector should handle socket.gethostname() failure gracefully."""
@@ -223,6 +232,7 @@ def test_collector_hostname_safe_on_failure(monkeypatch):
 # BUG 16: step_scanner.py only checks ast.FunctionDef, missing
 #         ast.AsyncFunctionDef for async step definitions
 # ---------------------------------------------------------------------------
+
 
 def test_scan_file_finds_async_step_definitions(tmp_path):
     """scan_file should detect async step definitions (AsyncFunctionDef)."""
@@ -249,6 +259,7 @@ def test_scan_file_finds_async_step_definitions(tmp_path):
 #         _FAILED_STATUSES, causing expected failures to be counted as
 #         actual failures in statistics and feature status derivation
 # ---------------------------------------------------------------------------
+
 
 def test_xfailed_not_treated_as_failure():
     """xfailed (expected failure) should not be counted as a failure."""
@@ -284,6 +295,7 @@ def test_xfailed_does_not_make_feature_failed():
 # BUG 18: Collector._make_attachment was called but never defined, causing
 #         AttributeError when Behave steps have embeddings
 # ---------------------------------------------------------------------------
+
 
 def test_collector_make_attachment_exists():
     """Collector should have a _make_attachment method."""
@@ -371,6 +383,7 @@ def test_collector_step_with_embeddings():
 # BUG 19: Python 3.13 classifier missing from pyproject.toml
 # ---------------------------------------------------------------------------
 
+
 def test_pyproject_has_python_313_classifier():
     """pyproject.toml should list Python 3.13 in classifiers."""
     import tomllib
@@ -388,13 +401,17 @@ def test_pyproject_has_python_313_classifier():
 #         and scenario items. Fix: derive from first failed step's error.
 # ---------------------------------------------------------------------------
 
+
 def test_scenario_error_appears_in_rendered_html():
     """Rendered HTML should contain the error message from a failed step."""
     from behave_modern_html_report.models import ErrorInfo
     from behave_modern_html_report.renderer import Renderer, RenderOptions
 
     step = Step(
-        keyword="Then", name="assertion fails", status="failed", duration=0.1,
+        keyword="Then",
+        name="assertion fails",
+        status="failed",
+        duration=0.1,
         error=ErrorInfo(message="Expected 200 but got 500", exception_type="AssertionError"),
     )
     scenario = Scenario(name="Failing scenario", status="failed", feature_name="Test", steps=[step])
@@ -412,6 +429,7 @@ def test_scenario_error_appears_in_rendered_html():
 #         stream.write(html) raised, the stream was never closed.
 # ---------------------------------------------------------------------------
 
+
 def test_step_catalog_formatter_close_resource_leak():
     """StepCatalogFormatter.close() should close stream even if write fails."""
     from behave_modern_html_report.step_catalog_formatter import StepCatalogFormatter
@@ -419,12 +437,14 @@ def test_step_catalog_formatter_close_resource_leak():
     class FailingStream:
         def write(self, data):
             raise OSError("write failed")
+
         def close(self):
             self.closed = True
 
     class FakeStreamOpener:
-        name = "output/steps.html"
+        name = None
         stream = None
+
         def open(self):
             self.stream = FailingStream()
             return self.stream
@@ -453,15 +473,17 @@ def test_step_catalog_formatter_close_resource_leak():
 #         (JS fix — regression test verifies the fix is present in source.)
 # ---------------------------------------------------------------------------
 
+
 def test_report_js_has_try_catch_default_view():
     """report.js should wrap default_view querySelector in try/catch."""
     from behave_modern_html_report.assets import read_text
+
     js = read_text("js/report.js")
-    assert 'try {' in js and 'DATA.default_view' in js
+    assert "try {" in js and "DATA.default_view" in js
     # Verify the try/catch is near the default_view logic
-    idx = js.index('DATA.default_view')
-    surrounding = js[max(0, idx - 100):idx + 200]
-    assert 'try' in surrounding or 'catch' in surrounding
+    idx = js.index("DATA.default_view")
+    surrounding = js[max(0, idx - 100) : idx + 200]
+    assert "try" in surrounding or "catch" in surrounding
 
 
 # ---------------------------------------------------------------------------
@@ -469,11 +491,13 @@ def test_report_js_has_try_catch_default_view():
 #         the Python format_duration which was already fixed.
 # ---------------------------------------------------------------------------
 
+
 def test_charts_js_format_duration_negative():
     """charts.js formatDuration should handle negative/null values."""
     from behave_modern_html_report.assets import read_text
+
     js = read_text("js/charts.js")
-    assert 's < 0' in js or 's == null' in js
+    assert "s < 0" in js or "s == null" in js
 
 
 # ---------------------------------------------------------------------------
@@ -482,12 +506,14 @@ def test_charts_js_format_duration_negative():
 #         Fixed by clamping w/h to >= 0 and r to >= 0, with rect fallback.
 # ---------------------------------------------------------------------------
 
+
 def test_charts_js_round_rect_clamped():
     """charts.js roundRect should clamp width/height/radius to >= 0."""
     from behave_modern_html_report.assets import read_text
+
     js = read_text("js/charts.js")
-    assert 'Math.max(w, 0)' in js
-    assert 'Math.max(0' in js
+    assert "Math.max(w, 0)" in js
+    assert "Math.max(0" in js
 
 
 # ---------------------------------------------------------------------------
@@ -501,9 +527,11 @@ def test_charts_js_round_rect_clamped():
 #         statuses, returning "untested" when tests actually ran.
 # ---------------------------------------------------------------------------
 
+
 def test_overall_status_with_xfailed():
     """overall_status should return 'passed' when features have xfailed status."""
     from behave_modern_html_report.models import STATUS_XFAILED
+
     scenario = Scenario(name="xfail", status=STATUS_XFAILED)
     feature = Feature(name="F", scenarios=[scenario])
     execution = Execution(features=[feature], statistics=Statistics())
@@ -514,6 +542,7 @@ def test_overall_status_with_xfailed():
 def test_overall_status_with_xpassed():
     """overall_status should return 'passed' when features have xpassed status."""
     from behave_modern_html_report.models import STATUS_XPASSED
+
     scenario = Scenario(name="xpass", status=STATUS_XPASSED)
     feature = Feature(name="F", scenarios=[scenario])
     execution = Execution(features=[feature], statistics=Statistics())
@@ -526,6 +555,7 @@ def test_overall_status_with_xpassed():
 #         instead of base64-encoding it, producing broken data: URLs and
 #         causing text extraction to fail on non-bytes data.
 # ---------------------------------------------------------------------------
+
 
 def test_make_attachment_with_string_data():
     """_make_attachment should base64-encode string data properly."""
@@ -583,14 +613,21 @@ def test_make_attachment_with_none_data():
 #         all interactivity if data was malformed.
 # ---------------------------------------------------------------------------
 
+
 def test_step_catalog_json_parse_has_try_catch():
     """step_catalog template should wrap JSON.parse in try/catch."""
     from pathlib import Path
-    template = Path(__file__).resolve().parent.parent / "behave_modern_html_report" / "templates" / "step_catalog.html.jinja"
+
+    template = (
+        Path(__file__).resolve().parent.parent
+        / "behave_modern_html_report"
+        / "templates"
+        / "step_catalog.html.jinja"
+    )
     content = template.read_text(encoding="utf-8")
     assert "try" in content and "JSON.parse" in content
     idx = content.index("JSON.parse")
-    surrounding = content[max(0, idx - 100):idx + 200]
+    surrounding = content[max(0, idx - 100) : idx + 200]
     assert "try" in surrounding or "catch" in surrounding
 
 
@@ -599,10 +636,17 @@ def test_step_catalog_json_parse_has_try_catch():
 #         could crash in browsers without matchMedia support.
 # ---------------------------------------------------------------------------
 
+
 def test_step_catalog_matchmedia_guarded():
     """step_catalog template should guard window.matchMedia with &&."""
     from pathlib import Path
-    template = Path(__file__).resolve().parent.parent / "behave_modern_html_report" / "templates" / "step_catalog.html.jinja"
+
+    template = (
+        Path(__file__).resolve().parent.parent
+        / "behave_modern_html_report"
+        / "templates"
+        / "step_catalog.html.jinja"
+    )
     content = template.read_text(encoding="utf-8")
     assert "window.matchMedia &&" in content
 
@@ -612,12 +656,18 @@ def test_step_catalog_matchmedia_guarded():
 #         via crafted scenario/step names containing </script> tags.
 # ---------------------------------------------------------------------------
 
+
 def test_json_data_escaped_for_xss():
     """JSON data embedded in script tag should have < and > escaped."""
     from behave_modern_html_report.models import STATUS_PASSED
-    xss_step = Step(keyword="Given", name='</script><script>alert(1)</script>', status=STATUS_PASSED)
-    xss_scenario = Scenario(name='</script><script>alert(1)</script>', status=STATUS_PASSED, steps=[xss_step])
-    xss_feature = Feature(name='</script><script>alert(1)</script>', scenarios=[xss_scenario])
+
+    xss_step = Step(
+        keyword="Given", name="</script><script>alert(1)</script>", status=STATUS_PASSED
+    )
+    xss_scenario = Scenario(
+        name="</script><script>alert(1)</script>", status=STATUS_PASSED, steps=[xss_step]
+    )
+    xss_feature = Feature(name="</script><script>alert(1)</script>", scenarios=[xss_scenario])
     execution = Execution(features=[xss_feature], statistics=Statistics())
     renderer = Renderer(RenderOptions())
     html = renderer.render(execution)
@@ -634,14 +684,16 @@ def test_json_data_escaped_for_xss():
 #         allowing XSS via crafted attachment mime_type.
 # ---------------------------------------------------------------------------
 
+
 def test_report_js_lightbox_no_innerhtml_injection():
     """report.js lightbox should use DOM API (createElement) not innerHTML for img."""
     from behave_modern_html_report.assets import read_text
+
     js = read_text("js/report.js")
     assert "createElement" in js
     # Verify the lightbox section doesn't use string concatenation for img src
     idx = js.index("data-attach-img")
-    surrounding = js[idx:idx + 300]
+    surrounding = js[idx : idx + 300]
     assert "createElement" in surrounding
 
 
@@ -649,6 +701,7 @@ def test_report_js_lightbox_no_innerhtml_injection():
 # BUG 34: attach_screenshot didn't handle file read errors, raising raw
 #         FileNotFoundError/PermissionError without context.
 # ---------------------------------------------------------------------------
+
 
 def test_attach_screenshot_file_error_message():
     """attach_screenshot should raise OSError with descriptive message for missing file."""
@@ -663,8 +716,10 @@ def test_attach_screenshot_file_error_message():
     class FakeContext:
         pass
 
-    with patch("behave_modern_html_report.attach._find_formatter", return_value=FakeFormatter()), \
-         pytest.raises(OSError, match="Cannot read screenshot file"):
+    with (
+        patch("behave_modern_html_report.attach._find_formatter", return_value=FakeFormatter()),
+        pytest.raises(OSError, match="Cannot read screenshot file"),
+    ):
         attach_screenshot(FakeContext(), "nonexistent_screenshot.png")
 
 
@@ -672,6 +727,7 @@ def test_attach_screenshot_file_error_message():
 # BUG 35: formatter.attach_file didn't handle file read errors, raising raw
 #         FileNotFoundError/PermissionError without context.
 # ---------------------------------------------------------------------------
+
 
 def test_attach_file_error_message():
     """attach_file should raise OSError with descriptive message for missing file."""
@@ -696,12 +752,14 @@ def test_attach_file_error_message():
 #         names/locations, killing the click handler.
 # ---------------------------------------------------------------------------
 
+
 def test_report_js_copy_queryselector_guarded():
     """report.js copy button should wrap querySelector in try/catch."""
     from behave_modern_html_report.assets import read_text
+
     js = read_text("js/report.js")
     idx = js.index("copyTarget")
-    surrounding = js[idx:idx + 200]
+    surrounding = js[idx : idx + 200]
     assert "try" in surrounding or "catch" in surrounding
 
 
@@ -710,27 +768,32 @@ def test_report_js_copy_queryselector_guarded():
 #         int() raising ValueError on non-finite values.
 # ---------------------------------------------------------------------------
 
+
 def test_format_duration_nan():
     """format_duration should return '0ms' for NaN."""
     from behave_modern_html_report.utils import format_duration
+
     assert format_duration(float("nan")) == "0ms"
 
 
 def test_format_duration_inf():
     """format_duration should return '0ms' for infinity."""
     from behave_modern_html_report.utils import format_duration
+
     assert format_duration(float("inf")) == "0ms"
 
 
 def test_format_duration_negative_inf():
     """format_duration should return '0ms' for negative infinity."""
     from behave_modern_html_report.utils import format_duration
+
     assert format_duration(float("-inf")) == "0ms"
 
 
 def test_charts_js_format_duration_isfinite():
     """charts.js formatDuration should check isFinite."""
     from behave_modern_html_report.assets import read_text
+
     js = read_text("js/charts.js")
     assert "isFinite" in js
 
@@ -739,6 +802,7 @@ def test_charts_js_format_duration_isfinite():
 # BUG 38: attach_file in attach.py had no error handling for file reads,
 #         raising raw FileNotFoundError without context.
 # ---------------------------------------------------------------------------
+
 
 def test_attach_file_module_level_error_message():
     """attach_file (module-level) should raise OSError with descriptive message."""
@@ -753,8 +817,10 @@ def test_attach_file_module_level_error_message():
     class FakeContext:
         pass
 
-    with patch("behave_modern_html_report.attach._find_formatter", return_value=FakeFormatter()), \
-         pytest.raises(OSError, match="Cannot read attachment file"):
+    with (
+        patch("behave_modern_html_report.attach._find_formatter", return_value=FakeFormatter()),
+        pytest.raises(OSError, match="Cannot read attachment file"),
+    ):
         attach_file(FakeContext(), "nonexistent_file.txt")
 
 
@@ -763,14 +829,19 @@ def test_attach_file_module_level_error_message():
 #         falling through to unreliable statuses[0] return.
 # ---------------------------------------------------------------------------
 
+
 def test_derive_feature_status_xfailed():
     """_derive_feature_status should return 'passed' for all-xfailed features."""
     from behave_modern_html_report.models import STATUS_XFAILED, Feature, Scenario
     from behave_modern_html_report.statistics import _derive_feature_status
-    feature = Feature(name="test", scenarios=[
-        Scenario(name="s1", status=STATUS_XFAILED),
-        Scenario(name="s2", status=STATUS_XFAILED),
-    ])
+
+    feature = Feature(
+        name="test",
+        scenarios=[
+            Scenario(name="s1", status=STATUS_XFAILED),
+            Scenario(name="s2", status=STATUS_XFAILED),
+        ],
+    )
     assert _derive_feature_status(feature) == "passed"
 
 
@@ -778,9 +849,13 @@ def test_derive_feature_status_xpassed():
     """_derive_feature_status should return 'passed' for xpassed scenarios."""
     from behave_modern_html_report.models import STATUS_XPASSED, Feature, Scenario
     from behave_modern_html_report.statistics import _derive_feature_status
-    feature = Feature(name="test", scenarios=[
-        Scenario(name="s1", status=STATUS_XPASSED),
-    ])
+
+    feature = Feature(
+        name="test",
+        scenarios=[
+            Scenario(name="s1", status=STATUS_XPASSED),
+        ],
+    )
     assert _derive_feature_status(feature) == "passed"
 
 
@@ -788,6 +863,7 @@ def test_derive_feature_status_xpassed():
 # BUG 44: _make_step crashed on non-numeric duration values (e.g. "unknown")
 #         due to float() raising ValueError.
 # ---------------------------------------------------------------------------
+
 
 def test_make_step_non_numeric_duration():
     """_make_step should handle non-numeric duration gracefully."""
@@ -807,8 +883,27 @@ def test_make_step_non_numeric_duration():
         log = []
 
     collector = Collector()
-    collector.start_feature(type("F", (), {"name": "f", "description": [], "location": "", "tags": [], "background": None})())
-    collector.start_scenario(type("S", (), {"name": "s", "description": [], "location": "", "tags": [], "type": "scenario", "examples": None})())
+    collector.start_feature(
+        type(
+            "F",
+            (),
+            {"name": "f", "description": [], "location": "", "tags": [], "background": None},
+        )()
+    )
+    collector.start_scenario(
+        type(
+            "S",
+            (),
+            {
+                "name": "s",
+                "description": [],
+                "location": "",
+                "tags": [],
+                "type": "scenario",
+                "examples": None,
+            },
+        )()
+    )
     step = collector.add_step(FakeStep())
     assert step is not None
     assert step.duration == 0.0
@@ -818,6 +913,7 @@ def test_make_step_non_numeric_duration():
 # BUG 45: end_feature and end_scenario crashed on non-numeric duration values
 #         due to float() raising ValueError.
 # ---------------------------------------------------------------------------
+
 
 def test_end_scenario_non_numeric_duration():
     """end_scenario should handle non-numeric duration gracefully."""
@@ -836,7 +932,13 @@ def test_end_scenario_non_numeric_duration():
         duration = "invalid"
 
     collector = Collector()
-    collector.start_feature(type("F", (), {"name": "f", "description": [], "location": "", "tags": [], "background": None})())
+    collector.start_feature(
+        type(
+            "F",
+            (),
+            {"name": "f", "description": [], "location": "", "tags": [], "background": None},
+        )()
+    )
     collector.start_scenario(FakeScenario())
     collector.end_scenario(FakeFinal())
     # Should not raise, duration should be 0.0
@@ -861,3 +963,221 @@ def test_end_feature_non_numeric_duration():
     collector.start_feature(FakeFeature())
     collector.end_feature(FakeFinal())
     # Should not raise, duration should be 0.0
+
+
+# ---------------------------------------------------------------------------
+# BUG 46: attach_* helpers silently no-op'd because ModernHTMLFormatter had
+#         no .attach attribute, so _find_formatter never matched it.
+# ---------------------------------------------------------------------------
+
+
+def _make_formatter(userdata=None, name="report.html"):
+    from behave_modern_html_report.formatter import ModernHTMLFormatter
+
+    opener = SimpleNamespace(name=name, stream=None)
+    config = SimpleNamespace(base_dir=".", userdata=userdata or {})
+    return ModernHTMLFormatter(opener, config)
+
+
+def test_find_formatter_matches_real_formatter():
+    """_find_formatter must find a real ModernHTMLFormatter."""
+    from behave_modern_html_report.attach import _find_formatter
+
+    fmt = _make_formatter()
+    ctx = SimpleNamespace(_runner=SimpleNamespace(formatters=[fmt]))
+    assert _find_formatter(ctx) is fmt
+
+
+def test_attach_text_reaches_collector_via_real_formatter():
+    """attach_text must deliver an attachment through the real formatter."""
+    from behave_modern_html_report.attach import attach_text
+
+    fmt = _make_formatter()
+    ctx = SimpleNamespace(_runner=SimpleNamespace(formatters=[fmt]))
+    fmt._collector._current_scenario = Scenario(name="s", steps=[Step(keyword="Given", name="x")])
+    attach_text(ctx, "hello", name="n.txt")
+    assert fmt._collector._current_scenario.steps[-1].attachments[0].text == "hello"
+
+
+def test_formatter_embedding_via_context_attach():
+    """context.attach() must reach the collector through embedding()."""
+    fmt = _make_formatter()
+    fmt._collector._current_scenario = Scenario(name="s", steps=[Step(keyword="Given", name="x")])
+    fmt.embedding("image/png", b"\x89PNG")
+    att = fmt._collector._current_scenario.steps[-1].attachments[0]
+    assert att.mime_type == "image/png"
+    assert att.is_image
+
+
+# ---------------------------------------------------------------------------
+# BUG 47: formatter.close() ignored bmr.json_sidecar.
+# ---------------------------------------------------------------------------
+
+
+def test_close_writes_json_sidecar(tmp_path):
+    """close() must write report.json next to report.html when enabled."""
+    import json
+    import sys
+
+    out = tmp_path / "report.html"
+    fmt = _make_formatter(userdata={"bmr.json_sidecar": "true"}, name=str(out))
+    feature = SimpleNamespace(
+        name="F", description=[], location="f:1", tags=[], background=None, filename="f.feature"
+    )
+    fmt.uri("f.feature")
+    fmt.feature(feature)
+    fmt.eof()
+    import io
+
+    old = sys.stdout
+    sys.stdout = io.StringIO()
+    try:
+        fmt.close()
+    finally:
+        sys.stdout = old
+    assert out.exists()
+    sidecar = out.with_suffix(".json")
+    assert sidecar.exists()
+    data = json.loads(sidecar.read_text(encoding="utf-8"))
+    assert "execution" in data
+
+
+# ---------------------------------------------------------------------------
+# BUG 48: scenario outlines never detected — Behave passes expanded Scenario
+#         instances (type="scenario") with _row and a ScenarioOutline parent.
+# ---------------------------------------------------------------------------
+
+
+def test_collector_detects_expanded_outline_scenario():
+    """Expanded outline instances must set is_outline/outline_name/examples."""
+    from behave_modern_html_report.collector import Collector
+
+    table = SimpleNamespace(
+        headings=["u", "p"],
+        rows=[SimpleNamespace(cells=["a", "1"]), SimpleNamespace(cells=["b", "2"])],
+    )
+    outline = SimpleNamespace(
+        type="scenario_outline",
+        name="Login",
+        examples=[SimpleNamespace(table=table)],
+    )
+    expanded = SimpleNamespace(
+        name="Login -- @1.1 ",
+        description=[],
+        location="f:10",
+        tags=[],
+        status="passed",
+        duration=0.0,
+        type="scenario",
+        _row=SimpleNamespace(),
+        parent=outline,
+        background=None,
+    )
+    c = Collector()
+    c.start_feature(
+        SimpleNamespace(name="F", description=[], location="f:1", tags=[], background=None)
+    )
+    c.start_scenario(expanded)
+    scenario = c._current_scenario
+    assert scenario.is_outline
+    assert scenario.outline_name == "Login"
+    assert scenario.examples.headings == ["u", "p"]
+    assert scenario.examples.rows == [["a", "1"], ["b", "2"]]
+
+
+# ---------------------------------------------------------------------------
+# BUG 49: charts.js hidpi() used the DPR-scaled buffer height, doubling the
+#         canvas height on every re-render when devicePixelRatio > 1.
+# ---------------------------------------------------------------------------
+
+
+def test_charts_hidpi_uses_rect_height():
+    """hidpi() must derive height from the layout rect, not canvas.height."""
+    from behave_modern_html_report.assets import read_text
+
+    js = read_text("js/charts.js")
+    assert "rect.height" in js
+
+
+# ---------------------------------------------------------------------------
+# BUG 50: env vars like GITHUB_TOKEN were embedded verbatim into the report.
+# ---------------------------------------------------------------------------
+
+
+def test_env_var_secrets_are_redacted(monkeypatch):
+    """Captured CI env vars with sensitive names must be masked."""
+    from behave_modern_html_report.collector import Collector
+
+    monkeypatch.setenv("GITHUB_TOKEN", "super-secret-value")
+    env = Collector().execution.environment
+    assert env.env_vars.get("GITHUB_TOKEN") == "***"
+    assert "super-secret-value" not in str(env.env_vars)
+
+
+# ---------------------------------------------------------------------------
+# BUG 51: data-error only carried the first step's error, so "Search in
+#         error text" missed errors in later steps.
+# ---------------------------------------------------------------------------
+
+
+def test_data_error_includes_all_errors():
+    """data-error must contain every step error message."""
+    from behave_modern_html_report.models import STATUS_FAILED, ErrorInfo
+
+    steps = [
+        Step(
+            keyword="Given",
+            name="a",
+            status=STATUS_FAILED,
+            error=ErrorInfo(exception_type="E", message="first boom"),
+        ),
+        Step(
+            keyword="Then",
+            name="b",
+            status=STATUS_FAILED,
+            error=ErrorInfo(exception_type="E", message="second boom"),
+        ),
+    ]
+    scenario = Scenario(name="s", status=STATUS_FAILED, steps=steps)
+    execution = Execution(
+        features=[Feature(name="f", scenarios=[scenario])], statistics=Statistics()
+    )
+    html = Renderer(RenderOptions()).render(execution)
+    assert "first boom" in html and "second boom" in html
+    import re
+
+    m = re.search(r'data-error="([^"]*)"', html)
+    assert m and "first boom" in m.group(1) and "second boom" in m.group(1)
+
+
+# ---------------------------------------------------------------------------
+# BUG 52: scan_file crashed with ValueError when base_dir didn't contain file.
+# ---------------------------------------------------------------------------
+
+
+def test_scan_file_outside_base_dir(tmp_path):
+    """scan_file must not crash when file is outside base_dir."""
+    f = tmp_path / "steps.py"
+    f.write_text("from behave import given\n\n@given('x')\ndef s(c): pass\n", encoding="utf-8")
+    defs = scan_file(f, base_dir=tmp_path / "elsewhere")
+    assert len(defs) == 1
+
+
+# ---------------------------------------------------------------------------
+# BUG 53: Jinja autoescape only covered .html/.xml templates — every *.jinja
+#         template rendered unescaped, allowing XSS via scenario/step names.
+# ---------------------------------------------------------------------------
+
+
+def test_renderer_autoescapes_jinja_templates():
+    """Scenario/feature names with HTML must be escaped in the report."""
+    from behave_modern_html_report.models import Execution, Feature, Scenario, Statistics
+
+    sc = Scenario(name="<script>alert(1)</script>", status="failed", location="f:1")
+    ex = Execution(
+        features=[Feature(name="<img src=x onerror=alert(1)>", scenarios=[sc])],
+        statistics=Statistics(),
+    )
+    html = Renderer(RenderOptions()).render(ex)
+    assert "<script>alert(1)</script>" not in html
+    assert "&lt;script&gt;alert(1)&lt;/script&gt;" in html

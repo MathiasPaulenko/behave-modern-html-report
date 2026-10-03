@@ -20,6 +20,11 @@
       pending:   getCss("--c-pending",   "#8b5cf6"),
       untested:  getCss("--c-untested",  "#64748b"),
     };
+    // Extended Behave 1.3.x statuses reuse the closest base color.
+    PALETTE.error = PALETTE.hook_error = PALETTE.cleanup_error = PALETTE.failed;
+    PALETTE.xfailed = PALETTE.skipped;
+    PALETTE.xpassed = PALETTE.undefined;
+    PALETTE.pending_warn = PALETTE.pending;
   }
 
   function getCss(name, fallback) {
@@ -91,15 +96,17 @@
     var collapseBtn = e.target.closest("[data-collapse-all]");
     if (expandBtn) {
       document.querySelectorAll(expandBtn.dataset.expandAll).forEach(function (el) {
-        var head = el.querySelector(".feature-head, .rule-head, .scenario-head");
-        if (head) toggleSection(head, true);
+        el.querySelectorAll(".feature-head, .rule-head, .scenario-head").forEach(function (head) {
+          toggleSection(head, true);
+        });
       });
       return;
     }
     if (collapseBtn) {
       document.querySelectorAll(collapseBtn.dataset.collapseAll).forEach(function (el) {
-        var head = el.querySelector(".feature-head, .rule-head, .scenario-head");
-        if (head) toggleSection(head, false);
+        el.querySelectorAll(".feature-head, .rule-head, .scenario-head").forEach(function (head) {
+          toggleSection(head, false);
+        });
       });
       return;
     }
@@ -194,7 +201,8 @@
   // ---- Search + Filters --------------------------------------
   var searchInput = document.getElementById("global-search");
   var filterChips = document.querySelectorAll("[data-filter-status]");
-  var activeStatuses = new Set(Array.prototype.map.call(filterChips, function (c) { return c.dataset.filterStatus; }));
+  var chipStatuses = new Set(Array.prototype.map.call(filterChips, function (c) { return c.dataset.filterStatus; }));
+  var activeStatuses = new Set(chipStatuses);
   var filtersToggle = document.getElementById("filters-toggle");
   var advancedFilters = document.getElementById("advanced-filters");
   var filterTags = document.getElementById("filter-tags");
@@ -239,7 +247,9 @@
     var rule = el.dataset.rule || "";
     var duration = parseFloat(el.dataset.duration || "0") || 0;
     var error = el.dataset.error || "";
-    var matchStatus = activeStatuses.has(status);
+    // Statuses without a filter chip (e.g. Behave 1.3.x extended statuses
+    // when no chip was rendered) are never filtered out.
+    var matchStatus = !chipStatuses.has(status) || activeStatuses.has(status);
     var matchQuery = !q || name.indexOf(q) >= 0 || tags.indexOf(q) >= 0 || feat.indexOf(q) >= 0 || rule.indexOf(q) >= 0;
     if (searchError && q) matchQuery = matchQuery || error.indexOf(q) >= 0;
     var matchTags = !tagFilter.length || tagFilter.every(function (t) { return tags.indexOf(t) >= 0; });
@@ -280,7 +290,7 @@
       var status = f.dataset.status;
       var name = f.dataset.name || "";
       var tags = f.dataset.tags || "";
-      var matchStatus = activeStatuses.has(status);
+      var matchStatus = !chipStatuses.has(status) || activeStatuses.has(status);
       var matchQuery = !q || name.indexOf(q) >= 0 || tags.indexOf(q) >= 0;
       f.classList.toggle("is-hidden", !(anyScenario || anyRule || (matchStatus && matchQuery)));
     });
@@ -297,7 +307,11 @@
   // ---- Charts ------------------------------------------------
   function statusValues() {
     var s = (DATA.execution && DATA.execution.statistics && DATA.execution.statistics.by_status) || {};
-    var order = ["passed", "failed", "skipped", "undefined", "pending"];
+    var order = [
+      "passed", "failed", "skipped", "undefined", "pending",
+      "untested", "error", "hook_error", "cleanup_error",
+      "xfailed", "xpassed", "pending_warn",
+    ];
     return {
       labels: order.map(function (k) { return cap(k); }),
       values: order.map(function (k) { return s[k] || 0; }),
@@ -377,6 +391,10 @@
   try {
     if (DATA.default_view && document.querySelector('.nav-item[data-route="' + DATA.default_view + '"]')) {
       defaultView = DATA.default_view;
+    } else if (!document.querySelector('.nav-item[data-route="' + defaultView + '"]')) {
+      // Configured default is missing/hidden: fall back to the first nav item.
+      var first = document.querySelector(".nav-item");
+      if (first) defaultView = first.dataset.route;
     }
   } catch (e) {}
   showView(defaultView);

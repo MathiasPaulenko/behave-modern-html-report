@@ -35,25 +35,8 @@
   {% endif %}
 
   {% if step.attachments %}
-    <div class="attachments">
-      {% for att in step.attachments %}
-        {% if att.is_image %}
-          <button class="thumb" data-attach-img="data:{{ att.mime_type }};base64,{{ att.data_base64 }}" title="{{ att.name }}">
-            <img alt="{{ att.name }}" src="data:{{ att.mime_type }};base64,{{ att.data_base64 }}" loading="lazy" />
-          </button>
-        {% elif att.is_text and att.text %}
-          <details class="attach-text">
-            <summary>{{ att.name }} ({{ att.mime_type }})</summary>
-            <pre><code>{{ att.text }}</code></pre>
-          </details>
-        {% else %}
-          <a class="attach-link" download="{{ att.name }}"
-             href="data:{{ att.mime_type }};base64,{{ att.data_base64 }}">
-            <svg class="ico"><use href="#i-download"/></svg>{{ att.name }}
-          </a>
-        {% endif %}
-      {% endfor %}
-    </div>
+    {% set attachments = step.attachments %}
+    {% include "components/_attachments.html.jinja" %}
   {% endif %}
 
   {% if step.error %}

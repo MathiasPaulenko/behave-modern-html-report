@@ -64,10 +64,16 @@ class StepCatalogFormatter(Formatter):  # type: ignore[misc,valid-type]
         catalog = scan_directory(steps_dir)
         html = render_catalog(catalog, title=self._title, company=self._company, theme=self._theme)
 
-        # Ensure parent directory exists before opening the stream.
-        out_name = getattr(self._stream_opener, "name", None) or getattr(self._stream_opener, "filename", None)
+        out_name = getattr(self._stream_opener, "name", None) or getattr(
+            self._stream_opener, "filename", None
+        )
         if out_name:
-            Path(out_name).parent.mkdir(parents=True, exist_ok=True)
+            # Write as UTF-8 ourselves: the opener's stream uses the console
+            # encoding, which on Windows (cp1252) cannot encode the template.
+            path = Path(out_name)
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(html, encoding="utf-8")
+            return
 
         stream = self._stream_opener.open()
         try:
@@ -87,7 +93,7 @@ def render_catalog(
     templates_dir = Path(__file__).parent / "templates"
     env = Environment(
         loader=FileSystemLoader(str(templates_dir)),
-        autoescape=select_autoescape(["html", "xml"]),
+        autoescape=select_autoescape(["html", "xml", "jinja", "jinja2"]),
         trim_blocks=True,
         lstrip_blocks=True,
     )
@@ -116,10 +122,11 @@ def render_catalog(
         catalog=catalog,
         steps=steps_data,
         css=assets.css_bundle(),
-        js=assets.read_text("js/step_catalog.js"),
         now=datetime.now(),
         data_json=json.dumps(
             {"steps": steps_data, "total": catalog.total, "by_keyword": catalog.by_keyword},
             default=str,
-        ).replace("<", "\\u003c").replace(">", "\\u003e"),
+        )
+        .replace("<", "\\u003c")
+        .replace(">", "\\u003e"),
     )

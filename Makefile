@@ -24,7 +24,7 @@ demo:
 	python examples/demo_generator/generate_demo.py
 
 report:
-	behave --config-file=examples/behave_project/behave.ini examples/behave_project/features
+	cd examples/behave_project && behave
 
 clean:
 	python -c "import pathlib, shutil; [shutil.rmtree(p) for p in pathlib.Path('.').rglob('__pycache__') if p.is_dir()]; [p.unlink() for p in pathlib.Path('.').rglob('*.pyc')]"

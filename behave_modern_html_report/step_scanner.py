@@ -78,9 +78,19 @@ def _extract_pattern(node: ast.expr) -> tuple[str, bool]:
         return node.value, False
     if isinstance(node, ast.Call):
         func = node.func
-        if isinstance(func, ast.Name) and func.id == "re" and node.args and isinstance(node.args[0], ast.Constant):
+        if (
+            isinstance(func, ast.Name)
+            and func.id == "re"
+            and node.args
+            and isinstance(node.args[0], ast.Constant)
+        ):
             return str(node.args[0].value), True
-        if isinstance(func, ast.Attribute) and func.attr == "compile" and node.args and isinstance(node.args[0], ast.Constant):
+        if (
+            isinstance(func, ast.Attribute)
+            and func.attr == "compile"
+            and node.args
+            and isinstance(node.args[0], ast.Constant)
+        ):
             return str(node.args[0].value), True
     if isinstance(node, ast.JoinedStr):
         parts = []
@@ -132,7 +142,13 @@ def scan_file(file_path: Path, base_dir: Path | None = None) -> list[StepDefinit
     except SyntaxError:
         return []
 
-    rel_path = str(file_path.relative_to(base_dir)) if base_dir else str(file_path)
+    if base_dir:
+        try:
+            rel_path = str(file_path.relative_to(base_dir))
+        except ValueError:
+            rel_path = str(file_path)
+    else:
+        rel_path = str(file_path)
     definitions: list[StepDefinition] = []
 
     for node in ast.walk(tree):
@@ -174,18 +190,20 @@ def scan_file(file_path: Path, base_dir: Path | None = None) -> list[StepDefinit
 
             source_snippet = _get_source_lines(source, node.lineno, node.end_lineno or node.lineno)
 
-            definitions.append(StepDefinition(
-                keyword=keyword,
-                pattern=pattern,
-                is_regex=is_regex,
-                func_name=node.name,
-                file_path=rel_path,
-                line=node.lineno,
-                end_line=node.end_lineno or node.lineno,
-                docstring=docstring,
-                params=params,
-                source=source_snippet,
-            ))
+            definitions.append(
+                StepDefinition(
+                    keyword=keyword,
+                    pattern=pattern,
+                    is_regex=is_regex,
+                    func_name=node.name,
+                    file_path=rel_path,
+                    line=node.lineno,
+                    end_line=node.end_lineno or node.lineno,
+                    docstring=docstring,
+                    params=params,
+                    source=source_snippet,
+                )
+            )
 
     return definitions
 

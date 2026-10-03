@@ -189,6 +189,13 @@ pre { margin: 0; }
 .chip-skipped  { --chip: var(--c-skipped);   }
 .chip-undefined{ --chip: var(--c-undefined); }
 .chip-pending  { --chip: var(--c-pending);   }
+.chip-untested { --chip: var(--c-untested);  }
+.chip-error,
+.chip-hook_error,
+.chip-cleanup_error { --chip: var(--c-failed);    }
+.chip-xfailed       { --chip: var(--c-skipped);   }
+.chip-xpassed       { --chip: var(--c-undefined); }
+.chip-pending_warn  { --chip: var(--c-pending);   }
 .chip[aria-pressed="true"] { box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--chip) 55%, transparent); }
 .chip .ico { color: var(--chip); }
 
@@ -245,10 +252,17 @@ pre { margin: 0; }
 }
 .status-pill .ico { width: 16px; height: 16px; }
 .status-pill.status-passed   { color: var(--c-passed);    border-color: color-mix(in oklab, var(--c-passed) 50%, var(--border)); }
-.status-pill.status-failed   { color: var(--c-failed);    border-color: color-mix(in oklab, var(--c-failed) 50%, var(--border)); }
+.status-pill.status-failed,
+.status-pill.status-error,
+.status-pill.status-hook_error,
+.status-pill.status-cleanup_error { color: var(--c-failed);    border-color: color-mix(in oklab, var(--c-failed) 50%, var(--border)); }
 .status-pill.status-skipped  { color: var(--c-skipped);   }
 .status-pill.status-undefined{ color: var(--c-undefined); }
-.status-pill.status-pending  { color: var(--c-pending);   }
+.status-pill.status-pending,
+.status-pill.status-pending_warn { color: var(--c-pending);   }
+.status-pill.status-untested { color: var(--c-untested);  }
+.status-pill.status-xfailed  { color: var(--c-skipped);   }
+.status-pill.status-xpassed  { color: var(--c-undefined); }
 
 .status-badge {
   display: inline-flex; align-items: center; gap: 4px;
@@ -258,18 +272,31 @@ pre { margin: 0; }
 }
 .status-badge .ico { width: 12px; height: 12px; }
 .status-badge.status-passed   { --c: var(--c-passed); }
-.status-badge.status-failed   { --c: var(--c-failed); }
+.status-badge.status-failed,
+.status-badge.status-error,
+.status-badge.status-hook_error,
+.status-badge.status-cleanup_error { --c: var(--c-failed); }
 .status-badge.status-skipped  { --c: var(--c-skipped); }
 .status-badge.status-undefined{ --c: var(--c-undefined); }
-.status-badge.status-pending  { --c: var(--c-pending); }
+.status-badge.status-pending,
+.status-badge.status-pending_warn { --c: var(--c-pending); }
 .status-badge.status-untested { --c: var(--text-faint); }
+.status-badge.status-xfailed  { --c: var(--c-skipped); }
+.status-badge.status-xpassed  { --c: var(--c-undefined); }
 
 .status-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--text-faint); flex-shrink: 0; }
 .status-dot.status-passed   { background: var(--c-passed); }
-.status-dot.status-failed   { background: var(--c-failed); }
+.status-dot.status-failed,
+.status-dot.status-error,
+.status-dot.status-hook_error,
+.status-dot.status-cleanup_error { background: var(--c-failed); }
 .status-dot.status-skipped  { background: var(--c-skipped); }
 .status-dot.status-undefined{ background: var(--c-undefined); }
-.status-dot.status-pending  { background: var(--c-pending); }
+.status-dot.status-pending,
+.status-dot.status-pending_warn { background: var(--c-pending); }
+.status-dot.status-untested { background: var(--c-untested); }
+.status-dot.status-xfailed  { background: var(--c-skipped); }
+.status-dot.status-xpassed  { background: var(--c-undefined); }
 
 /* ============================================================
    Features / Scenarios / Steps
@@ -406,10 +433,17 @@ pre { margin: 0; }
 .progress-segment:first-child { border-radius: 999px 0 0 999px; }
 .progress-segment:last-child { border-radius: 0 999px 999px 0; }
 .progress-segment.status-passed   { background: var(--c-passed); }
-.progress-segment.status-failed   { background: var(--c-failed); }
+.progress-segment.status-failed,
+.progress-segment.status-error,
+.progress-segment.status-hook_error,
+.progress-segment.status-cleanup_error { background: var(--c-failed); }
 .progress-segment.status-skipped  { background: var(--c-skipped); }
 .progress-segment.status-undefined{ background: var(--c-undefined); }
-.progress-segment.status-pending  { background: var(--c-pending); }
+.progress-segment.status-pending,
+.progress-segment.status-pending_warn { background: var(--c-pending); }
+.progress-segment.status-untested { background: var(--c-untested); }
+.progress-segment.status-xfailed  { background: var(--c-skipped); }
+.progress-segment.status-xpassed  { background: var(--c-undefined); }
 
 .progress-fill {
   position: absolute; left: 0; top: 0; bottom: 0; border-radius: 999px;
@@ -792,15 +826,16 @@ pre { margin: 0; }
             <tr>
               <th data-sort="keyword">Keyword <span class="sort-ico">↕</span></th>
               <th data-sort="pattern">Pattern <span class="sort-ico">↕</span></th>
-              <th data-sort="func_name">Function <span class="sort-ico">↕</span></th>
-              <th data-sort="file_path">File <span class="sort-ico">↕</span></th>
+              <th data-sort="func">Function <span class="sort-ico">↕</span></th>
+              <th data-sort="file">File <span class="sort-ico">↕</span></th>
               <th data-sort="params">Params <span class="sort-ico">↕</span></th>
             </tr>
           </thead>
           <tbody id="step-tbody">
             <tr class="step-row" data-keyword="given" data-pattern="the cart contains {count:d} items" data-func="step_cart_items" data-file="checkout_steps.py"
                 data-source="def step_cart_items(context, count=1):
-    context.cart = {&#34;items&#34;: count, &#34;total&#34;: count * 50}" data-docstring="" data-line="10" data-end-line="11" data-is-regex="False">
+    context.cart = {&#34;items&#34;: count, &#34;total&#34;: count * 50}" data-docstring="" data-line="10" data-end-line="11" data-is-regex="false"
+                data-params="count:d">
               <td><span class="kw-badge kw-given">given</span></td>
               <td class="pattern-cell">the cart contains {count:d} items</td>
               <td><code>step_cart_items</code></td>
@@ -810,7 +845,8 @@ pre { margin: 0; }
             </tr>
             <tr class="step-row" data-keyword="given" data-pattern="the cart contains 1 item" data-func="step_cart_items" data-file="checkout_steps.py"
                 data-source="def step_cart_items(context, count=1):
-    context.cart = {&#34;items&#34;: count, &#34;total&#34;: count * 50}" data-docstring="" data-line="10" data-end-line="11" data-is-regex="False">
+    context.cart = {&#34;items&#34;: count, &#34;total&#34;: count * 50}" data-docstring="" data-line="10" data-end-line="11" data-is-regex="false"
+                data-params="count">
               <td><span class="kw-badge kw-given">given</span></td>
               <td class="pattern-cell">the cart contains 1 item</td>
               <td><code>step_cart_items</code></td>
@@ -820,7 +856,8 @@ pre { margin: 0; }
             </tr>
             <tr class="step-row" data-keyword="given" data-pattern="the total is {total:d}" data-func="step_total" data-file="checkout_steps.py"
                 data-source="def step_total(context, total):
-    context.cart[&#34;total&#34;] = total" data-docstring="" data-line="15" data-end-line="16" data-is-regex="False">
+    context.cart[&#34;total&#34;] = total" data-docstring="" data-line="15" data-end-line="16" data-is-regex="false"
+                data-params="total:d">
               <td><span class="kw-badge kw-given">given</span></td>
               <td class="pattern-cell">the total is {total:d}</td>
               <td><code>step_total</code></td>
@@ -828,13 +865,14 @@ pre { margin: 0; }
               <td class="params-cell">
 <span class="param-tag">total:d</span>              </td>
             </tr>
-            <tr class="step-row" data-keyword="when" data-pattern="the user pays with "{method}"" data-func="step_pay" data-file="checkout_steps.py"
+            <tr class="step-row" data-keyword="when" data-pattern="the user pays with &#34;{method}&#34;" data-func="step_pay" data-file="checkout_steps.py"
                 data-source="def step_pay(context, method):
     time.sleep(0.05)
     context.payment_accepted = method == &#34;credit card&#34;
-    context.payment_method = method" data-docstring="" data-line="20" data-end-line="23" data-is-regex="False">
+    context.payment_method = method" data-docstring="" data-line="20" data-end-line="23" data-is-regex="false"
+                data-params="method">
               <td><span class="kw-badge kw-when">when</span></td>
-              <td class="pattern-cell">the user pays with "{method}"</td>
+              <td class="pattern-cell">the user pays with &#34;{method}&#34;</td>
               <td><code>step_pay</code></td>
               <td class="file-cell"><code>checkout_steps.py:20</code></td>
               <td class="params-cell">
@@ -842,7 +880,8 @@ pre { margin: 0; }
             </tr>
             <tr class="step-row" data-keyword="then" data-pattern="the payment is accepted" data-func="step_payment_accepted" data-file="checkout_steps.py"
                 data-source="def step_payment_accepted(context):
-    assert context.payment_accepted, &#34;Payment was rejected&#34;" data-docstring="" data-line="27" data-end-line="28" data-is-regex="False">
+    assert context.payment_accepted, &#34;Payment was rejected&#34;" data-docstring="" data-line="27" data-end-line="28" data-is-regex="false"
+                data-params="">
               <td><span class="kw-badge kw-then">then</span></td>
               <td class="pattern-cell">the payment is accepted</td>
               <td><code>step_payment_accepted</code></td>
@@ -852,7 +891,8 @@ pre { margin: 0; }
             </tr>
             <tr class="step-row" data-keyword="then" data-pattern="the payment is rejected" data-func="step_payment_rejected" data-file="checkout_steps.py"
                 data-source="def step_payment_rejected(context):
-    assert not context.payment_accepted, &#34;Payment was unexpectedly accepted&#34;" data-docstring="" data-line="32" data-end-line="33" data-is-regex="False">
+    assert not context.payment_accepted, &#34;Payment was unexpectedly accepted&#34;" data-docstring="" data-line="32" data-end-line="33" data-is-regex="false"
+                data-params="">
               <td><span class="kw-badge kw-then">then</span></td>
               <td class="pattern-cell">the payment is rejected</td>
               <td><code>step_payment_rejected</code></td>
@@ -862,7 +902,8 @@ pre { margin: 0; }
             </tr>
             <tr class="step-row" data-keyword="given" data-pattern="the order is confirmed" data-func="step_order_confirmed" data-file="checkout_steps.py"
                 data-source="def step_order_confirmed(context):
-    context.order = {&#34;status&#34;: &#34;confirmed&#34;}" data-docstring="" data-line="37" data-end-line="38" data-is-regex="False">
+    context.order = {&#34;status&#34;: &#34;confirmed&#34;}" data-docstring="" data-line="37" data-end-line="38" data-is-regex="false"
+                data-params="">
               <td><span class="kw-badge kw-given">given</span></td>
               <td class="pattern-cell">the order is confirmed</td>
               <td><code>step_order_confirmed</code></td>
@@ -870,12 +911,13 @@ pre { margin: 0; }
               <td class="params-cell">
               </td>
             </tr>
-            <tr class="step-row" data-keyword="when" data-pattern="the user selects "{method}" shipping" data-func="step_select_shipping" data-file="checkout_steps.py"
+            <tr class="step-row" data-keyword="when" data-pattern="the user selects &#34;{method}&#34; shipping" data-func="step_select_shipping" data-file="checkout_steps.py"
                 data-source="def step_select_shipping(context, method):
     time.sleep(0.03)
-    context.shipping = method" data-docstring="" data-line="42" data-end-line="44" data-is-regex="False">
+    context.shipping = method" data-docstring="" data-line="42" data-end-line="44" data-is-regex="false"
+                data-params="method">
               <td><span class="kw-badge kw-when">when</span></td>
-              <td class="pattern-cell">the user selects "{method}" shipping</td>
+              <td class="pattern-cell">the user selects &#34;{method}&#34; shipping</td>
               <td><code>step_select_shipping</code></td>
               <td class="file-cell"><code>checkout_steps.py:42</code></td>
               <td class="params-cell">
@@ -884,7 +926,8 @@ pre { margin: 0; }
             <tr class="step-row" data-keyword="then" data-pattern="the shipping cost is {cost:d}" data-func="step_shipping_cost" data-file="checkout_steps.py"
                 data-source="def step_shipping_cost(context, cost):
     expected = {&#34;express&#34;: 15, &#34;standard&#34;: 5}[context.shipping]
-    assert expected == cost, f&#34;Expected shipping cost {cost}, got {expected}&#34;" data-docstring="" data-line="48" data-end-line="50" data-is-regex="False">
+    assert expected == cost, f&#34;Expected shipping cost {cost}, got {expected}&#34;" data-docstring="" data-line="48" data-end-line="50" data-is-regex="false"
+                data-params="cost:d">
               <td><span class="kw-badge kw-then">then</span></td>
               <td class="pattern-cell">the shipping cost is {cost:d}</td>
               <td><code>step_shipping_cost</code></td>
@@ -894,7 +937,8 @@ pre { margin: 0; }
             </tr>
             <tr class="step-row" data-keyword="then" data-pattern="the order is confirmed" data-func="step_check_confirmed" data-file="checkout_steps.py"
                 data-source="def step_check_confirmed(context):
-    assert context.order[&#34;status&#34;] == &#34;confirmed&#34;" data-docstring="" data-line="54" data-end-line="55" data-is-regex="False">
+    assert context.order[&#34;status&#34;] == &#34;confirmed&#34;" data-docstring="" data-line="54" data-end-line="55" data-is-regex="false"
+                data-params="">
               <td><span class="kw-badge kw-then">then</span></td>
               <td class="pattern-cell">the order is confirmed</td>
               <td><code>step_check_confirmed</code></td>
@@ -904,7 +948,8 @@ pre { margin: 0; }
             </tr>
             <tr class="step-row" data-keyword="given" data-pattern="the database is reset" data-func="step_reset_db" data-file="login_steps.py"
                 data-source="def step_reset_db(context):
-    context.database = {&#34;users&#34;: {&#34;alice&#34;: &#34;secret1&#34;, &#34;bob&#34;: &#34;secret2&#34;, &#34;locked&#34;: &#34;secret&#34;}}" data-docstring="" data-line="7" data-end-line="8" data-is-regex="False">
+    context.database = {&#34;users&#34;: {&#34;alice&#34;: &#34;secret1&#34;, &#34;bob&#34;: &#34;secret2&#34;, &#34;locked&#34;: &#34;secret&#34;}}" data-docstring="" data-line="7" data-end-line="8" data-is-regex="false"
+                data-params="">
               <td><span class="kw-badge kw-given">given</span></td>
               <td class="pattern-cell">the database is reset</td>
               <td><code>step_reset_db</code></td>
@@ -914,7 +959,8 @@ pre { margin: 0; }
             </tr>
             <tr class="step-row" data-keyword="given" data-pattern="a registered user exists" data-func="step_user_exists" data-file="login_steps.py"
                 data-source="def step_user_exists(context):
-    assert context.database is not None" data-docstring="" data-line="12" data-end-line="13" data-is-regex="False">
+    assert context.database is not None" data-docstring="" data-line="12" data-end-line="13" data-is-regex="false"
+                data-params="">
               <td><span class="kw-badge kw-given">given</span></td>
               <td class="pattern-cell">a registered user exists</td>
               <td><code>step_user_exists</code></td>
@@ -922,21 +968,23 @@ pre { margin: 0; }
               <td class="params-cell">
               </td>
             </tr>
-            <tr class="step-row" data-keyword="given" data-pattern="the username is "{username}"" data-func="step_set_username" data-file="login_steps.py"
+            <tr class="step-row" data-keyword="given" data-pattern="the username is &#34;{username}&#34;" data-func="step_set_username" data-file="login_steps.py"
                 data-source="def step_set_username(context, username):
-    context.username = username" data-docstring="" data-line="17" data-end-line="18" data-is-regex="False">
+    context.username = username" data-docstring="" data-line="17" data-end-line="18" data-is-regex="false"
+                data-params="username">
               <td><span class="kw-badge kw-given">given</span></td>
-              <td class="pattern-cell">the username is "{username}"</td>
+              <td class="pattern-cell">the username is &#34;{username}&#34;</td>
               <td><code>step_set_username</code></td>
               <td class="file-cell"><code>login_steps.py:17</code></td>
               <td class="params-cell">
 <span class="param-tag">username</span>              </td>
             </tr>
-            <tr class="step-row" data-keyword="given" data-pattern="the password is "{password}"" data-func="step_set_password" data-file="login_steps.py"
+            <tr class="step-row" data-keyword="given" data-pattern="the password is &#34;{password}&#34;" data-func="step_set_password" data-file="login_steps.py"
                 data-source="def step_set_password(context, password):
-    context.password = password" data-docstring="" data-line="22" data-end-line="23" data-is-regex="False">
+    context.password = password" data-docstring="" data-line="22" data-end-line="23" data-is-regex="false"
+                data-params="password">
               <td><span class="kw-badge kw-given">given</span></td>
-              <td class="pattern-cell">the password is "{password}"</td>
+              <td class="pattern-cell">the password is &#34;{password}&#34;</td>
               <td><code>step_set_password</code></td>
               <td class="file-cell"><code>login_steps.py:22</code></td>
               <td class="params-cell">
@@ -945,7 +993,8 @@ pre { margin: 0; }
             <tr class="step-row" data-keyword="when" data-pattern="the user logs in" data-func="step_login" data-file="login_steps.py"
                 data-source="def step_login(context):
     expected = context.database[&#34;users&#34;].get(context.username)
-    context.logged_in = expected is not None and expected == context.password" data-docstring="" data-line="27" data-end-line="29" data-is-regex="False">
+    context.logged_in = expected is not None and expected == context.password" data-docstring="" data-line="27" data-end-line="29" data-is-regex="false"
+                data-params="">
               <td><span class="kw-badge kw-when">when</span></td>
               <td class="pattern-cell">the user logs in</td>
               <td><code>step_login</code></td>
@@ -955,7 +1004,8 @@ pre { margin: 0; }
             </tr>
             <tr class="step-row" data-keyword="then" data-pattern="the dashboard is shown" data-func="step_dashboard" data-file="login_steps.py"
                 data-source="def step_dashboard(context):
-    assert context.logged_in, &#34;User is not logged in&#34;" data-docstring="" data-line="33" data-end-line="34" data-is-regex="False">
+    assert context.logged_in, &#34;User is not logged in&#34;" data-docstring="" data-line="33" data-end-line="34" data-is-regex="false"
+                data-params="">
               <td><span class="kw-badge kw-then">then</span></td>
               <td class="pattern-cell">the dashboard is shown</td>
               <td><code>step_dashboard</code></td>
@@ -965,7 +1015,8 @@ pre { margin: 0; }
             </tr>
             <tr class="step-row" data-keyword="then" data-pattern="an error is shown" data-func="step_error" data-file="login_steps.py"
                 data-source="def step_error(context):
-    assert not context.logged_in, &#34;User unexpectedly logged in&#34;" data-docstring="" data-line="38" data-end-line="39" data-is-regex="False">
+    assert not context.logged_in, &#34;User unexpectedly logged in&#34;" data-docstring="" data-line="38" data-end-line="39" data-is-regex="false"
+                data-params="">
               <td><span class="kw-badge kw-then">then</span></td>
               <td class="pattern-cell">an error is shown</td>
               <td><code>step_error</code></td>
@@ -975,7 +1026,8 @@ pre { margin: 0; }
             </tr>
             <tr class="step-row" data-keyword="then" data-pattern="the account locked message is shown" data-func="step_locked" data-file="login_steps.py"
                 data-source="def step_locked(context):
-    context.scenario.skip(&#34;Account locking logic is not implemented yet&#34;)" data-docstring="" data-line="43" data-end-line="44" data-is-regex="False">
+    context.scenario.skip(&#34;Account locking logic is not implemented yet&#34;)" data-docstring="" data-line="43" data-end-line="44" data-is-regex="false"
+                data-params="">
               <td><span class="kw-badge kw-then">then</span></td>
               <td class="pattern-cell">the account locked message is shown</td>
               <td><code>step_locked</code></td>
@@ -985,7 +1037,8 @@ pre { margin: 0; }
             </tr>
             <tr class="step-row" data-keyword="given" data-pattern="the report engine is ready" data-func="step_engine_ready" data-file="reporting_steps.py"
                 data-source="def step_engine_ready(context):
-    context.report = {&#34;rows&#34;: 0, &#34;size&#34;: 0}" data-docstring="" data-line="9" data-end-line="10" data-is-regex="False">
+    context.report = {&#34;rows&#34;: 0, &#34;size&#34;: 0}" data-docstring="" data-line="9" data-end-line="10" data-is-regex="false"
+                data-params="">
               <td><span class="kw-badge kw-given">given</span></td>
               <td class="pattern-cell">the report engine is ready</td>
               <td><code>step_engine_ready</code></td>
@@ -997,7 +1050,8 @@ pre { margin: 0; }
                 data-source="def step_generate_report(context, rows):
     time.sleep(0.2)
     context.report[&#34;rows&#34;] = rows
-    context.report[&#34;size&#34;] = rows * 1024" data-docstring="" data-line="14" data-end-line="17" data-is-regex="False">
+    context.report[&#34;size&#34;] = rows * 1024" data-docstring="" data-line="14" data-end-line="17" data-is-regex="false"
+                data-params="rows:d">
               <td><span class="kw-badge kw-when">when</span></td>
               <td class="pattern-cell">the report is generated with {rows:d} rows</td>
               <td><code>step_generate_report</code></td>
@@ -1008,7 +1062,8 @@ pre { margin: 0; }
             <tr class="step-row" data-keyword="then" data-pattern="the report is available" data-func="step_report_available" data-file="reporting_steps.py"
                 data-source="def step_report_available(context):
     report = getattr(context, &#34;report&#34;, {})
-    assert report.get(&#34;rows&#34;, 0) &gt; 0" data-docstring="" data-line="21" data-end-line="23" data-is-regex="False">
+    assert report.get(&#34;rows&#34;, 0) &gt; 0" data-docstring="" data-line="21" data-end-line="23" data-is-regex="false"
+                data-params="">
               <td><span class="kw-badge kw-then">then</span></td>
               <td class="pattern-cell">the report is available</td>
               <td><code>step_report_available</code></td>
@@ -1019,7 +1074,8 @@ pre { margin: 0; }
             <tr class="step-row" data-keyword="then" data-pattern="the report size is greater than {size:d} MB" data-func="step_report_size" data-file="reporting_steps.py"
                 data-source="def step_report_size(context, size):
     mb = context.report[&#34;size&#34;] / (1024 * 1024)
-    assert mb &gt; size, f&#34;Report size {mb:.2f} MB is not greater than {size} MB&#34;" data-docstring="" data-line="27" data-end-line="29" data-is-regex="False">
+    assert mb &gt; size, f&#34;Report size {mb:.2f} MB is not greater than {size} MB&#34;" data-docstring="" data-line="27" data-end-line="29" data-is-regex="false"
+                data-params="size:d">
               <td><span class="kw-badge kw-then">then</span></td>
               <td class="pattern-cell">the report size is greater than {size:d} MB</td>
               <td><code>step_report_size</code></td>
@@ -1029,7 +1085,8 @@ pre { margin: 0; }
             </tr>
             <tr class="step-row" data-keyword="given" data-pattern="the legacy engine is enabled" data-func="step_legacy_engine" data-file="reporting_steps.py"
                 data-source="def step_legacy_engine(context):
-    pass" data-docstring="" data-line="33" data-end-line="34" data-is-regex="False">
+    pass" data-docstring="" data-line="33" data-end-line="34" data-is-regex="false"
+                data-params="">
               <td><span class="kw-badge kw-given">given</span></td>
               <td class="pattern-cell">the legacy engine is enabled</td>
               <td><code>step_legacy_engine</code></td>
@@ -1039,7 +1096,8 @@ pre { margin: 0; }
             </tr>
             <tr class="step-row" data-keyword="given" data-pattern="the legacy report engine is being implemented" data-func="step_legacy_pending" data-file="reporting_steps.py"
                 data-source="def step_legacy_pending(context):
-    context.scenario.skip(&#34;Legacy report engine not implemented yet&#34;)" data-docstring="" data-line="38" data-end-line="39" data-is-regex="False">
+    context.scenario.skip(&#34;Legacy report engine not implemented yet&#34;)" data-docstring="" data-line="38" data-end-line="39" data-is-regex="false"
+                data-params="">
               <td><span class="kw-badge kw-given">given</span></td>
               <td class="pattern-cell">the legacy report engine is being implemented</td>
               <td><code>step_legacy_pending</code></td>
@@ -1049,7 +1107,8 @@ pre { margin: 0; }
             </tr>
             <tr class="step-row" data-keyword="when" data-pattern="the legacy report is generated" data-func="step_legacy_report" data-file="reporting_steps.py"
                 data-source="def step_legacy_report(context):
-    pass" data-docstring="" data-line="43" data-end-line="44" data-is-regex="False">
+    pass" data-docstring="" data-line="43" data-end-line="44" data-is-regex="false"
+                data-params="">
               <td><span class="kw-badge kw-when">when</span></td>
               <td class="pattern-cell">the legacy report is generated</td>
               <td><code>step_legacy_report</code></td>
@@ -1133,11 +1192,11 @@ pre { margin: 0; }
       </section>
 
       <footer class="footer">
-        Generated by <strong>behave-modern-html-report</strong> · 2026-08-10 22:43:00
+        Generated by <strong>behave-modern-html-report</strong> · 2026-10-03 09:37:13
       </footer>
     </main>
 
-  <script id="bmr-data" type="application/json">{"steps": [{"keyword": "given", "pattern": "the cart contains {count:d} items", "is_regex": false, "func_name": "step_cart_items", "file_path": "checkout_steps.py", "line": 10, "end_line": 11, "docstring": "", "params": ["count:d"], "source": "def step_cart_items(context, count=1):\n    context.cart = {\"items\": count, \"total\": count * 50}"}, {"keyword": "given", "pattern": "the cart contains 1 item", "is_regex": false, "func_name": "step_cart_items", "file_path": "checkout_steps.py", "line": 10, "end_line": 11, "docstring": "", "params": ["count"], "source": "def step_cart_items(context, count=1):\n    context.cart = {\"items\": count, \"total\": count * 50}"}, {"keyword": "given", "pattern": "the total is {total:d}", "is_regex": false, "func_name": "step_total", "file_path": "checkout_steps.py", "line": 15, "end_line": 16, "docstring": "", "params": ["total:d"], "source": "def step_total(context, total):\n    context.cart[\"total\"] = total"}, {"keyword": "when", "pattern": "the user pays with \"{method}\"", "is_regex": false, "func_name": "step_pay", "file_path": "checkout_steps.py", "line": 20, "end_line": 23, "docstring": "", "params": ["method"], "source": "def step_pay(context, method):\n    time.sleep(0.05)\n    context.payment_accepted = method == \"credit card\"\n    context.payment_method = method"}, {"keyword": "then", "pattern": "the payment is accepted", "is_regex": false, "func_name": "step_payment_accepted", "file_path": "checkout_steps.py", "line": 27, "end_line": 28, "docstring": "", "params": [], "source": "def step_payment_accepted(context):\n    assert context.payment_accepted, \"Payment was rejected\""}, {"keyword": "then", "pattern": "the payment is rejected", "is_regex": false, "func_name": "step_payment_rejected", "file_path": "checkout_steps.py", "line": 32, "end_line": 33, "docstring": "", "params": [], "source": "def step_payment_rejected(context):\n    assert not context.payment_accepted, \"Payment was unexpectedly accepted\""}, {"keyword": "given", "pattern": "the order is confirmed", "is_regex": false, "func_name": "step_order_confirmed", "file_path": "checkout_steps.py", "line": 37, "end_line": 38, "docstring": "", "params": [], "source": "def step_order_confirmed(context):\n    context.order = {\"status\": \"confirmed\"}"}, {"keyword": "when", "pattern": "the user selects \"{method}\" shipping", "is_regex": false, "func_name": "step_select_shipping", "file_path": "checkout_steps.py", "line": 42, "end_line": 44, "docstring": "", "params": ["method"], "source": "def step_select_shipping(context, method):\n    time.sleep(0.03)\n    context.shipping = method"}, {"keyword": "then", "pattern": "the shipping cost is {cost:d}", "is_regex": false, "func_name": "step_shipping_cost", "file_path": "checkout_steps.py", "line": 48, "end_line": 50, "docstring": "", "params": ["cost:d"], "source": "def step_shipping_cost(context, cost):\n    expected = {\"express\": 15, \"standard\": 5}[context.shipping]\n    assert expected == cost, f\"Expected shipping cost {cost}, got {expected}\""}, {"keyword": "then", "pattern": "the order is confirmed", "is_regex": false, "func_name": "step_check_confirmed", "file_path": "checkout_steps.py", "line": 54, "end_line": 55, "docstring": "", "params": [], "source": "def step_check_confirmed(context):\n    assert context.order[\"status\"] == \"confirmed\""}, {"keyword": "given", "pattern": "the database is reset", "is_regex": false, "func_name": "step_reset_db", "file_path": "login_steps.py", "line": 7, "end_line": 8, "docstring": "", "params": [], "source": "def step_reset_db(context):\n    context.database = {\"users\": {\"alice\": \"secret1\", \"bob\": \"secret2\", \"locked\": \"secret\"}}"}, {"keyword": "given", "pattern": "a registered user exists", "is_regex": false, "func_name": "step_user_exists", "file_path": "login_steps.py", "line": 12, "end_line": 13, "docstring": "", "params": [], "source": "def step_user_exists(context):\n    assert context.database is not None"}, {"keyword": "given", "pattern": "the username is \"{username}\"", "is_regex": false, "func_name": "step_set_username", "file_path": "login_steps.py", "line": 17, "end_line": 18, "docstring": "", "params": ["username"], "source": "def step_set_username(context, username):\n    context.username = username"}, {"keyword": "given", "pattern": "the password is \"{password}\"", "is_regex": false, "func_name": "step_set_password", "file_path": "login_steps.py", "line": 22, "end_line": 23, "docstring": "", "params": ["password"], "source": "def step_set_password(context, password):\n    context.password = password"}, {"keyword": "when", "pattern": "the user logs in", "is_regex": false, "func_name": "step_login", "file_path": "login_steps.py", "line": 27, "end_line": 29, "docstring": "", "params": [], "source": "def step_login(context):\n    expected = context.database[\"users\"].get(context.username)\n    context.logged_in = expected is not None and expected == context.password"}, {"keyword": "then", "pattern": "the dashboard is shown", "is_regex": false, "func_name": "step_dashboard", "file_path": "login_steps.py", "line": 33, "end_line": 34, "docstring": "", "params": [], "source": "def step_dashboard(context):\n    assert context.logged_in, \"User is not logged in\""}, {"keyword": "then", "pattern": "an error is shown", "is_regex": false, "func_name": "step_error", "file_path": "login_steps.py", "line": 38, "end_line": 39, "docstring": "", "params": [], "source": "def step_error(context):\n    assert not context.logged_in, \"User unexpectedly logged in\""}, {"keyword": "then", "pattern": "the account locked message is shown", "is_regex": false, "func_name": "step_locked", "file_path": "login_steps.py", "line": 43, "end_line": 44, "docstring": "", "params": [], "source": "def step_locked(context):\n    context.scenario.skip(\"Account locking logic is not implemented yet\")"}, {"keyword": "given", "pattern": "the report engine is ready", "is_regex": false, "func_name": "step_engine_ready", "file_path": "reporting_steps.py", "line": 9, "end_line": 10, "docstring": "", "params": [], "source": "def step_engine_ready(context):\n    context.report = {\"rows\": 0, \"size\": 0}"}, {"keyword": "when", "pattern": "the report is generated with {rows:d} rows", "is_regex": false, "func_name": "step_generate_report", "file_path": "reporting_steps.py", "line": 14, "end_line": 17, "docstring": "", "params": ["rows:d"], "source": "def step_generate_report(context, rows):\n    time.sleep(0.2)\n    context.report[\"rows\"] = rows\n    context.report[\"size\"] = rows * 1024"}, {"keyword": "then", "pattern": "the report is available", "is_regex": false, "func_name": "step_report_available", "file_path": "reporting_steps.py", "line": 21, "end_line": 23, "docstring": "", "params": [], "source": "def step_report_available(context):\n    report = getattr(context, \"report\", {})\n    assert report.get(\"rows\", 0) > 0"}, {"keyword": "then", "pattern": "the report size is greater than {size:d} MB", "is_regex": false, "func_name": "step_report_size", "file_path": "reporting_steps.py", "line": 27, "end_line": 29, "docstring": "", "params": ["size:d"], "source": "def step_report_size(context, size):\n    mb = context.report[\"size\"] / (1024 * 1024)\n    assert mb > size, f\"Report size {mb:.2f} MB is not greater than {size} MB\""}, {"keyword": "given", "pattern": "the legacy engine is enabled", "is_regex": false, "func_name": "step_legacy_engine", "file_path": "reporting_steps.py", "line": 33, "end_line": 34, "docstring": "", "params": [], "source": "def step_legacy_engine(context):\n    pass"}, {"keyword": "given", "pattern": "the legacy report engine is being implemented", "is_regex": false, "func_name": "step_legacy_pending", "file_path": "reporting_steps.py", "line": 38, "end_line": 39, "docstring": "", "params": [], "source": "def step_legacy_pending(context):\n    context.scenario.skip(\"Legacy report engine not implemented yet\")"}, {"keyword": "when", "pattern": "the legacy report is generated", "is_regex": false, "func_name": "step_legacy_report", "file_path": "reporting_steps.py", "line": 43, "end_line": 44, "docstring": "", "params": [], "source": "def step_legacy_report(context):\n    pass"}], "total": 25, "by_keyword": {"given": 11, "when": 5, "then": 9}}</script>
+  <script id="bmr-data" type="application/json">{"steps": [{"keyword": "given", "pattern": "the cart contains {count:d} items", "is_regex": false, "func_name": "step_cart_items", "file_path": "checkout_steps.py", "line": 10, "end_line": 11, "docstring": "", "params": ["count:d"], "source": "def step_cart_items(context, count=1):\n    context.cart = {\"items\": count, \"total\": count * 50}"}, {"keyword": "given", "pattern": "the cart contains 1 item", "is_regex": false, "func_name": "step_cart_items", "file_path": "checkout_steps.py", "line": 10, "end_line": 11, "docstring": "", "params": ["count"], "source": "def step_cart_items(context, count=1):\n    context.cart = {\"items\": count, \"total\": count * 50}"}, {"keyword": "given", "pattern": "the total is {total:d}", "is_regex": false, "func_name": "step_total", "file_path": "checkout_steps.py", "line": 15, "end_line": 16, "docstring": "", "params": ["total:d"], "source": "def step_total(context, total):\n    context.cart[\"total\"] = total"}, {"keyword": "when", "pattern": "the user pays with \"{method}\"", "is_regex": false, "func_name": "step_pay", "file_path": "checkout_steps.py", "line": 20, "end_line": 23, "docstring": "", "params": ["method"], "source": "def step_pay(context, method):\n    time.sleep(0.05)\n    context.payment_accepted = method == \"credit card\"\n    context.payment_method = method"}, {"keyword": "then", "pattern": "the payment is accepted", "is_regex": false, "func_name": "step_payment_accepted", "file_path": "checkout_steps.py", "line": 27, "end_line": 28, "docstring": "", "params": [], "source": "def step_payment_accepted(context):\n    assert context.payment_accepted, \"Payment was rejected\""}, {"keyword": "then", "pattern": "the payment is rejected", "is_regex": false, "func_name": "step_payment_rejected", "file_path": "checkout_steps.py", "line": 32, "end_line": 33, "docstring": "", "params": [], "source": "def step_payment_rejected(context):\n    assert not context.payment_accepted, \"Payment was unexpectedly accepted\""}, {"keyword": "given", "pattern": "the order is confirmed", "is_regex": false, "func_name": "step_order_confirmed", "file_path": "checkout_steps.py", "line": 37, "end_line": 38, "docstring": "", "params": [], "source": "def step_order_confirmed(context):\n    context.order = {\"status\": \"confirmed\"}"}, {"keyword": "when", "pattern": "the user selects \"{method}\" shipping", "is_regex": false, "func_name": "step_select_shipping", "file_path": "checkout_steps.py", "line": 42, "end_line": 44, "docstring": "", "params": ["method"], "source": "def step_select_shipping(context, method):\n    time.sleep(0.03)\n    context.shipping = method"}, {"keyword": "then", "pattern": "the shipping cost is {cost:d}", "is_regex": false, "func_name": "step_shipping_cost", "file_path": "checkout_steps.py", "line": 48, "end_line": 50, "docstring": "", "params": ["cost:d"], "source": "def step_shipping_cost(context, cost):\n    expected = {\"express\": 15, \"standard\": 5}[context.shipping]\n    assert expected == cost, f\"Expected shipping cost {cost}, got {expected}\""}, {"keyword": "then", "pattern": "the order is confirmed", "is_regex": false, "func_name": "step_check_confirmed", "file_path": "checkout_steps.py", "line": 54, "end_line": 55, "docstring": "", "params": [], "source": "def step_check_confirmed(context):\n    assert context.order[\"status\"] == \"confirmed\""}, {"keyword": "given", "pattern": "the database is reset", "is_regex": false, "func_name": "step_reset_db", "file_path": "login_steps.py", "line": 7, "end_line": 8, "docstring": "", "params": [], "source": "def step_reset_db(context):\n    context.database = {\"users\": {\"alice\": \"secret1\", \"bob\": \"secret2\", \"locked\": \"secret\"}}"}, {"keyword": "given", "pattern": "a registered user exists", "is_regex": false, "func_name": "step_user_exists", "file_path": "login_steps.py", "line": 12, "end_line": 13, "docstring": "", "params": [], "source": "def step_user_exists(context):\n    assert context.database is not None"}, {"keyword": "given", "pattern": "the username is \"{username}\"", "is_regex": false, "func_name": "step_set_username", "file_path": "login_steps.py", "line": 17, "end_line": 18, "docstring": "", "params": ["username"], "source": "def step_set_username(context, username):\n    context.username = username"}, {"keyword": "given", "pattern": "the password is \"{password}\"", "is_regex": false, "func_name": "step_set_password", "file_path": "login_steps.py", "line": 22, "end_line": 23, "docstring": "", "params": ["password"], "source": "def step_set_password(context, password):\n    context.password = password"}, {"keyword": "when", "pattern": "the user logs in", "is_regex": false, "func_name": "step_login", "file_path": "login_steps.py", "line": 27, "end_line": 29, "docstring": "", "params": [], "source": "def step_login(context):\n    expected = context.database[\"users\"].get(context.username)\n    context.logged_in = expected is not None and expected == context.password"}, {"keyword": "then", "pattern": "the dashboard is shown", "is_regex": false, "func_name": "step_dashboard", "file_path": "login_steps.py", "line": 33, "end_line": 34, "docstring": "", "params": [], "source": "def step_dashboard(context):\n    assert context.logged_in, \"User is not logged in\""}, {"keyword": "then", "pattern": "an error is shown", "is_regex": false, "func_name": "step_error", "file_path": "login_steps.py", "line": 38, "end_line": 39, "docstring": "", "params": [], "source": "def step_error(context):\n    assert not context.logged_in, \"User unexpectedly logged in\""}, {"keyword": "then", "pattern": "the account locked message is shown", "is_regex": false, "func_name": "step_locked", "file_path": "login_steps.py", "line": 43, "end_line": 44, "docstring": "", "params": [], "source": "def step_locked(context):\n    context.scenario.skip(\"Account locking logic is not implemented yet\")"}, {"keyword": "given", "pattern": "the report engine is ready", "is_regex": false, "func_name": "step_engine_ready", "file_path": "reporting_steps.py", "line": 9, "end_line": 10, "docstring": "", "params": [], "source": "def step_engine_ready(context):\n    context.report = {\"rows\": 0, \"size\": 0}"}, {"keyword": "when", "pattern": "the report is generated with {rows:d} rows", "is_regex": false, "func_name": "step_generate_report", "file_path": "reporting_steps.py", "line": 14, "end_line": 17, "docstring": "", "params": ["rows:d"], "source": "def step_generate_report(context, rows):\n    time.sleep(0.2)\n    context.report[\"rows\"] = rows\n    context.report[\"size\"] = rows * 1024"}, {"keyword": "then", "pattern": "the report is available", "is_regex": false, "func_name": "step_report_available", "file_path": "reporting_steps.py", "line": 21, "end_line": 23, "docstring": "", "params": [], "source": "def step_report_available(context):\n    report = getattr(context, \"report\", {})\n    assert report.get(\"rows\", 0) \u003e 0"}, {"keyword": "then", "pattern": "the report size is greater than {size:d} MB", "is_regex": false, "func_name": "step_report_size", "file_path": "reporting_steps.py", "line": 27, "end_line": 29, "docstring": "", "params": ["size:d"], "source": "def step_report_size(context, size):\n    mb = context.report[\"size\"] / (1024 * 1024)\n    assert mb \u003e size, f\"Report size {mb:.2f} MB is not greater than {size} MB\""}, {"keyword": "given", "pattern": "the legacy engine is enabled", "is_regex": false, "func_name": "step_legacy_engine", "file_path": "reporting_steps.py", "line": 33, "end_line": 34, "docstring": "", "params": [], "source": "def step_legacy_engine(context):\n    pass"}, {"keyword": "given", "pattern": "the legacy report engine is being implemented", "is_regex": false, "func_name": "step_legacy_pending", "file_path": "reporting_steps.py", "line": 38, "end_line": 39, "docstring": "", "params": [], "source": "def step_legacy_pending(context):\n    context.scenario.skip(\"Legacy report engine not implemented yet\")"}, {"keyword": "when", "pattern": "the legacy report is generated", "is_regex": false, "func_name": "step_legacy_report", "file_path": "reporting_steps.py", "line": 43, "end_line": 44, "docstring": "", "params": [], "source": "def step_legacy_report(context):\n    pass"}], "total": 25, "by_keyword": {"given": 11, "when": 5, "then": 9}}</script>
   <script>/* Step catalog client-side interactions.
  * The bulk of the logic is inline in step_catalog.html.jinja;
  * this file is a placeholder for future shared chart rendering.
@@ -1145,7 +1204,8 @@ pre { margin: 0; }
 </script>
   <script>
     (function () {
-      var DATA = JSON.parse(document.getElementById('bmr-data').textContent);
+      var DATA = {};
+      try { DATA = JSON.parse(document.getElementById('bmr-data').textContent || '{}'); } catch (e) { DATA = {}; }
 
       // ---- Theme ----
       var THEME_KEY = "bmr.theme";
@@ -1156,7 +1216,7 @@ pre { margin: 0; }
       var savedTheme = "auto";
       try { savedTheme = localStorage.getItem(THEME_KEY) || "auto"; } catch (_) {}
       if (savedTheme === "auto") {
-        applyTheme(window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        applyTheme(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
       } else { applyTheme(savedTheme); }
       var toggle = document.getElementById("theme-toggle");
       if (toggle) toggle.addEventListener("click", function () {

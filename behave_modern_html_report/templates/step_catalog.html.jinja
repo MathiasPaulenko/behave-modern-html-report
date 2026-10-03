@@ -192,15 +192,16 @@
             <tr>
               <th data-sort="keyword">Keyword <span class="sort-ico">↕</span></th>
               <th data-sort="pattern">Pattern <span class="sort-ico">↕</span></th>
-              <th data-sort="func_name">Function <span class="sort-ico">↕</span></th>
-              <th data-sort="file_path">File <span class="sort-ico">↕</span></th>
+              <th data-sort="func">Function <span class="sort-ico">↕</span></th>
+              <th data-sort="file">File <span class="sort-ico">↕</span></th>
               <th data-sort="params">Params <span class="sort-ico">↕</span></th>
             </tr>
           </thead>
           <tbody id="step-tbody">
             {% for s in steps %}
             <tr class="step-row" data-keyword="{{ s.keyword }}" data-pattern="{{ s.pattern }}" data-func="{{ s.func_name }}" data-file="{{ s.file_path }}"
-                data-source="{{ s.source | e }}" data-docstring="{{ s.docstring | e }}" data-line="{{ s.line }}" data-end-line="{{ s.end_line }}" data-is-regex="{{ s.is_regex }}">
+                data-source="{{ s.source | e }}" data-docstring="{{ s.docstring | e }}" data-line="{{ s.line }}" data-end-line="{{ s.end_line }}" data-is-regex="{{ s.is_regex | lower }}"
+                data-params="{{ s.params | join(',') }}">
               <td><span class="kw-badge kw-{{ s.keyword }}">{{ s.keyword }}</span></td>
               <td class="pattern-cell">{{ s.pattern }}</td>
               <td><code>{{ s.func_name }}</code></td>
@@ -292,7 +293,6 @@
     </main>
 
   <script id="bmr-data" type="application/json">{{ data_json|safe }}</script>
-  <script>{{ js|safe }}</script>
   <script>
     (function () {
       var DATA = {};

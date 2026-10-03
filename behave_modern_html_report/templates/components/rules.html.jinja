@@ -16,7 +16,7 @@
 
   <div id="rules-list" class="stack">
     {% for feature in execution.features %}
-      {% for rule_name, rule_scenarios in feature.scenarios|groupby('rule_name') %}
+      {% for rule_name, rule_scenarios in feature.rule_groups %}
         {% if rule_name %}
           <article class="rule card" data-rule="{{ rule_name|lower }}"
                    data-feature="{{ feature.name|lower }}"

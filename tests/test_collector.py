@@ -11,16 +11,24 @@ from behave_modern_html_report.models import Attachment
 def _feature(name, tags=()):
     """Return a minimal Behave-like feature stub."""
     return SimpleNamespace(
-        name=name, description=["A feature"], location=f"{name}.feature:1",
-        tags=list(tags), status="passed", duration=0.0,
+        name=name,
+        description=["A feature"],
+        location=f"{name}.feature:1",
+        tags=list(tags),
+        status="passed",
+        duration=0.0,
     )
 
 
 def _scenario(name, tags=()):
     """Return a minimal Behave-like scenario stub."""
     return SimpleNamespace(
-        name=name, description=[], location=f"{name}.feature:3",
-        tags=list(tags), status="passed", duration=0.0,
+        name=name,
+        description=[],
+        location=f"{name}.feature:3",
+        tags=list(tags),
+        status="passed",
+        duration=0.0,
     )
 
 
@@ -32,7 +40,9 @@ def _rule(name):
 def _background(name="Setup", steps=()):
     """Return a minimal Behave-like background stub."""
     return SimpleNamespace(
-        name=name, keyword="Background", location=f"{name}.feature:2",
+        name=name,
+        keyword="Background",
+        location=f"{name}.feature:2",
         steps=list(steps),
     )
 
@@ -40,9 +50,16 @@ def _background(name="Setup", steps=()):
 def _step(keyword, name, status="passed", duration=0.01, error=None):
     """Return a minimal Behave-like step stub."""
     return SimpleNamespace(
-        keyword=keyword, name=name, status=status, duration=duration,
-        location=f"{name}.py:1", text=None, table=None,
-        error_message=error or "", exception=None, exc_traceback="",
+        keyword=keyword,
+        name=name,
+        status=status,
+        duration=duration,
+        location=f"{name}.py:1",
+        text=None,
+        table=None,
+        error_message=error or "",
+        exception=None,
+        exc_traceback="",
     )
 
 
@@ -149,24 +166,38 @@ def test_collector_normalizes_extended_statuses():
 
 
 def test_collector_captures_feature_background():
-    """The collector records feature background and attaches it to each scenario."""
+    """The collector records per-scenario background steps with real status."""
     c = Collector()
     c.start_feature(
         SimpleNamespace(
-            name="F", description=["A feature"], location="F.feature:1",
-            tags=[], status="passed", duration=0.0,
+            name="F",
+            description=["A feature"],
+            location="F.feature:1",
+            tags=[],
+            status="passed",
+            duration=0.0,
             background=_background("Reset db", steps=[_step("Given", "db reset")]),
         )
     )
-    c.start_scenario(_scenario("S"))
+    scenario_stub = _scenario("S")
+    scenario_stub.background = _background("Reset db")
+    c.start_scenario(scenario_stub)
+    c.add_step(_step("Given", "db reset"), is_background=True)
     c.add_step(_step("When", "x"))
     c.end_scenario(SimpleNamespace(status="passed", duration=0.0))
     c.end_feature(SimpleNamespace(status="passed", duration=0.0))
 
     execution = c.finalize()
-    assert execution.features[0].background is not None
-    assert len(execution.features[0].background.steps) == 1
-    assert execution.features[0].scenarios[0].background is execution.features[0].background
+    scenario = execution.features[0].scenarios[0]
+    assert scenario.background is not None
+    assert scenario.background.name == "Reset db"
+    # Executed background steps keep their real status and are not
+    # duplicated into the regular step list.
+    assert len(scenario.background.steps) == 1
+    assert scenario.background.steps[0].name == "db reset"
+    assert scenario.background.steps[0].status == "passed"
+    assert len(scenario.steps) == 1
+    assert scenario.steps[0].name == "x"
 
 
 def test_collector_captures_environment():
@@ -196,9 +227,15 @@ def test_collector_captures_scenario_outline():
     )
     c.start_scenario(
         SimpleNamespace(
-            name="Example 1", description=[], location="F.feature:4",
-            tags=[], status="passed", duration=0.0,
-            type="scenario_outline", outline_name="Login flow", examples=examples,
+            name="Example 1",
+            description=[],
+            location="F.feature:4",
+            tags=[],
+            status="passed",
+            duration=0.0,
+            type="scenario_outline",
+            outline_name="Login flow",
+            examples=examples,
         )
     )
     c.add_step(_step("Given", "user logs in"))

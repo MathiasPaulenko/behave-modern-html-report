@@ -21,13 +21,14 @@
       <tbody>
         {% for feature in execution.features %}
           {% for scenario in feature.scenarios %}
+            {% set all_steps = scenario.background.steps + scenario.steps if scenario.background else scenario.steps %}
             <tr class="scenario-row" data-status="{{ scenario.status }}"
                 data-name="{{ scenario.name|lower }}"
                 data-tags="{{ scenario.tags|join(',')|lower }}"
                 data-feature="{{ scenario.feature_name|lower }}"
                 data-rule="{{ scenario.rule_name|lower }}"
                 data-duration="{{ scenario.duration }}"
-                data-error="{{ (scenario.steps | selectattr('error') | map(attribute='error.message') | first | lower) if scenario.steps and (scenario.steps | selectattr('error') | list) else '' }}">
+                data-error="{{ all_steps | selectattr('error') | map(attribute='error.message') | join(' ') | lower }}">
               <td>
                 <span class="status-badge status-{{ scenario.status }}">
                   <svg class="ico"><use href="#i-{{ scenario.status|status_icon }}"/></svg>

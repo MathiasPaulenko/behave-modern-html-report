@@ -43,7 +43,7 @@
           <tr><th>Status</th><th>Count</th><th>Percentage</th></tr>
         </thead>
         <tbody>
-          {% for s in ["passed","failed","skipped","undefined","pending"] %}
+          {% for s in all_statuses %}
             {% set count = status_distribution.get(s, 0) %}
             {% if count %}
               <tr>

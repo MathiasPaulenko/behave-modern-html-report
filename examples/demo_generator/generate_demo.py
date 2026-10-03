@@ -39,13 +39,15 @@ def _random_step(i: int, force: str | None = None) -> Step:
     status = force or random.choice(STATUSES)
     step = Step(
         keyword=random.choice(["Given", "When", "Then", "And"]),
-        name=random.choice([
-            "the user opens the dashboard",
-            "they click the {} button".format(random.choice(["login", "submit", "buy"])),
-            "the API returns 200",
-            "the response payload matches the schema",
-            f"the cart contains {random.randint(1, 9)} items",
-        ]),
+        name=random.choice(
+            [
+                "the user opens the dashboard",
+                "they click the {} button".format(random.choice(["login", "submit", "buy"])),
+                "the API returns 200",
+                "the response payload matches the schema",
+                f"the cart contains {random.randint(1, 9)} items",
+            ]
+        ),
         status=status,
         duration=round(random.uniform(0.005, 1.2), 3),
         location=f"features/steps/example.py:{10 + i}",
@@ -64,22 +66,32 @@ def _random_step(i: int, force: str | None = None) -> Step:
     return step
 
 
-def _random_scenario(idx: int, feature_name: str, rule_name: str = "", tags: list[str] | None = None) -> Scenario:
+def _random_scenario(
+    idx: int, feature_name: str, rule_name: str = "", tags: list[str] | None = None
+) -> Scenario:
     """Create a synthetic scenario with random steps, tags and optional Rule name."""
     n_steps = random.randint(3, 6)
     failing = random.random() < 0.12
-    steps = [_random_step(i, "failed" if failing and i == n_steps - 2 else None) for i in range(n_steps)]
+    steps = [
+        _random_step(i, "failed" if failing and i == n_steps - 2 else None) for i in range(n_steps)
+    ]
     status = (
-        "failed" if any(s.status == "failed" for s in steps)
-        else "undefined" if any(s.status == "undefined" for s in steps)
-        else "passed"
+        "failed"
+        if any(s.status == "failed" for s in steps)
+        else "undefined" if any(s.status == "undefined" for s in steps) else "passed"
     )
     return Scenario(
         name=f"Scenario {idx}: {random.choice(['login flow', 'checkout', 'reporting', 'API contract', 'permissions'])}",
         status=status,
         description="",
         location=f"features/{feature_name}.feature:{idx * 4}",
-        tags=tags if tags is not None else random.sample(["smoke", "regression", "ui", "api", "nightly", "wip"], k=random.randint(0, 3)),
+        tags=(
+            tags
+            if tags is not None
+            else random.sample(
+                ["smoke", "regression", "ui", "api", "nightly", "wip"], k=random.randint(0, 3)
+            )
+        ),
         steps=steps,
         feature_name=feature_name,
         rule_name=rule_name,
@@ -132,7 +144,9 @@ def build_demo_execution() -> Execution:
             location="features/login.feature:10",
             tags=["login", "outline"],
             steps=[
-                Step(keyword="Given", name="the username is \"alice\"", status="passed", duration=0.1),
+                Step(
+                    keyword="Given", name='the username is "alice"', status="passed", duration=0.1
+                ),
                 Step(keyword="When", name="the user logs in", status="passed", duration=0.2),
                 Step(keyword="Then", name="the dashboard is shown", status="passed", duration=0.1),
             ],
@@ -150,7 +164,7 @@ def build_demo_execution() -> Execution:
             location="features/login.feature:20",
             tags=["login", "outline"],
             steps=[
-                Step(keyword="Given", name="the username is \"eve\"", status="passed", duration=0.1),
+                Step(keyword="Given", name='the username is "eve"', status="passed", duration=0.1),
                 Step(keyword="When", name="the user logs in", status="passed", duration=0.2),
                 Step(keyword="Then", name="the error is shown", status="failed", duration=0.1),
             ],
@@ -191,7 +205,12 @@ def build_demo_execution() -> Execution:
             git_branch="main",
             git_commit="a1b2c3d",
             git_remote="https://github.com/demo/project.git",
-            env_vars={"CI": "false", "PATH": "/usr/bin:/bin", "HOME": "/home/demo", "SHELL": "/bin/bash"},
+            env_vars={
+                "CI": "false",
+                "PATH": "/usr/bin:/bin",
+                "HOME": "/home/demo",
+                "SHELL": "/bin/bash",
+            },
             extra={"CI": "false", "Branch": "main"},
         ),
         statistics=Statistics(start_time=start, end_time=datetime.now()),
@@ -201,15 +220,17 @@ def build_demo_execution() -> Execution:
 def main() -> None:
     """Generate the demo report and open it in the default browser."""
     execution = build_demo_execution()
-    renderer = Renderer(RenderOptions(
-        title="Behave Modern Report — Demo",
-        company="Open Source",
-        theme="auto",
-        default_view="dashboard",
-        footer_text="Generated by the demo script",
-        show_copy_command=True,
-        show_environment_vars=True,
-    ))
+    renderer = Renderer(
+        RenderOptions(
+            title="Behave Modern Report — Demo",
+            company="Open Source",
+            theme="auto",
+            default_view="dashboard",
+            footer_text="Generated by the demo script",
+            show_copy_command=True,
+            show_environment_vars=True,
+        )
+    )
     out = Path(__file__).resolve().parent / "demo-report.html"
     renderer.render_to_file(execution, out)
     print(f"Wrote {out}")

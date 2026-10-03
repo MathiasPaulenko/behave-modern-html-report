@@ -70,7 +70,7 @@
   <div class="card progress-card">
     <div class="progress-bar stacked" aria-label="Execution status progress">
       {% set total = stats.total_scenarios or 1 %}
-      {% for s in ["passed","failed","skipped","undefined","pending"] %}
+      {% for s in all_statuses %}
         {% set count = stats.by_status.get(s, 0) %}
         {% if count > 0 %}
           <div class="progress-segment status-{{ s }}" style="width: {{ (count / total * 100)|round(1) }}%;" title="{{ s|status_label }}: {{ count }}"></div>
@@ -78,7 +78,7 @@
       {% endfor %}
     </div>
     <div class="progress-legend">
-      {% for s in ["passed","failed","skipped","undefined","pending"] %}
+      {% for s in all_statuses %}
         {% set count = stats.by_status.get(s, 0) %}
         {% if count > 0 %}
           <span class="progress-legend-item">

@@ -13,6 +13,7 @@ import platform
 import socket
 import sys
 from datetime import datetime
+from types import SimpleNamespace
 from typing import Any
 
 from . import statistics as stats_mod
@@ -30,6 +31,27 @@ from .models import (
     normalize_status,
 )
 from .utils import safe_str
+
+_SENSITIVE_ENV_MARKERS = (
+    "TOKEN",
+    "SECRET",
+    "PASSWORD",
+    "PASSWD",
+    "CREDENTIAL",
+    "PRIVATE",
+    "AUTH",
+    "COOKIE",
+    "CERT",
+    "APIKEY",
+    "API_KEY",
+    "_KEY",
+)
+
+
+def _is_sensitive_env_key(key: str) -> bool:
+    """Return True if an env var name looks like it may hold a secret."""
+    upper = key.upper()
+    return any(marker in upper for marker in _SENSITIVE_ENV_MARKERS)
 
 
 class Collector:
@@ -54,6 +76,11 @@ class Collector:
         self._current_feature: Feature | None = None
         self._current_rule_name: str = ""
         self._current_scenario: Scenario | None = None
+        # Behave runs ``after_step`` hooks before reporting the step result,
+        # so attachments/logs produced there land here and are flushed into
+        # the step when it is added (or into the scenario at end_scenario).
+        self._pending_attachments: list[Attachment] = []
+        self._pending_logs: list[str] = []
 
     # ------------------------------------------------------------------
     # Environment
@@ -80,6 +107,7 @@ class Collector:
         memory_mb = 0
         try:
             import psutil  # type: ignore
+
             memory_mb = int(psutil.virtual_memory().total / (1024 * 1024))
         except Exception:  # pragma: no cover
             pass
@@ -95,9 +123,21 @@ class Collector:
         for key in os.environ:
             if any(
                 key.upper().startswith(prefix)
-                for prefix in ("CI", "GITHUB", "GITLAB", "BITBUCKET", "JENKINS", "TRAVIS", "CIRCLE", "BUILD", "AGENT", "TF_", "AZURE")
+                for prefix in (
+                    "CI",
+                    "GITHUB",
+                    "GITLAB",
+                    "BITBUCKET",
+                    "JENKINS",
+                    "TRAVIS",
+                    "CIRCLE",
+                    "BUILD",
+                    "AGENT",
+                    "TF_",
+                    "AZURE",
+                )
             ) or key.upper() in {"PATH", "HOME", "USER", "USERPROFILE", "SHELL", "LANG", "TERM"}:
-                env_vars[key] = safe_str(os.environ[key])
+                env_vars[key] = "***" if _is_sensitive_env_key(key) else safe_str(os.environ[key])
 
         try:
             hostname = socket.gethostname()
@@ -129,19 +169,28 @@ class Collector:
 
             result = subprocess.run(
                 ["git", "rev-parse", "--abbrev-ref", "HEAD"],
-                capture_output=True, text=True, timeout=2, check=False,
+                capture_output=True,
+                text=True,
+                timeout=2,
+                check=False,
             )
             if result.returncode == 0:
                 info["branch"] = result.stdout.strip()
             result = subprocess.run(
                 ["git", "rev-parse", "--short", "HEAD"],
-                capture_output=True, text=True, timeout=2, check=False,
+                capture_output=True,
+                text=True,
+                timeout=2,
+                check=False,
             )
             if result.returncode == 0:
                 info["commit"] = result.stdout.strip()
             result = subprocess.run(
                 ["git", "remote", "get-url", "origin"],
-                capture_output=True, text=True, timeout=2, check=False,
+                capture_output=True,
+                text=True,
+                timeout=2,
+                check=False,
             )
             if result.returncode == 0:
                 info["remote"] = result.stdout.strip()
@@ -177,7 +226,11 @@ class Collector:
         import base64 as _b64
 
         mime_type = getattr(behave_attachment, "mime_type", "") or "application/octet-stream"
-        name = getattr(behave_attachment, "filename", "") or getattr(behave_attachment, "name", "") or "attachment"
+        name = (
+            getattr(behave_attachment, "filename", "")
+            or getattr(behave_attachment, "name", "")
+            or "attachment"
+        )
 
         raw_data = getattr(behave_attachment, "data", None)
         if raw_data is None:
@@ -320,12 +373,27 @@ class Collector:
 
         """
         scenario_type = safe_str(getattr(behave_scenario, "type", ""))
-        is_outline = scenario_type in ("scenario_outline", "outline")
+        parent = getattr(behave_scenario, "parent", None)
+        # Behave calls the formatter with each expanded Scenario of an outline
+        # (type="scenario"), never with the ScenarioOutline itself. Expanded
+        # instances carry ``_row`` and point at the outline via ``parent``.
+        parent_is_outline = getattr(parent, "type", "") == "scenario_outline"
+        is_outline = (
+            scenario_type in ("scenario_outline", "outline")
+            or parent_is_outline
+            or getattr(behave_scenario, "_row", None) is not None
+        )
         outline_name = ""
         examples = None
         if is_outline:
-            outline_name = getattr(behave_scenario, "outline_name", "") or getattr(behave_scenario, "name", "") or ""
-            examples = self._make_examples(getattr(behave_scenario, "examples", None))
+            outline = parent if parent_is_outline else behave_scenario
+            outline_name = (
+                getattr(behave_scenario, "outline_name", "")
+                or getattr(outline, "name", "")
+                or getattr(behave_scenario, "name", "")
+                or ""
+            )
+            examples = self._make_examples(getattr(outline, "examples", None))
 
         scenario = Scenario(
             name=getattr(behave_scenario, "name", "") or "",
@@ -338,8 +406,15 @@ class Collector:
             outline_name=outline_name,
             examples=examples,
         )
-        if self._current_feature and self._current_feature.background:
-            scenario.background = self._current_feature.background
+        # Metadata-only background: executed background steps arrive via
+        # add_step(is_background=True) so they carry their real status.
+        behave_background = getattr(behave_scenario, "background", None)
+        if behave_background is not None:
+            scenario.background = Background(
+                name=getattr(behave_background, "name", "") or "",
+                keyword=(getattr(behave_background, "keyword", "Background") or "Background"),
+                location=safe_str(getattr(behave_background, "location", "")),
+            )
         self._current_scenario = scenario
         if self._current_feature is not None:
             self._current_feature.scenarios.append(scenario)
@@ -349,11 +424,22 @@ class Collector:
         """Convert Behave examples tables into a DataTable model."""
         if not behave_examples:
             return None
-        tables = getattr(behave_examples, "tables", None)
-        if not tables:
+        source = behave_examples
+        if isinstance(source, (list, tuple)):
+            if not source:
+                return None
+            source = source[0]
+        # Behave 1.3.x ``Examples`` objects expose ``.table``; older objects
+        # expose ``.tables``; a bare Table exposes ``.headings`` directly.
+        table = getattr(source, "table", None)
+        if table is None:
+            tables = getattr(source, "tables", None)
+            if tables:
+                table = tables[0] if isinstance(tables, list) else tables
+        if table is None and hasattr(source, "headings"):
+            table = source
+        if table is None:
             return None
-        # Use the first examples table for the report.
-        table = tables[0] if isinstance(tables, list) else behave_examples
         try:
             headings = [safe_str(h) for h in getattr(table, "headings", []) or []]
             rows = [[safe_str(c) for c in row.cells] for row in table.rows]
@@ -370,22 +456,31 @@ class Collector:
         """
         if self._current_scenario is None:
             return
-        self._current_scenario.status = normalize_status(getattr(behave_scenario, "status", None))
+        scenario = self._current_scenario
+        scenario.attachments.extend(self._pending_attachments)
+        scenario.logs.extend(self._pending_logs)
+        self._pending_attachments.clear()
+        self._pending_logs.clear()
+        scenario.status = normalize_status(getattr(behave_scenario, "status", None))
         try:
-            self._current_scenario.duration = float(getattr(behave_scenario, "duration", 0.0) or 0.0)
+            scenario.duration = float(getattr(behave_scenario, "duration", 0.0) or 0.0)
         except (TypeError, ValueError):
-            self._current_scenario.duration = 0.0
+            scenario.duration = 0.0
         self._current_scenario = None
 
     # ------------------------------------------------------------------
     # Steps
     # ------------------------------------------------------------------
 
-    def add_step(self, behave_step: Any) -> Step | None:
+    def add_step(self, behave_step: Any, is_background: bool = False) -> Step | None:
         """Add a step result to the current scenario.
 
         Args:
             behave_step (Any): Behave step object with final state.
+            is_background (bool, optional): True when the step belongs to the
+                scenario's background (they are reported separately so they
+                keep their real status instead of duplicating the feature
+                background template steps).
 
         Returns:
             Step | None: Created step model, or None if no scenario is active.
@@ -394,12 +489,31 @@ class Collector:
         if self._current_scenario is None:
             return None
         step = self._make_step(behave_step)
-        self._current_scenario.steps.append(step)
+        step.attachments.extend(self._pending_attachments)
+        step.logs.extend(self._pending_logs)
+        self._pending_attachments.clear()
+        self._pending_logs.clear()
+        scenario = self._current_scenario
+        if is_background and scenario.background is not None:
+            scenario.background.steps.append(step)
+        else:
+            scenario.steps.append(step)
         return step
 
     # ------------------------------------------------------------------
     # Attachments / logs (extension API for environment.py hooks)
     # ------------------------------------------------------------------
+
+    def _last_step(self) -> Step | None:
+        """Return the most recently executed step, including background steps."""
+        scenario = self._current_scenario
+        if scenario is None:
+            return None
+        if scenario.steps:
+            return scenario.steps[-1]
+        if scenario.background and scenario.background.steps:
+            return scenario.background.steps[-1]
+        return None
 
     def attach(self, attachment: Attachment) -> None:
         """Attach a file to the current step (last step) or scenario.
@@ -410,13 +524,24 @@ class Collector:
         """
         if self._current_scenario is None:
             return
-        if self._current_scenario.steps:
-            self._current_scenario.steps[-1].attachments.append(attachment)
-        else:  # pragma: no cover - rare
-            # Scenario-level attachment: stash on a virtual "setup" step.
-            self._current_scenario.steps.append(
-                Step(keyword="", name="(attachment)", attachments=[attachment])
-            )
+        last_step = self._last_step()
+        if last_step is not None:
+            last_step.attachments.append(attachment)
+        else:
+            self._pending_attachments.append(attachment)
+
+    def attach_embedding(self, mime_type: str, data: Any, name: str = "attachment") -> None:
+        """Attach raw embedded data as Behave's ``formatter.embedding`` does.
+
+        Args:
+            mime_type (str): MIME type of the embedded data.
+            data (Any): Raw data (bytes or str) to embed.
+            name (str, optional): Display name. Defaults to ``attachment``.
+
+        """
+        self.attach(
+            self._make_attachment(SimpleNamespace(mime_type=mime_type, filename=name, data=data))
+        )
 
     def log(self, message: str) -> None:
         """Append a log line to the current step.
@@ -425,8 +550,11 @@ class Collector:
             message (str): Log message to store.
 
         """
-        if self._current_scenario and self._current_scenario.steps:
-            self._current_scenario.steps[-1].logs.append(message)
+        last_step = self._last_step()
+        if last_step is not None:
+            last_step.logs.append(message)
+        elif self._current_scenario is not None:
+            self._pending_logs.append(message)
 
     # ------------------------------------------------------------------
     # Finalize

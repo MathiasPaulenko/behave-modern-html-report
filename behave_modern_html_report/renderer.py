@@ -15,7 +15,7 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 from . import assets
 from . import statistics as stats_mod
-from .models import Execution, as_dict
+from .models import ALL_STATUSES, Execution, as_dict
 from .utils import format_duration
 
 TEMPLATES_DIR = Path(__file__).parent / "templates"
@@ -40,7 +40,6 @@ class RenderOptions:
     show_environment_vars: bool = True
     footer_text: str = ""
     link_to_ci: str = ""
-    embed_assets: bool = True
     json_sidecar: bool = False
     custom_css: str = ""
     custom_js: str = ""
@@ -61,7 +60,7 @@ class Renderer:
         self.options = options or RenderOptions()
         self.env = Environment(
             loader=FileSystemLoader(str(TEMPLATES_DIR)),
-            autoescape=select_autoescape(["html", "xml"]),
+            autoescape=select_autoescape(["html", "xml", "jinja", "jinja2"]),
             trim_blocks=True,
             lstrip_blocks=True,
         )
@@ -83,7 +82,10 @@ class Renderer:
         stats_mod.compute(execution)
 
         data = as_dict(execution)
-        slowest = [as_dict(s) for s in stats_mod.slowest_scenarios(execution, limit=self.options.max_slowest)]
+        slowest = [
+            as_dict(s)
+            for s in stats_mod.slowest_scenarios(execution, limit=self.options.max_slowest)
+        ]
         buckets = stats_mod.duration_buckets(execution)
         tags = stats_mod.tag_ranking(execution)
         errors = stats_mod.error_distribution(execution)
@@ -102,6 +104,7 @@ class Renderer:
             features_stats=features_stats,
             percentiles=percentiles,
             status_distribution=status_distribution,
+            all_statuses=list(ALL_STATUSES),
             data_json=json.dumps(
                 {
                     "execution": data,
@@ -115,7 +118,9 @@ class Renderer:
                     "show_copy_command": self.options.show_copy_command,
                 },
                 default=str,
-            ).replace("<", "\\u003c").replace(">", "\\u003e"),
+            )
+            .replace("<", "\\u003c")
+            .replace(">", "\\u003e"),
             options=self.options,
             css=assets.css_bundle(self.options.custom_css),
             js=assets.js_bundle(self.options.custom_js),

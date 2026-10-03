@@ -117,13 +117,18 @@ def compute(execution: Execution) -> Statistics:
             stats.by_status[scenario.status] = stats.by_status.get(scenario.status, 0) + 1
             if scenario.status in _FAILED_STATUSES:
                 stats.error_count += 1
-            stats.total_steps += len(scenario.steps)
+            all_steps = (scenario.background.steps if scenario.background else []) + scenario.steps
+            stats.total_steps += len(all_steps)
+            stats.total_attachments += len(scenario.attachments)
+            stats.total_logs += len(scenario.logs)
 
-            for step in scenario.steps:
+            for step in all_steps:
                 stats.total_attachments += len(step.attachments)
                 stats.total_logs += len(step.logs)
                 if step.error and step.error.exception_type:
-                    exception_counts[step.error.exception_type] = exception_counts.get(step.error.exception_type, 0) + 1
+                    exception_counts[step.error.exception_type] = (
+                        exception_counts.get(step.error.exception_type, 0) + 1
+                    )
                 stats.slowest_step_duration = max(stats.slowest_step_duration, step.duration)
 
             if scenario.rule_name:
@@ -154,9 +159,7 @@ def compute(execution: Execution) -> Statistics:
     if execution.statistics.end_time:
         stats.end_time = execution.statistics.end_time
     if stats.start_time and stats.end_time:
-        stats.duration = max(
-            stats.duration, (stats.end_time - stats.start_time).total_seconds()
-        )
+        stats.duration = max(stats.duration, (stats.end_time - stats.start_time).total_seconds())
 
     execution.statistics = stats
     return stats
@@ -179,7 +182,7 @@ def slowest_scenarios(execution: Execution, limit: int = 10) -> list[Scenario]:
 
 
 def tag_ranking(execution: Execution) -> list[dict[str, Any]]:
-    """Return tags sorted by failures, then count, then duration.
+    """Return tags sorted by failures, then count, then longest duration.
 
     Args:
         execution (Execution): Execution tree to analyse.
@@ -210,7 +213,7 @@ def tag_ranking(execution: Execution) -> list[dict[str, Any]]:
                 "pass_rate": pass_rate,
             }
         )
-    return sorted(rows, key=lambda r: (-r["failed"], -r["count"], r["duration"]), reverse=False)
+    return sorted(rows, key=lambda r: (-r["failed"], -r["count"], -r["duration"]), reverse=False)
 
 
 def duration_buckets(execution: Execution) -> dict[str, int]:

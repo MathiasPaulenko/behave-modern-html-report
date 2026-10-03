@@ -182,6 +182,13 @@ pre { margin: 0; }
 .chip-skipped  { --chip: var(--c-skipped);   }
 .chip-undefined{ --chip: var(--c-undefined); }
 .chip-pending  { --chip: var(--c-pending);   }
+.chip-untested { --chip: var(--c-untested);  }
+.chip-error,
+.chip-hook_error,
+.chip-cleanup_error { --chip: var(--c-failed);    }
+.chip-xfailed       { --chip: var(--c-skipped);   }
+.chip-xpassed       { --chip: var(--c-undefined); }
+.chip-pending_warn  { --chip: var(--c-pending);   }
 .chip[aria-pressed="true"] { box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--chip) 55%, transparent); }
 .chip .ico { color: var(--chip); }
 
@@ -238,10 +245,17 @@ pre { margin: 0; }
 }
 .status-pill .ico { width: 16px; height: 16px; }
 .status-pill.status-passed   { color: var(--c-passed);    border-color: color-mix(in oklab, var(--c-passed) 50%, var(--border)); }
-.status-pill.status-failed   { color: var(--c-failed);    border-color: color-mix(in oklab, var(--c-failed) 50%, var(--border)); }
+.status-pill.status-failed,
+.status-pill.status-error,
+.status-pill.status-hook_error,
+.status-pill.status-cleanup_error { color: var(--c-failed);    border-color: color-mix(in oklab, var(--c-failed) 50%, var(--border)); }
 .status-pill.status-skipped  { color: var(--c-skipped);   }
 .status-pill.status-undefined{ color: var(--c-undefined); }
-.status-pill.status-pending  { color: var(--c-pending);   }
+.status-pill.status-pending,
+.status-pill.status-pending_warn { color: var(--c-pending);   }
+.status-pill.status-untested { color: var(--c-untested);  }
+.status-pill.status-xfailed  { color: var(--c-skipped);   }
+.status-pill.status-xpassed  { color: var(--c-undefined); }
 
 .status-badge {
   display: inline-flex; align-items: center; gap: 4px;
@@ -251,18 +265,31 @@ pre { margin: 0; }
 }
 .status-badge .ico { width: 12px; height: 12px; }
 .status-badge.status-passed   { --c: var(--c-passed); }
-.status-badge.status-failed   { --c: var(--c-failed); }
+.status-badge.status-failed,
+.status-badge.status-error,
+.status-badge.status-hook_error,
+.status-badge.status-cleanup_error { --c: var(--c-failed); }
 .status-badge.status-skipped  { --c: var(--c-skipped); }
 .status-badge.status-undefined{ --c: var(--c-undefined); }
-.status-badge.status-pending  { --c: var(--c-pending); }
+.status-badge.status-pending,
+.status-badge.status-pending_warn { --c: var(--c-pending); }
 .status-badge.status-untested { --c: var(--text-faint); }
+.status-badge.status-xfailed  { --c: var(--c-skipped); }
+.status-badge.status-xpassed  { --c: var(--c-undefined); }
 
 .status-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--text-faint); flex-shrink: 0; }
 .status-dot.status-passed   { background: var(--c-passed); }
-.status-dot.status-failed   { background: var(--c-failed); }
+.status-dot.status-failed,
+.status-dot.status-error,
+.status-dot.status-hook_error,
+.status-dot.status-cleanup_error { background: var(--c-failed); }
 .status-dot.status-skipped  { background: var(--c-skipped); }
 .status-dot.status-undefined{ background: var(--c-undefined); }
-.status-dot.status-pending  { background: var(--c-pending); }
+.status-dot.status-pending,
+.status-dot.status-pending_warn { background: var(--c-pending); }
+.status-dot.status-untested { background: var(--c-untested); }
+.status-dot.status-xfailed  { background: var(--c-skipped); }
+.status-dot.status-xpassed  { background: var(--c-undefined); }
 
 /* ============================================================
    Features / Scenarios / Steps
@@ -399,10 +426,17 @@ pre { margin: 0; }
 .progress-segment:first-child { border-radius: 999px 0 0 999px; }
 .progress-segment:last-child { border-radius: 0 999px 999px 0; }
 .progress-segment.status-passed   { background: var(--c-passed); }
-.progress-segment.status-failed   { background: var(--c-failed); }
+.progress-segment.status-failed,
+.progress-segment.status-error,
+.progress-segment.status-hook_error,
+.progress-segment.status-cleanup_error { background: var(--c-failed); }
 .progress-segment.status-skipped  { background: var(--c-skipped); }
 .progress-segment.status-undefined{ background: var(--c-undefined); }
-.progress-segment.status-pending  { background: var(--c-pending); }
+.progress-segment.status-pending,
+.progress-segment.status-pending_warn { background: var(--c-pending); }
+.progress-segment.status-untested { background: var(--c-untested); }
+.progress-segment.status-xfailed  { background: var(--c-skipped); }
+.progress-segment.status-xpassed  { background: var(--c-undefined); }
 
 .progress-fill {
   position: absolute; left: 0; top: 0; bottom: 0; border-radius: 999px;
@@ -437,8 +471,6 @@ pre { margin: 0; }
 .summary-text {
   position: absolute; left: -1000px; width: 1px; height: 1px; opacity: 0; pointer-events: none;
 }
-
-.section-subtitle { color: var(--text-dim); margin: 2px 0 14px; font-size: 13.5px; }
 
 .empty { text-align: center; color: var(--text-dim); padding: 24px; }
 

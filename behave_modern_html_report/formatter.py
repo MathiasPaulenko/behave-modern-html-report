@@ -62,7 +62,6 @@ class ModernHTMLFormatter(Formatter):  # type: ignore[misc,valid-type]
             show_environment_vars=_parse_bool(userdata.get("bmr.show_environment_vars", "true")),
             footer_text=userdata.get("bmr.footer_text", ""),
             link_to_ci=userdata.get("bmr.link_to_ci", ""),
-            embed_assets=_parse_bool(userdata.get("bmr.embed", "true")),
             json_sidecar=_parse_bool(userdata.get("bmr.json_sidecar", "false")),
             custom_css=_read_optional(userdata.get("bmr.custom_css")),
             custom_js=_read_optional(userdata.get("bmr.custom_js")),
@@ -116,7 +115,12 @@ class ModernHTMLFormatter(Formatter):  # type: ignore[misc,valid-type]
 
     def result(self, step: Any) -> None:
         """Behave hook: a step result is available."""
-        self._collector.add_step(step)
+        is_background = False
+        scenario = self._behave_scenario
+        if scenario is not None:
+            background_steps = getattr(scenario, "background_steps", None) or []
+            is_background = any(bg_step is step for bg_step in background_steps)
+        self._collector.add_step(step, is_background=is_background)
 
     def eof(self) -> None:
         """Behave hook: end of feature; finalize current feature/scenario."""
@@ -131,15 +135,38 @@ class ModernHTMLFormatter(Formatter):  # type: ignore[misc,valid-type]
     def close(self) -> None:
         """Behave hook: finalize the execution and write the HTML report."""
         execution = self._collector.finalize()
-        html = self._renderer.render(execution)
-        self._output_path.parent.mkdir(parents=True, exist_ok=True)
-        self._output_path.write_text(html, encoding="utf-8")
+        self._renderer.render_to_file(execution, self._output_path)
         with contextlib.suppress(Exception):  # pragma: no cover
             sys.stdout.write(f"\nModern HTML report written to: {self._output_path}\n")
 
     # ------------------------------------------------------------------
     # Public attachment API for environment.py hooks.
     # ------------------------------------------------------------------
+
+    def attach(self, attachment: Attachment) -> None:
+        """Attach an :class:`Attachment` to the current step or scenario.
+
+        This is the method the module-level helpers in ``attach.py`` look up
+        when attaching data from ``environment.py`` hooks.
+
+        Args:
+            attachment (Attachment): Attachment to store.
+
+        """
+        self._collector.attach(attachment)
+
+    def embedding(self, mime_type: str, data: Any) -> None:
+        """Behave hook: raw embedded data sent via ``context.attach()``.
+
+        Behave forwards ``context.attach(mime_type, data)`` calls to every
+        formatter implementing ``embedding``.
+
+        Args:
+            mime_type (str): MIME type of the embedded data.
+            data (Any): Raw data (bytes or str) to embed.
+
+        """
+        self._collector.attach_embedding(mime_type, data)
 
     def attach_file(self, path: str | Path, name: str | None = None) -> None:
         """Attach a file (will be base64-embedded in the report).

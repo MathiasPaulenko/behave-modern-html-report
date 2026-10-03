@@ -15,7 +15,7 @@ def test_renderer_produces_single_html_file(tmp_path, sample_execution):
     assert "Acme" in html
     # Assets are inlined (no external references that would need network).
     assert "<link " not in html
-    assert "src=\"http" not in html
+    assert 'src="http' not in html
     # Embedded JSON payload present.
     assert "bmr-data" in html
     # Scenario name is present.
@@ -45,7 +45,7 @@ def test_renderer_includes_tags_page(sample_execution):
     html = Renderer().render(sample_execution)
     assert "Tags" in html
     assert "chart-tag-pass" in html
-    assert "data-view=\"tags\"" in html
+    assert 'data-view="tags"' in html
 
 
 def test_renderer_json_sidecar(sample_execution, tmp_path):
@@ -62,5 +62,5 @@ def test_renderer_json_sidecar(sample_execution, tmp_path):
 def test_renderer_json_method(sample_execution):
     """render_json returns a JSON string with execution and derived stats."""
     json_text = Renderer().render_json(sample_execution)
-    assert "\"tags\"" in json_text
-    assert "\"execution\"" in json_text
+    assert '"tags"' in json_text
+    assert '"execution"' in json_text

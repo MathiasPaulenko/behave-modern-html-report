@@ -10,8 +10,8 @@ Usage in ``environment.py``::
 
     def after_step(context, step):
         if step.status == "failed":
-            attach_screenshot(context, name="failure.png")
-            log(f"URL at failure: {getattr(context, 'url', 'unknown')}")
+            attach_screenshot(context, context.browser, name="failure.png")
+            log(context, f"URL at failure: {getattr(context, 'url', 'unknown')}")
 
 The helpers are intentionally tolerant to import-time behaviour: the project can
 still be installed/tested without Behave being present.
@@ -70,12 +70,20 @@ def attach_file(context: Any, path: str | Path, name: str | None = None) -> None
         return
     p = Path(path)
     try:
-        data = base64.b64encode(p.read_bytes()).decode("ascii")
+        raw = p.read_bytes()
     except OSError as exc:
         raise OSError(f"Cannot read attachment file '{path}': {exc}") from exc
     mime = guess_mime(p.name)
+    text = None
+    if mime.startswith("text/") or mime in ("application/json", "application/xml"):
+        text = raw.decode("utf-8", errors="replace")
     formatter.attach(
-        Attachment(name=name or p.name, mime_type=mime, data_base64=data)
+        Attachment(
+            name=name or p.name,
+            mime_type=mime,
+            data_base64=base64.b64encode(raw).decode("ascii"),
+            text=text,
+        )
     )
 
 
@@ -92,9 +100,7 @@ def attach_text(context: Any, text: str, name: str = "note.txt") -> None:
     formatter = _find_formatter(context)
     if formatter is None:
         return
-    formatter.attach(
-        Attachment(name=name, mime_type="text/plain", text=str(text))
-    )
+    formatter.attach(Attachment(name=name, mime_type="text/plain", text=str(text)))
 
 
 def attach_json(context: Any, data: Any, name: str = "data.json") -> None:
@@ -113,7 +119,9 @@ def attach_json(context: Any, data: Any, name: str = "data.json") -> None:
     if formatter is None:
         return
     formatter.attach(
-        Attachment(name=name, mime_type="application/json", text=json.dumps(data, indent=2, default=str))
+        Attachment(
+            name=name, mime_type="application/json", text=json.dumps(data, indent=2, default=str)
+        )
     )
 
 
@@ -171,12 +179,12 @@ def attach_screenshot(context: Any, source: Any, name: str = "screenshot.png") -
     if data is None:
         return
 
-    mime = "image/png"
-    if name.lower().endswith(".jpg") or name.lower().endswith(".jpeg"):
+    lower_name = name.lower()
+    if lower_name.endswith((".jpg", ".jpeg")):
         mime = "image/jpeg"
-    elif name.lower().endswith(".webp"):
+    elif lower_name.endswith(".webp"):
         mime = "image/webp"
-    elif name.lower().endswith(".gif"):
+    elif lower_name.endswith(".gif"):
         mime = "image/gif"
     else:
         mime = mimetypes.guess_type(name)[0] or "image/png"

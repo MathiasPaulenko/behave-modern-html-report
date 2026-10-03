@@ -38,7 +38,7 @@
         </button>
         <div class="feature-body" hidden>
           {% if feature.description %}<p class="desc">{{ feature.description }}</p>{% endif %}
-          {% for rule_name, rule_scenarios in feature.scenarios|groupby('rule_name') %}
+          {% for rule_name, rule_scenarios in feature.rule_groups %}
             {% if rule_name %}
               <div class="rule" data-rule="{{ rule_name|lower }}">
                 <button class="rule-head" aria-expanded="false">

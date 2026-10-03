@@ -48,12 +48,17 @@ def sample_execution() -> Execution:
         feature_name=f1.name,
         steps=[
             Step(keyword="Given", name="a logged-in user", status="passed", duration=0.011),
-            Step(keyword="When", name="they pay with an expired card", status="failed", duration=0.250,
-                 error=ErrorInfo(
-                     message="Card expired",
-                     traceback="Traceback (most recent call last):\n  ...\nValueError: Card expired",
-                     exception_type="ValueError",
-                 )),
+            Step(
+                keyword="When",
+                name="they pay with an expired card",
+                status="failed",
+                duration=0.250,
+                error=ErrorInfo(
+                    message="Card expired",
+                    traceback="Traceback (most recent call last):\n  ...\nValueError: Card expired",
+                    exception_type="ValueError",
+                ),
+            ),
             Step(keyword="Then", name="they see a friendly error", status="skipped"),
         ],
     )
