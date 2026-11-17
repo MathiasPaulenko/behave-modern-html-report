@@ -28,8 +28,33 @@ from .models import Attachment
 from .utils import guess_mime
 
 
+def _find_formatters(context: Any) -> list[Any]:
+    """Locate every ModernHTMLFormatter instance on the Behave context.
+
+    Args:
+        context (Any): Behave context object passed to the hook.
+
+    Returns:
+        list[Any]: All formatters exposing the attach/log API (empty when the
+            library is not active). Several instances can run at once, e.g.
+            ``-f modern-html -o a.html -f modern-html -o b.html``, and each one
+            must receive the same attachments, just like Behave's native
+            ``context.attach()`` which is broadcast to every formatter.
+
+    """
+    if context is None:
+        return []
+    # Behave 1.2.x / 1.3.x keeps the runner and formatters here.
+    runner = getattr(context, "_runner", None)
+    if runner is None:
+        return []
+    formatters = getattr(runner, "formatters", None) or []
+    # Duck-type search: we look for the formatters that have the attach() API.
+    return [fmt for fmt in formatters if hasattr(fmt, "attach") and hasattr(fmt, "log")]
+
+
 def _find_formatter(context: Any) -> Any:
-    """Locate the ModernHTMLFormatter instance on the Behave context.
+    """Locate the first ModernHTMLFormatter instance on the Behave context.
 
     Args:
         context (Any): Behave context object passed to the hook.
@@ -39,20 +64,8 @@ def _find_formatter(context: Any) -> Any:
             (e.g. outside Behave).
 
     """
-    if context is None:
-        return None
-    # Behave 1.2.x / 1.3.x keeps the runner and formatters here.
-    runner = getattr(context, "_runner", None)
-    if runner is None:
-        return None
-    formatters = getattr(runner, "formatters", None)
-    if not formatters:
-        return None
-    # Duck-type search: we look for the formatter that has the attach() API.
-    for fmt in formatters:
-        if hasattr(fmt, "attach") and hasattr(fmt, "log"):
-            return fmt
-    return None
+    formatters = _find_formatters(context)
+    return formatters[0] if formatters else None
 
 
 def attach_file(context: Any, path: str | Path, name: str | None = None) -> None:
@@ -65,8 +78,8 @@ def attach_file(context: Any, path: str | Path, name: str | None = None) -> None
             name is used.
 
     """
-    formatter = _find_formatter(context)
-    if formatter is None:
+    formatters = _find_formatters(context)
+    if not formatters:
         return
     p = Path(path)
     try:
@@ -77,14 +90,15 @@ def attach_file(context: Any, path: str | Path, name: str | None = None) -> None
     text = None
     if mime.startswith("text/") or mime in ("application/json", "application/xml"):
         text = raw.decode("utf-8", errors="replace")
-    formatter.attach(
-        Attachment(
-            name=name or p.name,
-            mime_type=mime,
-            data_base64=base64.b64encode(raw).decode("ascii"),
-            text=text,
+    for formatter in formatters:
+        formatter.attach(
+            Attachment(
+                name=name or p.name,
+                mime_type=mime,
+                data_base64=base64.b64encode(raw).decode("ascii"),
+                text=text,
+            )
         )
-    )
 
 
 def attach_text(context: Any, text: str, name: str = "note.txt") -> None:
@@ -97,10 +111,8 @@ def attach_text(context: Any, text: str, name: str = "note.txt") -> None:
             ``note.txt``.
 
     """
-    formatter = _find_formatter(context)
-    if formatter is None:
-        return
-    formatter.attach(Attachment(name=name, mime_type="text/plain", text=str(text)))
+    for formatter in _find_formatters(context):
+        formatter.attach(Attachment(name=name, mime_type="text/plain", text=str(text)))
 
 
 def attach_json(context: Any, data: Any, name: str = "data.json") -> None:
@@ -115,14 +127,14 @@ def attach_json(context: Any, data: Any, name: str = "data.json") -> None:
     """
     import json
 
-    formatter = _find_formatter(context)
-    if formatter is None:
-        return
-    formatter.attach(
-        Attachment(
-            name=name, mime_type="application/json", text=json.dumps(data, indent=2, default=str)
+    for formatter in _find_formatters(context):
+        formatter.attach(
+            Attachment(
+                name=name,
+                mime_type="application/json",
+                text=json.dumps(data, indent=2, default=str),
+            )
         )
-    )
 
 
 def attach_screenshot(context: Any, source: Any, name: str = "screenshot.png") -> None:
@@ -143,8 +155,8 @@ def attach_screenshot(context: Any, source: Any, name: str = "screenshot.png") -
             ``screenshot.png``.
 
     """
-    formatter = _find_formatter(context)
-    if formatter is None:
+    formatters = _find_formatters(context)
+    if not formatters:
         return
 
     data: bytes | None = None
@@ -178,6 +190,13 @@ def attach_screenshot(context: Any, source: Any, name: str = "screenshot.png") -
 
     if data is None:
         return
+    if isinstance(data, str):
+        data = data.encode("utf-8")
+    if not isinstance(data, (bytes, bytearray, memoryview)):
+        try:
+            data = bytes(data)
+        except Exception:
+            return
 
     lower_name = name.lower()
     if lower_name.endswith((".jpg", ".jpeg")):
@@ -189,9 +208,14 @@ def attach_screenshot(context: Any, source: Any, name: str = "screenshot.png") -
     else:
         mime = mimetypes.guess_type(name)[0] or "image/png"
 
-    formatter.attach(
-        Attachment(name=name, mime_type=mime, data_base64=base64.b64encode(data).decode("ascii"))
-    )
+    for formatter in formatters:
+        formatter.attach(
+            Attachment(
+                name=name,
+                mime_type=mime,
+                data_base64=base64.b64encode(data).decode("ascii"),
+            )
+        )
 
 
 def log(context: Any, message: str) -> None:
@@ -202,7 +226,5 @@ def log(context: Any, message: str) -> None:
         message (str): Free-form text line to attach.
 
     """
-    formatter = _find_formatter(context)
-    if formatter is None:
-        return
-    formatter.log(str(message))
+    for formatter in _find_formatters(context):
+        formatter.log(str(message))

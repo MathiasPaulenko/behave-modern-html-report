@@ -28,7 +28,8 @@
                 data-feature="{{ scenario.feature_name|lower }}"
                 data-rule="{{ scenario.rule_name|lower }}"
                 data-duration="{{ scenario.duration }}"
-                data-error="{{ all_steps | selectattr('error') | map(attribute='error.message') | join(' ') | lower }}">
+                data-steps="{{ all_steps | map(attribute='name') | join(' ') | lower }}"
+                data-error="{{ (scenario.error.message ~ ' ' if scenario.error else '') | lower }}{{ all_steps | selectattr('error') | map(attribute='error.message') | join(' ') | lower }}">
               <td>
                 <span class="status-badge status-{{ scenario.status }}">
                   <svg class="ico"><use href="#i-{{ scenario.status|status_icon }}"/></svg>

@@ -9,6 +9,7 @@ import pytest
 from behave_modern_html_report import statistics as stats_mod
 from behave_modern_html_report.formatter import ModernHTMLFormatter, _read_optional
 from behave_modern_html_report.models import (
+    Attachment,
     Execution,
     Feature,
     Scenario,
@@ -717,7 +718,7 @@ def test_attach_screenshot_file_error_message():
         pass
 
     with (
-        patch("behave_modern_html_report.attach._find_formatter", return_value=FakeFormatter()),
+        patch("behave_modern_html_report.attach._find_formatters", return_value=[FakeFormatter()]),
         pytest.raises(OSError, match="Cannot read screenshot file"),
     ):
         attach_screenshot(FakeContext(), "nonexistent_screenshot.png")
@@ -818,7 +819,7 @@ def test_attach_file_module_level_error_message():
         pass
 
     with (
-        patch("behave_modern_html_report.attach._find_formatter", return_value=FakeFormatter()),
+        patch("behave_modern_html_report.attach._find_formatters", return_value=[FakeFormatter()]),
         pytest.raises(OSError, match="Cannot read attachment file"),
     ):
         attach_file(FakeContext(), "nonexistent_file.txt")
@@ -994,16 +995,19 @@ def test_attach_text_reaches_collector_via_real_formatter():
 
     fmt = _make_formatter()
     ctx = SimpleNamespace(_runner=SimpleNamespace(formatters=[fmt]))
-    fmt._collector._current_scenario = Scenario(name="s", steps=[Step(keyword="Given", name="x")])
+    fmt._collector._current_scenario = Scenario(name="s")
     attach_text(ctx, "hello", name="n.txt")
+    # Attachments queue during step execution and flush into the next result.
+    fmt._collector.add_step(SimpleNamespace(keyword="Given", name="x"))
     assert fmt._collector._current_scenario.steps[-1].attachments[0].text == "hello"
 
 
 def test_formatter_embedding_via_context_attach():
     """context.attach() must reach the collector through embedding()."""
     fmt = _make_formatter()
-    fmt._collector._current_scenario = Scenario(name="s", steps=[Step(keyword="Given", name="x")])
+    fmt._collector._current_scenario = Scenario(name="s")
     fmt.embedding("image/png", b"\x89PNG")
+    fmt._collector.add_step(SimpleNamespace(keyword="Given", name="x"))
     att = fmt._collector._current_scenario.steps[-1].attachments[0]
     assert att.mime_type == "image/png"
     assert att.is_image
@@ -1181,3 +1185,562 @@ def test_renderer_autoescapes_jinja_templates():
     html = Renderer(RenderOptions()).render(ex)
     assert "<script>alert(1)</script>" not in html
     assert "&lt;script&gt;alert(1)&lt;/script&gt;" in html
+
+
+# ---------------------------------------------------------------------------
+# BUG 54: attachments/logs produced in after_step hooks landed on the PREVIOUS
+#         step (often a background step) because Behave runs after_step before
+#         the formatter's result event, so the current step was not yet stored.
+# ---------------------------------------------------------------------------
+
+
+def _stub_feature(name="F", tags=()):
+    return SimpleNamespace(
+        name=name, description=[], location="f.feature:1", tags=list(tags)
+    )
+
+
+def _stub_scenario(name="S", tags=()):
+    return SimpleNamespace(
+        name=name, description=[], location="f.feature:3", tags=list(tags)
+    )
+
+
+def _stub_step(name):
+    return SimpleNamespace(
+        keyword="Then", name=name, status="passed", duration=0.01,
+        location="f.feature:4", text=None, table=None,
+    )
+
+
+def test_after_step_attachment_lands_on_current_step_not_previous():
+    """Attachments queued after step N's result flush into step N+1."""
+    from behave_modern_html_report.collector import Collector
+    from behave_modern_html_report.models import Attachment
+
+    c = Collector()
+    c.start_feature(_stub_feature())
+    scenario_stub = _stub_scenario()
+    scenario_stub.background = SimpleNamespace(
+        name="bg", keyword="Background", location="f.feature:2"
+    )
+    c.start_scenario(scenario_stub)
+    c.add_step(_stub_step("first"), is_background=True)
+    # after_step(second) runs here, before result(second) is reported.
+    c.attach(Attachment(name="a.txt", mime_type="text/plain", text="mine"))
+    c.add_step(_stub_step("second"))
+    c.end_scenario(SimpleNamespace(status="passed", duration=0.0))
+
+    scenario = c.execution.features[0].scenarios[0]
+    assert scenario.background.steps[0].attachments == []
+    assert scenario.steps[0].attachments[0].text == "mine"
+
+
+def test_after_step_log_lands_on_current_step_not_previous():
+    """Log lines queued between result events flush into the next step."""
+    from behave_modern_html_report.collector import Collector
+
+    c = Collector()
+    c.start_feature(_stub_feature())
+    c.start_scenario(_stub_scenario())
+    c.add_step(_stub_step("first"))
+    c.log("after_step log")
+    c.add_step(_stub_step("second"))
+    c.end_scenario(SimpleNamespace(status="passed", duration=0.0))
+
+    scenario = c.execution.features[0].scenarios[0]
+    assert scenario.steps[0].logs == []
+    assert scenario.steps[1].logs == ["after_step log"]
+
+
+def test_pending_cleared_between_scenarios():
+    """Leftover pendings never leak into a later scenario."""
+    from behave_modern_html_report.collector import Collector
+
+    c = Collector()
+    c.start_feature(_stub_feature())
+    c.start_scenario(_stub_scenario("S1"))
+    c.attach(Attachment(name="a.txt", mime_type="text/plain", text="x"))
+    c.end_scenario(SimpleNamespace(status="passed", duration=0.0))
+    c.start_scenario(_stub_scenario("S2"))
+    c.add_step(_stub_step("step"))
+    c.end_scenario(SimpleNamespace(status="passed", duration=0.0))
+
+    s2 = c.execution.features[0].scenarios[1]
+    assert s2.steps[0].attachments == []
+
+
+# ---------------------------------------------------------------------------
+# BUG 55: rule and feature tags were missing from scenario.tags, so tag
+#         statistics and search ignored inherited (effective) tags.
+# ---------------------------------------------------------------------------
+
+
+def test_scenario_tags_include_rule_and_feature_tags():
+    """Effective tags (own + rule + feature) are merged in document order."""
+    from behave_modern_html_report.collector import Collector
+
+    c = Collector()
+    c.start_feature(_stub_feature("F", tags=["ftag"]))
+    c.start_rule(SimpleNamespace(name="R", tags=["rtag"]))
+    c.start_scenario(_stub_scenario("S", tags=["stag"]))
+
+    scenario = c.execution.features[0].scenarios[0]
+    assert scenario.tags == ["stag", "rtag", "ftag"]
+
+
+def test_rule_tags_reset_between_rules_and_features():
+    """Rule tags must not leak into scenarios outside the rule."""
+    from behave_modern_html_report.collector import Collector
+
+    c = Collector()
+    c.start_feature(_stub_feature("F1", tags=["ftag"]))
+    c.start_rule(SimpleNamespace(name="R", tags=["rtag"]))
+    c.start_scenario(_stub_scenario("S1"))
+    c.end_scenario(SimpleNamespace(status="passed", duration=0.0))
+    c.end_rule()
+    c.start_scenario(_stub_scenario("S2"))
+    c.end_scenario(SimpleNamespace(status="passed", duration=0.0))
+
+    scenarios = c.execution.features[0].scenarios
+    assert scenarios[0].tags == ["rtag", "ftag"]
+    assert scenarios[1].tags == ["ftag"]
+
+
+# ---------------------------------------------------------------------------
+# BUG 56: hook failures on scenarios/features (before_scenario, after_feature)
+#         were silently dropped — the report showed hook_error with no detail.
+# ---------------------------------------------------------------------------
+
+
+def test_scenario_hook_error_captured():
+    """error_message/exception on the behave scenario become scenario.error."""
+    from behave_modern_html_report.collector import Collector
+
+    c = Collector()
+    c.start_feature(_stub_feature())
+    c.start_scenario(_stub_scenario())
+    c.end_scenario(
+        SimpleNamespace(
+            status="hook_error",
+            duration=0.0,
+            error_message="HOOK-ERROR in before_scenario: RuntimeError: boom",
+            exception=RuntimeError("boom"),
+            exc_traceback=None,
+        )
+    )
+
+    scenario = c.execution.features[0].scenarios[0]
+    assert scenario.error is not None
+    assert "HOOK-ERROR" in scenario.error.message
+    assert scenario.error.exception_type == "RuntimeError"
+
+
+def test_feature_hook_error_captured():
+    """error_message/exception on the behave feature become feature.error."""
+    from behave_modern_html_report.collector import Collector
+
+    c = Collector()
+    c.start_feature(_stub_feature())
+    c.end_feature(
+        SimpleNamespace(
+            status="error",
+            duration=0.0,
+            error_message="HOOK-ERROR in before_feature: OSError: nope",
+            exception=OSError("nope"),
+            exc_traceback=None,
+        )
+    )
+
+    feature = c.execution.features[0]
+    assert feature.error is not None
+    assert feature.error.exception_type == "OSError"
+
+
+def test_hook_error_renders_in_report():
+    """A scenario-level hook error is rendered in the HTML body."""
+    from behave_modern_html_report.collector import Collector
+    from behave_modern_html_report.renderer import Renderer, RenderOptions
+
+    c = Collector()
+    c.start_feature(_stub_feature())
+    c.start_scenario(_stub_scenario("hooked"))
+    c.end_scenario(
+        SimpleNamespace(
+            status="hook_error",
+            duration=0.0,
+            error_message="HOOK-ERROR in before_scenario: RuntimeError: boom",
+            exception=RuntimeError("boom"),
+            exc_traceback=None,
+        )
+    )
+    c.end_feature(SimpleNamespace(status="hook_error", duration=0.0))
+    html = Renderer(RenderOptions()).render(c.finalize())
+    assert "HOOK-ERROR in before_scenario" in html
+
+
+# ---------------------------------------------------------------------------
+# BUG 57: exc_traceback objects were str()-ed, producing
+#         "<traceback object at 0x...>" instead of the real stack.
+# ---------------------------------------------------------------------------
+
+
+def test_step_error_formats_real_traceback():
+    """exc_traceback objects are formatted into readable stack text."""
+    import sys
+
+    from behave_modern_html_report.collector import Collector
+
+    try:
+        raise ValueError("real failure")
+    except ValueError:
+        exc_type, exc, tb = sys.exc_info()
+
+    step_stub = _stub_step("boom")
+    step_stub.status = "failed"
+    step_stub.error_message = "ValueError: real failure"
+    step_stub.exception = exc
+    step_stub.exc_traceback = tb
+
+    step = Collector()._make_error(step_stub)
+    assert step is not None
+    assert "test_step_error_formats_real_traceback" in step.traceback
+    assert "<traceback object" not in step.traceback
+    assert step.exception_type == "ValueError"
+
+
+
+# ---------------------------------------------------------------------------
+# BUG 58: error_distribution ignored background steps and scenario/feature
+#         hook errors, diverging from compute()'s exception counting.
+# ---------------------------------------------------------------------------
+
+
+def test_error_distribution_includes_background_and_scenario_errors():
+    """error_distribution counts errors on bg steps, scenarios and features."""
+    from behave_modern_html_report.models import Background, ErrorInfo
+
+    bg_step = Step(
+        keyword="Given", name="bg", status="failed",
+        error=ErrorInfo(message="x", exception_type="BgpError"),
+    )
+    scenario = Scenario(
+        name="S", status="failed",
+        background=Background(name="bg", steps=[bg_step]),
+        steps=[
+            Step(
+                keyword="Then", name="s", status="failed",
+                error=ErrorInfo(message="y", exception_type="StepError"),
+            )
+        ],
+        error=ErrorInfo(message="hook", exception_type="HookError"),
+    )
+    feature = Feature(
+        name="F", scenarios=[scenario],
+        error=ErrorInfo(message="feat", exception_type="FeatError"),
+    )
+    counts = stats_mod.error_distribution(Execution(features=[feature]))
+    assert counts == {"BgpError": 1, "StepError": 1, "HookError": 1, "FeatError": 1}
+
+
+# ---------------------------------------------------------------------------
+# BUG 59: slowest_scenarios with a negative limit returned all-but-last-N
+#         scenarios instead of an empty list.
+# ---------------------------------------------------------------------------
+
+
+def test_slowest_scenarios_negative_limit():
+    """A negative limit must not return a wrong-tail slice."""
+    feature = Feature(
+        name="F",
+        scenarios=[Scenario(name="S1", duration=1.0), Scenario(name="S2", duration=2.0)],
+    )
+    execution = Execution(features=[feature])
+    assert stats_mod.slowest_scenarios(execution, limit=-1) == []
+
+
+# ---------------------------------------------------------------------------
+# BUG 60: format_duration crashed with TypeError on non-numeric input
+#         (e.g. a string duration reaching the Jinja filter).
+# ---------------------------------------------------------------------------
+
+
+def test_format_duration_non_numeric():
+    """format_duration returns '0ms' for non-numeric/invalid input."""
+    assert format_duration("abc") == "0ms"
+    assert format_duration(None) == "0ms"
+    assert format_duration("1.5") == "1.50s"
+
+
+# ---------------------------------------------------------------------------
+# BUG 61: scan_file/scan_directory crashed when given a str instead of Path
+#         (the public API hints Path but accepts str in docs).
+# ---------------------------------------------------------------------------
+
+
+def test_scan_file_and_directory_accept_str(tmp_path):
+    """Scanner public API must accept string paths."""
+    from behave_modern_html_report.step_scanner import scan_directory
+
+    steps = tmp_path / "steps"
+    steps.mkdir()
+    (steps / "s.py").write_text(
+        "from behave import given\n\n@given('x')\ndef s(c): pass\n", encoding="utf-8"
+    )
+    catalog = scan_directory(str(steps))
+    assert len(catalog.steps) == 1
+    defs = scan_file(str(steps / "s.py"))
+    assert len(defs) == 1
+
+
+# ---------------------------------------------------------------------------
+# BUG 62: assets.read_text allowed path traversal outside the assets dir.
+# ---------------------------------------------------------------------------
+
+
+def test_read_text_rejects_path_traversal():
+    """read_text must reject paths escaping the package assets directory."""
+    from behave_modern_html_report.assets import read_text
+
+    with pytest.raises(ValueError):
+        read_text("../../../../etc/passwd")
+    with pytest.raises(ValueError):
+        read_text("../__init__.py")
+    assert "BMRChart" in read_text("js/charts.js")
+
+
+# ---------------------------------------------------------------------------
+# BUG 63: _extract_params returned regex quantifiers ("1,3") and typed
+#         placeholders ("count:d") as parameter names.
+# ---------------------------------------------------------------------------
+
+
+def test_extract_params_strips_types_and_ignores_regex_quantifiers(tmp_path):
+    """Params come from {name}/{name:Type} only — not regex {m,n} braces."""
+    (tmp_path / "s.py").write_text(
+        "import re\nfrom behave import given\n\n"
+        "@given('I have {count:d} items')\n"
+        "def step_count(context, count): pass\n\n"
+        "@given(re.compile(r'^I wait (\\d{1,3}) seconds$'))\n"
+        "def step_wait(context, n): pass\n",
+        encoding="utf-8",
+    )
+    defs = scan_file(tmp_path / "s.py")
+    assert defs[0].params == ["count"]
+    assert defs[1].params == ["n"]
+
+
+# ---------------------------------------------------------------------------
+# BUG 64: attach_screenshot crashed with TypeError when a source returned
+#         str instead of bytes (b64encode needs bytes-like).
+# ---------------------------------------------------------------------------
+
+
+def test_attach_screenshot_handles_str_data():
+    """Screenshot sources returning str are coerced to bytes, not crashed."""
+    import base64
+
+    from behave_modern_html_report.attach import attach_screenshot
+
+    class _Fmt:
+        def __init__(self):
+            self.last_attachment = None
+
+        def attach(self, att):
+            self.last_attachment = att
+
+        def log(self, msg):
+            pass
+
+    fmt = _Fmt()
+    context = SimpleNamespace(_runner=SimpleNamespace(formatters=[fmt]))
+    source = SimpleNamespace(get_screenshot_as_png=lambda: "faux-png")
+    attach_screenshot(context, source, "shot.png")
+    assert fmt.last_attachment.data_base64 == base64.b64encode(b"faux-png").decode()
+
+
+# ---------------------------------------------------------------------------
+# BUG 65: _resolve_output_path returned Path("<stdout>") when the stream
+#         opener name was a behave pseudo-file, crashing the write on Windows.
+# ---------------------------------------------------------------------------
+
+
+def test_resolve_output_path_ignores_pseudo_streams():
+    """'<stdout>'/'<stderr>'/'-' names must not become literal filenames."""
+    config = SimpleNamespace(userdata={}, outputs=[])
+    for pseudo in ("<stdout>", "<stderr>", "-"):
+        fmt = ModernHTMLFormatter(SimpleNamespace(name=pseudo, stream=None), config)
+        assert fmt._output_path.name == "behave-modern-html-report.html"
+
+
+# ---------------------------------------------------------------------------
+# BUG 66: formatter.attach_file never set `text` for text files, so text
+#         attachments via the formatter API didn't render inline (unlike the
+#         attach.py helper, which did).
+# ---------------------------------------------------------------------------
+
+
+def test_formatter_attach_file_sets_text_for_text_files(tmp_path):
+    """formatter.attach_file decodes text files into Attachment.text."""
+    p = tmp_path / "notes.txt"
+    p.write_text("hello attachment", encoding="utf-8")
+    config = SimpleNamespace(userdata={}, outputs=[])
+    fmt = ModernHTMLFormatter(SimpleNamespace(name=None, stream=None), config)
+    fmt.feature(_stub_feature())
+    fmt.scenario(_stub_scenario())
+    fmt.attach_file(str(p))
+    att = fmt._collector._pending_attachments[0]
+    assert att.text == "hello attachment"
+    assert att.data_base64
+
+
+# ---------------------------------------------------------------------------
+# BUG 67: charts.js pie legend used 36px effective spacing for two-line items
+#         (labels overlapped at 22px) and listed zero-value slices, overflowing
+#         the canvas with many statuses.
+# ---------------------------------------------------------------------------
+
+
+def test_charts_js_pie_legend_filters_zero_and_wraps():
+    """Legend must skip zero slices and wrap into columns."""
+    from behave_modern_html_report.assets import read_text
+
+    js = read_text("js/charts.js")
+    assert "entries" in js and "perCol" in js
+    assert "ly +=" not in js
+
+
+# ---------------------------------------------------------------------------
+# BUG 68: the search box promises "steps" but step names were never in any
+#         data-* attribute, so searching a step text found nothing.
+# ---------------------------------------------------------------------------
+
+
+def test_search_matches_step_names():
+    """Rendered scenarios expose step names via data-steps for search."""
+    scenario = Scenario(
+        name="S", status="passed", feature_name="F",
+        steps=[Step(keyword="Then", name="a very specific step", status="passed")],
+    )
+    execution = Execution(features=[Feature(name="F", scenarios=[scenario])])
+    stats_mod.compute(execution)
+    html = Renderer(RenderOptions()).render(execution)
+    assert 'data-steps="a very specific step"' in html
+
+
+# ---------------------------------------------------------------------------
+# BUG 69: Behave stores captured stdout/stderr/logging in step.captured, not
+#         step.log, so printed output never appeared in the report. A plain
+#         string in step.log was also exploded into one log per character.
+# ---------------------------------------------------------------------------
+
+
+def test_step_log_string_not_split_into_chars():
+    """A string in behave_step.log is one entry, not one log per char."""
+    from behave_modern_html_report.collector import Collector
+
+    collector = Collector()
+    behave_step = SimpleNamespace(
+        keyword="Then", name="n", status="passed", duration=0.1,
+        location="f:1", error_message=None, exception=None, exc_traceback=None,
+        table=None, text=None, embeddings=[], log="whole log line",
+    )
+    step = collector._make_step(behave_step)
+    assert step.logs == ["whole log line"]
+
+
+def test_step_captured_output_included_in_logs():
+    """behave_step.captured.output is appended to step.logs."""
+    from behave_modern_html_report.collector import Collector
+
+    captured = SimpleNamespace(output="hello stdout\noops stderr")
+    behave_step = SimpleNamespace(
+        keyword="Then", name="n", status="passed", duration=0.1,
+        location="f:1", error_message=None, exception=None, exc_traceback=None,
+        table=None, text=None, embeddings=[], log=[], captured=captured,
+    )
+    step = Collector()._make_step(behave_step)
+    assert step.logs == ["hello stdout\noops stderr"]
+
+
+def test_step_empty_captured_output_adds_nothing():
+    """An empty capture produces no phantom log entry."""
+    from behave_modern_html_report.collector import Collector
+
+    captured = SimpleNamespace(output="")
+    behave_step = SimpleNamespace(
+        keyword="Then", name="n", status="passed", duration=0.1,
+        location="f:1", error_message=None, exception=None, exc_traceback=None,
+        table=None, text=None, embeddings=[], log=[], captured=captured,
+    )
+    step = Collector()._make_step(behave_step)
+    assert step.logs == []
+
+
+def test_make_error_accepts_preformatted_traceback_string():
+    """exc_traceback as a str is used verbatim instead of being dropped."""
+    from behave_modern_html_report.collector import Collector
+
+    statement = SimpleNamespace(
+        error_message="boom", exception=None,
+        exc_traceback="File x.py line 1\nZeroDivisionError",
+    )
+    err = Collector._make_error(statement)
+    assert err is not None
+    assert "ZeroDivisionError" in err.traceback
+
+
+# ---------------------------------------------------------------------------
+# BUG 70: attach_* / log helpers only reached the FIRST ModernHTMLFormatter.
+#         Running two instances (-f modern-html -o a.html -f modern-html -o
+#         b.html) produced one report with attachments and one without, while
+#         native context.attach() is broadcast to every formatter.
+# ---------------------------------------------------------------------------
+
+
+def test_attach_helpers_broadcast_to_all_formatters():
+    """Every active formatter receives the attachment, not just the first."""
+    from unittest.mock import patch
+
+    from behave_modern_html_report.attach import attach_text, log
+
+    received_a: list = []
+    received_b: list = []
+    logs_b: list = []
+
+    class FakeA:
+        def attach(self, att):
+            received_a.append(att)
+
+        def log(self, msg):
+            pass
+
+    class FakeB:
+        def attach(self, att):
+            received_b.append(att)
+
+        def log(self, msg):
+            logs_b.append(msg)
+
+    with patch(
+        "behave_modern_html_report.attach._find_formatters",
+        return_value=[FakeA(), FakeB()],
+    ):
+        attach_text(object(), "hello", name="n.txt")
+        log(object(), "msg")
+
+    assert len(received_a) == 1 and len(received_b) == 1
+    assert received_a[0] is not received_b[0]  # no aliasing between reports
+    assert logs_b == ["msg"]
+
+
+def test_attach_helpers_noop_without_formatters():
+    """Helpers silently no-op when no formatter is active (outside behave)."""
+    from behave_modern_html_report.attach import attach_json, attach_text, log
+
+    class Ctx:
+        _runner = None
+
+    attach_text(Ctx(), "x")
+    attach_json(Ctx(), {"a": 1})
+    log(Ctx(), "x")

@@ -83,21 +83,31 @@
     ctx.fillStyle = dimColor();
     ctx.fillText("scenarios", cx, cy + 12);
 
-    // legend
-    var lx = w * 0.7, ly = 18, line = 22;
+    // legend (non-zero slices only, wrapped into columns)
+    var entries = [];
+    for (var e = 0; e < labels.length; e++) {
+      if (values[e]) {
+        entries.push({ label: labels[e], value: values[e], color: colors[e] || "#888" });
+      }
+    }
+    var lx = w * 0.7, top = 14, itemH = 30;
+    var perCol = Math.max(1, Math.floor((h - top - 6) / itemH));
+    var cols = Math.ceil(entries.length / perCol) || 1;
+    var colW = Math.max(110, (w - lx) / cols);
     ctx.textAlign = "left";
     ctx.textBaseline = "middle";
     ctx.font = "12px " + css("--font", "system-ui");
-    for (var j = 0; j < labels.length; j++) {
-      var y = ly + j * line;
-      ctx.fillStyle = colors[j] || "#888";
-      ctx.fillRect(lx, y - 6, 12, 12);
+    for (var j = 0; j < entries.length; j++) {
+      var col = Math.floor(j / perCol);
+      var x = lx + col * colW;
+      var y = top + (j % perCol) * itemH;
+      ctx.fillStyle = entries[j].color;
+      ctx.fillRect(x, y - 6, 12, 12);
       ctx.fillStyle = textColor();
-      ctx.fillText(labels[j], lx + 18, y);
+      ctx.fillText(entries[j].label, x + 18, y);
       ctx.fillStyle = dimColor();
-      var pct = total ? ((values[j] / total) * 100).toFixed(1) : "0.0";
-      ctx.fillText(values[j] + "  (" + pct + "%)", lx + 18, y + 14);
-      ly += 14;
+      var pct = ((entries[j].value / total) * 100).toFixed(1);
+      ctx.fillText(entries[j].value + "  (" + pct + "%)", x + 18, y + 13);
     }
   }
 

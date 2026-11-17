@@ -247,10 +247,11 @@
     var rule = el.dataset.rule || "";
     var duration = parseFloat(el.dataset.duration || "0") || 0;
     var error = el.dataset.error || "";
+    var steps = el.dataset.steps || "";
     // Statuses without a filter chip (e.g. Behave 1.3.x extended statuses
     // when no chip was rendered) are never filtered out.
     var matchStatus = !chipStatuses.has(status) || activeStatuses.has(status);
-    var matchQuery = !q || name.indexOf(q) >= 0 || tags.indexOf(q) >= 0 || feat.indexOf(q) >= 0 || rule.indexOf(q) >= 0;
+    var matchQuery = !q || name.indexOf(q) >= 0 || tags.indexOf(q) >= 0 || feat.indexOf(q) >= 0 || rule.indexOf(q) >= 0 || steps.indexOf(q) >= 0;
     if (searchError && q) matchQuery = matchQuery || error.indexOf(q) >= 0;
     var matchTags = !tagFilter.length || tagFilter.every(function (t) { return tags.indexOf(t) >= 0; });
     var matchDuration = duration >= minDuration;
@@ -366,7 +367,10 @@
         .sort(function (a, b) { return a.pass_rate - b.pass_rate; })
         .slice(0, 6);
       BMRChart.bar(tg, {
-        labels: worstTags.map(function (t) { return "@" + t.name; }),
+        labels: worstTags.map(function (t) {
+          var l = "@" + t.name;
+          return l.length > 16 ? l.slice(0, 15) + "…" : l;
+        }),
         values: worstTags.map(function (t) { return t.pass_rate || 0; }),
         colors: worstTags.map(function (t) { return t.pass_rate === 100 ? PALETTE.passed : PALETTE.failed; }),
       });

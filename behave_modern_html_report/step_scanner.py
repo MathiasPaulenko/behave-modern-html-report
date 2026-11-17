@@ -108,7 +108,14 @@ def _extract_params(pattern: str, func_args: list[ast.arg]) -> list[str]:
     func_params = [a.arg for a in func_args if a.arg != "context"]
     if not pattern:
         return func_params
-    pattern_params = re.findall(r"\{([^}]+)\}", pattern)
+    # Behave parse patterns use ``{name}``/``{name:Type}``; regex patterns use
+    # quantifiers like ``(\d{1,3})`` whose braces are not parameters — only
+    # accept identifier-looking names.
+    pattern_params = []
+    for match in re.findall(r"\{([^}]+)\}", pattern):
+        name = match.split(":", 1)[0].strip()
+        if name.isidentifier():
+            pattern_params.append(name)
     if pattern_params:
         return pattern_params
     return func_params
@@ -132,6 +139,7 @@ def scan_file(file_path: Path, base_dir: Path | None = None) -> list[StepDefinit
         List of StepDefinition instances found in the file.
 
     """
+    file_path = Path(file_path)
     try:
         source = file_path.read_text(encoding="utf-8")
     except (OSError, UnicodeDecodeError):
@@ -139,7 +147,7 @@ def scan_file(file_path: Path, base_dir: Path | None = None) -> list[StepDefinit
 
     try:
         tree = ast.parse(source, filename=str(file_path))
-    except SyntaxError:
+    except (SyntaxError, ValueError, RecursionError):
         return []
 
     if base_dir:
@@ -218,7 +226,7 @@ def scan_directory(directory: Path) -> StepCatalog:
         StepCatalog with all definitions found.
 
     """
-    directory = directory.resolve()
+    directory = Path(directory).resolve()
     catalog = StepCatalog(base_dir=str(directory))
     py_files = sorted(directory.rglob("*.py"))
 

@@ -36,7 +36,8 @@ class StepCatalogFormatter(Formatter):  # type: ignore[misc,valid-type]
     description = "Step definition catalog (static analysis)"
 
     def __init__(self, stream_opener: Any, config: Any) -> None:
-        super().__init__(stream_opener, config)
+        if Formatter is not object:
+            super().__init__(stream_opener, config)
 
         userdata = getattr(config, "userdata", {}) or {}
         self._title = userdata.get("bmr.title", "Step Catalog")
@@ -54,6 +55,11 @@ class StepCatalogFormatter(Formatter):  # type: ignore[misc,valid-type]
             Path(self._steps_dir),
             base / "features" / "steps",
         ]
+        # Behave keeps the requested feature paths in config.paths; their
+        # sibling "steps" directory is the conventional location for custom
+        # project layouts (e.g. ``behave tests/e2e/features``).
+        for feature_path in getattr(self._config, "paths", None) or []:
+            candidates.append(Path(feature_path) / "steps")
         for c in candidates:
             if c.is_dir():
                 return c.resolve()
@@ -67,7 +73,7 @@ class StepCatalogFormatter(Formatter):  # type: ignore[misc,valid-type]
         out_name = getattr(self._stream_opener, "name", None) or getattr(
             self._stream_opener, "filename", None
         )
-        if out_name:
+        if out_name and out_name not in ("<stdout>", "<stderr>", "-"):
             # Write as UTF-8 ourselves: the opener's stream uses the console
             # encoding, which on Windows (cp1252) cannot encode the template.
             path = Path(out_name)

@@ -5,7 +5,8 @@
     data-feature="{{ scenario.feature_name|lower }}"
     data-rule="{{ scenario.rule_name|lower }}"
     data-duration="{{ scenario.duration }}"
-    data-error="{{ all_steps | selectattr('error') | map(attribute='error.message') | join(' ') | lower }}">
+    data-steps="{{ all_steps | map(attribute='name') | join(' ') | lower }}"
+    data-error="{{ (scenario.error.message ~ ' ' if scenario.error else '') | lower }}{{ all_steps | selectattr('error') | map(attribute='error.message') | join(' ') | lower }}">
 {% set repro_cmd = 'behave "' ~ scenario.location ~ '"' if scenario.location else "behave -t @" ~ scenario.tags|join(' -t @') if scenario.tags else 'behave' %}
   <div class="scenario-row-header">
     <button class="scenario-head" aria-expanded="false">
@@ -62,6 +63,19 @@
         {% include "components/step.html.jinja" %}
       {% endfor %}
     </ol>
+
+    {% if scenario.error %}
+      {% set err_id = 'serr-' ~ (scenario.location ~ scenario.name)|replace(':','-')|replace('/','-')|replace('\\','-')|replace(' ','-')|replace('.','-') %}
+      <div class="error-block">
+        <div class="error-head">
+          <strong>{{ scenario.error.exception_type or "Error" }}</strong>
+          <button class="copy-btn" data-copy-target="#{{ err_id }}">
+            <svg class="ico"><use href="#i-copy"/></svg>Copy
+          </button>
+        </div>
+        <pre id="{{ err_id }}" class="traceback"><code>{{ scenario.error.traceback or scenario.error.message }}</code></pre>
+      </div>
+    {% endif %}
 
     {% if scenario.logs %}
       <details class="logs">

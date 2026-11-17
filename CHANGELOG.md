@@ -5,6 +5,60 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- **`after_step` attachments landed on the wrong step**: Behave runs
+  `after_step` before `formatter.result()`, so `attach_*`/`log` helpers and
+  native `context.attach()` used from step hooks were stored on the
+  *previous* step. Attachments and logs are now queued and flushed to the
+  step that is actually executing (leftovers go to the scenario).
+- **Hook errors were invisible**: `before_scenario`/`after_scenario`/
+  `before_feature`/`after_feature` failures appeared as a bare `hook_error`
+  status with no message. Scenario and feature models now capture
+  `error_message`, exception type and a formatted traceback, rendered in the
+  report.
+- **Captured stdout/stderr/logging missing**: Behave stores captured output
+  in `step.captured.output`, not `step.log`; it is now appended to the step
+  logs. A plain string in `step.log` was also split into one entry per
+  character.
+- **Rule tags dropped from statistics**: `scenario.tags` only carries
+  scenario-level tags in Behave 1.3.x, so tags declared on `Rule:` blocks
+  never reached `by_tag` stats or scenario rendering. Effective tags are now
+  collected from scenario, rule and feature.
+- **`<stdout>` output path**: `-o -`/stdout stream names could resolve to a
+  literal `<stdout>` filename; sentinels are now filtered and fall back to
+  the default report name.
+- **`formatter.attach_file` never filled `text`**: text-like files attached
+  via the formatter rendered as download-only, unlike the `attach_file`
+  helper.
+- **Pie chart legend overflowed**: legend items used double spacing for
+  wrapped labels and included zero-value slices, overflowing the canvas;
+  long bar-chart labels now truncate instead of overlapping.
+- **Search ignored step text**: the search placeholder promised steps but no
+  `data-*` attribute contained them; scenarios now expose `data-steps` and
+  matching includes step content.
+- **`read_text` path traversal**: asset loading resolved user-provided
+  relative paths without a containment check.
+- **`scan_directory`/`scan_file` robustness**: str paths are coerced to
+  `Path`, unreadable/unparseable files are skipped instead of raising, and
+  `{name:type}` decorator params no longer leak type annotations into
+  parameter names.
+- **`attach_screenshot` string data**: providers returning str now encode to
+  UTF-8 before base64 instead of raising `TypeError`.
+- **`format_duration` robustness**: `None`, negative, NaN, infinite and
+  non-numeric inputs no longer raise.
+- **Environment redaction markers**: `SECURE`, `CRED` and `SIGN` added to the
+  sensitive-name markers.
+- **`as_dict` serialization**: tuple/set values now serialize as lists
+  instead of falling back to `repr()`.
+- **Attachment helpers ignored extra formatters**: `attach_*`/`log` only
+  reached the first `ModernHTMLFormatter`, so running two instances
+  (`-f modern-html -o a.html -f modern-html -o b.html`) produced one report
+  with attachments and one without. Helpers now broadcast to every active
+  instance, matching native `context.attach()`.
+
 ## [2.4.0] - 2026-10-03
 
 ### Fixed

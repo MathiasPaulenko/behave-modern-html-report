@@ -38,6 +38,18 @@
         </button>
         <div class="feature-body" hidden>
           {% if feature.description %}<p class="desc">{{ feature.description }}</p>{% endif %}
+          {% if feature.error %}
+            {% set err_id = 'ferr-' ~ (feature.location ~ feature.name)|replace(':','-')|replace('/','-')|replace('\\','-')|replace(' ','-')|replace('.','-') %}
+            <div class="error-block">
+              <div class="error-head">
+                <strong>{{ feature.error.exception_type or "Error" }}</strong>
+                <button class="copy-btn" data-copy-target="#{{ err_id }}">
+                  <svg class="ico"><use href="#i-copy"/></svg>Copy
+                </button>
+              </div>
+              <pre id="{{ err_id }}" class="traceback"><code>{{ feature.error.traceback or feature.error.message }}</code></pre>
+            </div>
+          {% endif %}
           {% for rule_name, rule_scenarios in feature.rule_groups %}
             {% if rule_name %}
               <div class="rule" data-rule="{{ rule_name|lower }}">

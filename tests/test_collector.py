@@ -97,17 +97,33 @@ def test_collector_captures_error():
 
 
 def test_collector_attach_and_log():
-    """The collector records attachments and log lines on the current step."""
+    """Attachments/logs queue during step execution and flush into its result."""
     c = Collector()
     c.start_feature(_feature("F"))
     c.start_scenario(_scenario("S"))
-    c.add_step(_step("Given", "x"))
+    # Behave calls after_step before the formatter's result event, so the
+    # attachment is queued and flushed into the next step that is added.
     c.attach(Attachment(name="note.txt", mime_type="text/plain", text="hi"))
     c.log("hello world")
+    c.add_step(_step("Given", "x"))
 
     step = c._current_scenario.steps[-1]  # noqa: SLF001
     assert step.attachments[0].text == "hi"
     assert step.logs == ["hello world"]
+
+
+def test_collector_attach_without_step_goes_to_scenario():
+    """Pending attachments/logs flush into the scenario at end_scenario."""
+    c = Collector()
+    c.start_feature(_feature("F"))
+    c.start_scenario(_scenario("S"))
+    c.attach(Attachment(name="note.txt", mime_type="text/plain", text="hi"))
+    c.log("a scenario log")
+    c.end_scenario(SimpleNamespace(status="passed", duration=0.0))
+
+    scenario = c.execution.features[0].scenarios[0]
+    assert scenario.attachments[0].text == "hi"
+    assert scenario.logs == ["a scenario log"]
 
 
 def test_collector_tracks_rule_name():

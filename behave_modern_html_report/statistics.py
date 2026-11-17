@@ -131,6 +131,10 @@ def compute(execution: Execution) -> Statistics:
                     )
                 stats.slowest_step_duration = max(stats.slowest_step_duration, step.duration)
 
+            if scenario.error and scenario.error.exception_type:
+                exc = scenario.error.exception_type
+                exception_counts[exc] = exception_counts.get(exc, 0) + 1
+
             if scenario.rule_name:
                 rules.setdefault((feature.name, scenario.rule_name), []).append(scenario)
 
@@ -144,6 +148,9 @@ def compute(execution: Execution) -> Statistics:
         feature.duration = feature_duration
         feature.status = _derive_feature_status(feature)
         stats.duration += feature_duration
+        if feature.error and feature.error.exception_type:
+            exc = feature.error.exception_type
+            exception_counts[exc] = exception_counts.get(exc, 0) + 1
 
     stats.rule_count = len(rules)
     stats.rule_failed_count = sum(
@@ -178,7 +185,7 @@ def slowest_scenarios(execution: Execution, limit: int = 10) -> list[Scenario]:
 
     """
     all_scenarios = [s for f in execution.features for s in f.scenarios]
-    return sorted(all_scenarios, key=lambda s: s.duration, reverse=True)[:limit]
+    return sorted(all_scenarios, key=lambda s: s.duration, reverse=True)[: max(0, limit)]
 
 
 def tag_ranking(execution: Execution) -> list[dict[str, Any]]:
@@ -263,12 +270,21 @@ def error_distribution(execution: Execution) -> dict[str, int]:
 
     """
     counts: dict[str, int] = {}
+
+    def _add(error: Any) -> None:
+        if error and error.exception_type:
+            exc = error.exception_type
+            counts[exc] = counts.get(exc, 0) + 1
+
     for feature in execution.features:
+        _add(feature.error)
         for scenario in feature.scenarios:
-            for step in scenario.steps:
-                if step.error and step.error.exception_type:
-                    exc = step.error.exception_type
-                    counts[exc] = counts.get(exc, 0) + 1
+            _add(scenario.error)
+            all_steps = (
+                scenario.background.steps if scenario.background else []
+            ) + scenario.steps
+            for step in all_steps:
+                _add(step.error)
     return counts
 
 

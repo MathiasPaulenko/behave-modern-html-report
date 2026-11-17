@@ -12,6 +12,7 @@ import os
 import platform
 import socket
 import sys
+import traceback
 from datetime import datetime
 from types import SimpleNamespace
 from typing import Any
@@ -38,6 +39,7 @@ _SENSITIVE_ENV_MARKERS = (
     "PASSWORD",
     "PASSWD",
     "CREDENTIAL",
+    "CREDS",
     "PRIVATE",
     "AUTH",
     "COOKIE",
@@ -45,6 +47,8 @@ _SENSITIVE_ENV_MARKERS = (
     "APIKEY",
     "API_KEY",
     "_KEY",
+    "SIGNING",
+    "SECURE",
 )
 
 
@@ -75,6 +79,7 @@ class Collector:
         self.execution.statistics = Statistics(start_time=datetime.now())
         self._current_feature: Feature | None = None
         self._current_rule_name: str = ""
+        self._current_rule_tags: list[str] = []
         self._current_scenario: Scenario | None = None
         # Behave runs ``after_step`` hooks before reporting the step result,
         # so attachments/logs produced there land here and are flushed into
@@ -235,8 +240,8 @@ class Collector:
         raw_data = getattr(behave_attachment, "data", None)
         if raw_data is None:
             data_base64 = ""
-        elif isinstance(raw_data, (bytes, bytearray)):
-            data_base64 = _b64.b64encode(raw_data).decode("ascii")
+        elif isinstance(raw_data, (bytes, bytearray, memoryview)):
+            data_base64 = _b64.b64encode(bytes(raw_data)).decode("ascii")
         elif isinstance(raw_data, str):
             data_base64 = _b64.b64encode(raw_data.encode("utf-8")).decode("ascii")
         else:
@@ -286,20 +291,55 @@ class Collector:
             except Exception:  # pragma: no cover - defensive
                 step.table = None
 
-        error_message = getattr(behave_step, "error_message", None) or ""
-        exception = getattr(behave_step, "exception", None)
-        if error_message or exception:
-            step.error = ErrorInfo(
-                message=safe_str(error_message or exception),
-                traceback=safe_str(getattr(behave_step, "exc_traceback", "") or error_message),
-                exception_type=type(exception).__name__ if exception else "",
-            )
+        step.error = self._make_error(behave_step)
 
         for behave_att in getattr(behave_step, "embeddings", []) or []:
             step.attachments.append(self._make_attachment(behave_att))
 
-        step.logs = [safe_str(line) for line in getattr(behave_step, "log", []) or []]
+        raw_log = getattr(behave_step, "log", None)
+        if isinstance(raw_log, str):
+            step.logs = [raw_log] if raw_log else []
+        else:
+            step.logs = [safe_str(line) for line in raw_log or []]
+
+        # Behave captures stdout/stderr/logging into step.captured; expose the
+        # combined report so printed output shows up in the Logs section.
+        captured = getattr(behave_step, "captured", None)
+        captured_output = getattr(captured, "output", "") if captured is not None else ""
+        if captured_output:
+            step.logs.append(safe_str(captured_output).rstrip())
         return step
+
+    @staticmethod
+    def _make_error(statement: Any) -> ErrorInfo | None:
+        """Build an :class:`ErrorInfo` from a Behave statement's error state.
+
+        Behave stores hook/step failures on the statement as ``error_message``
+        (text) plus ``exception``/``exc_traceback`` (the live objects). The
+        traceback object is formatted here so the report shows the real stack
+        instead of ``<traceback object ...>``.
+        """
+        error_message = getattr(statement, "error_message", None) or ""
+        exception = getattr(statement, "exception", None)
+        if not error_message and exception is None:
+            return None
+        exc_tb = getattr(statement, "exc_traceback", None)
+        try:
+            if isinstance(exc_tb, str):
+                detail = exc_tb
+            elif exception is not None and exc_tb is not None:
+                detail = "".join(traceback.format_exception(type(exception), exception, exc_tb))
+            elif exc_tb is not None:
+                detail = "".join(traceback.format_tb(exc_tb))
+            else:
+                detail = ""
+        except Exception:  # pragma: no cover - defensive
+            detail = ""
+        return ErrorInfo(
+            message=safe_str(error_message or exception),
+            traceback=safe_str(detail or error_message or exception),
+            exception_type=type(exception).__name__ if exception else "",
+        )
 
     def start_feature(self, behave_feature: Any) -> Feature:
         """Start a new feature and add it to the execution tree.
@@ -321,6 +361,8 @@ class Collector:
         if behave_background:
             feature.background = self._make_background(behave_background)
         self._current_feature = feature
+        self._current_rule_name = ""
+        self._current_rule_tags = []
         self.execution.features.append(feature)
         return feature
 
@@ -338,8 +380,10 @@ class Collector:
             self._current_feature.duration = float(getattr(behave_feature, "duration", 0.0) or 0.0)
         except (TypeError, ValueError):
             self._current_feature.duration = 0.0
+        self._current_feature.error = self._make_error(behave_feature)
         self._current_feature = None
         self._current_rule_name = ""
+        self._current_rule_tags = []
 
     # ------------------------------------------------------------------
     # Rule
@@ -353,10 +397,14 @@ class Collector:
 
         """
         self._current_rule_name = getattr(behave_rule, "name", "") or ""
+        self._current_rule_tags = [
+            safe_str(t) for t in getattr(behave_rule, "tags", []) or []
+        ]
 
     def end_rule(self) -> None:
         """Finalize the current rule."""
         self._current_rule_name = ""
+        self._current_rule_tags = []
 
     # ------------------------------------------------------------------
     # Scenario
@@ -395,11 +443,23 @@ class Collector:
             )
             examples = self._make_examples(getattr(outline, "examples", None))
 
+        # ``scenario.tags`` only carries the scenario's own tags; rule and
+        # feature tags are inherited (``effective_tags``). They are merged here
+        # in document order so tag statistics and search behave as users expect.
+        tags = [safe_str(t) for t in getattr(behave_scenario, "tags", []) or []]
+        seen = set(tags)
+        for inherited in self._current_rule_tags + (
+            self._current_feature.tags if self._current_feature else []
+        ):
+            if inherited not in seen:
+                tags.append(inherited)
+                seen.add(inherited)
+
         scenario = Scenario(
             name=getattr(behave_scenario, "name", "") or "",
             description="\n".join(getattr(behave_scenario, "description", []) or []),
             location=safe_str(getattr(behave_scenario, "location", "")),
-            tags=[safe_str(t) for t in getattr(behave_scenario, "tags", []) or []],
+            tags=tags,
             feature_name=self._current_feature.name if self._current_feature else "",
             rule_name=self._current_rule_name,
             is_outline=is_outline,
@@ -416,6 +476,9 @@ class Collector:
                 location=safe_str(getattr(behave_background, "location", "")),
             )
         self._current_scenario = scenario
+        # Drop leftovers from a previous scenario that never saw end_scenario.
+        self._pending_attachments.clear()
+        self._pending_logs.clear()
         if self._current_feature is not None:
             self._current_feature.scenarios.append(scenario)
         return scenario
@@ -466,6 +529,9 @@ class Collector:
             scenario.duration = float(getattr(behave_scenario, "duration", 0.0) or 0.0)
         except (TypeError, ValueError):
             scenario.duration = 0.0
+        # Hook failures (before_scenario/after_scenario) live on the behave
+        # scenario object, not on a step.
+        scenario.error = self._make_error(behave_scenario)
         self._current_scenario = None
 
     # ------------------------------------------------------------------
@@ -504,19 +570,14 @@ class Collector:
     # Attachments / logs (extension API for environment.py hooks)
     # ------------------------------------------------------------------
 
-    def _last_step(self) -> Step | None:
-        """Return the most recently executed step, including background steps."""
-        scenario = self._current_scenario
-        if scenario is None:
-            return None
-        if scenario.steps:
-            return scenario.steps[-1]
-        if scenario.background and scenario.background.steps:
-            return scenario.background.steps[-1]
-        return None
-
     def attach(self, attachment: Attachment) -> None:
-        """Attach a file to the current step (last step) or scenario.
+        """Attach a file to the step currently executing, or to the scenario.
+
+        Behave runs ``after_step`` (and ``before_step``) hooks before the
+        formatter receives the step ``result`` event, so the step the hook
+        refers to is not yet stored. Everything is therefore queued and
+        flushed into the next step added by :meth:`add_step`; leftovers are
+        flushed into the scenario by :meth:`end_scenario`.
 
         Args:
             attachment (Attachment): Attachment to store.
@@ -524,11 +585,7 @@ class Collector:
         """
         if self._current_scenario is None:
             return
-        last_step = self._last_step()
-        if last_step is not None:
-            last_step.attachments.append(attachment)
-        else:
-            self._pending_attachments.append(attachment)
+        self._pending_attachments.append(attachment)
 
     def attach_embedding(self, mime_type: str, data: Any, name: str = "attachment") -> None:
         """Attach raw embedded data as Behave's ``formatter.embedding`` does.
@@ -544,17 +601,15 @@ class Collector:
         )
 
     def log(self, message: str) -> None:
-        """Append a log line to the current step.
+        """Append a log line to the step currently executing, or the scenario.
 
         Args:
             message (str): Log message to store.
 
         """
-        last_step = self._last_step()
-        if last_step is not None:
-            last_step.logs.append(message)
-        elif self._current_scenario is not None:
-            self._pending_logs.append(message)
+        if self._current_scenario is None:
+            return
+        self._pending_logs.append(safe_str(message))
 
     # ------------------------------------------------------------------
     # Finalize

@@ -36,7 +36,10 @@ def read_text(relative: str) -> str:
         str: Asset contents as text.
 
     """
-    return _read(ASSETS_DIR / relative)
+    path = (ASSETS_DIR / relative).resolve()
+    if not path.is_relative_to(ASSETS_DIR.resolve()):
+        raise ValueError(f"Asset path escapes the assets directory: {relative!r}")
+    return _read(path)
 
 
 def css_bundle(extra: str | None = None) -> str:

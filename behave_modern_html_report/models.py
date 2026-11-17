@@ -154,6 +154,7 @@ class Scenario:
     background: Background | None = None
     attachments: list[Attachment] = field(default_factory=list)
     logs: list[str] = field(default_factory=list)
+    error: ErrorInfo | None = None
     feature_name: str = ""
     rule_name: str = ""
     is_outline: bool = False
@@ -178,6 +179,7 @@ class Feature:
     tags: list[str] = field(default_factory=list)
     scenarios: list[Scenario] = field(default_factory=list)
     background: Background | None = None
+    error: ErrorInfo | None = None
 
     @property
     def scenario_count(self) -> int:
@@ -316,7 +318,7 @@ def as_dict(obj: Any) -> Any:
     """
     if dataclasses.is_dataclass(obj):
         return {f.name: as_dict(getattr(obj, f.name)) for f in dataclasses.fields(obj)}
-    if isinstance(obj, list):
+    if isinstance(obj, (list, tuple, set, frozenset)):
         return [as_dict(x) for x in obj]
     if isinstance(obj, dict):
         return {k: as_dict(v) for k, v in obj.items()}

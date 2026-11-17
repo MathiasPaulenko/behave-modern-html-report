@@ -43,7 +43,8 @@ class ModernHTMLFormatter(Formatter):  # type: ignore[misc,valid-type]
             config (Any): Behave configuration object.
 
         """
-        super().__init__(stream_opener, config)
+        if Formatter is not object:
+            super().__init__(stream_opener, config)
 
         userdata = getattr(config, "userdata", {}) or {}
         options = RenderOptions(
@@ -178,14 +179,19 @@ class ModernHTMLFormatter(Formatter):  # type: ignore[misc,valid-type]
         """
         p = Path(path)
         try:
-            data = base64.b64encode(p.read_bytes()).decode("ascii")
+            raw = p.read_bytes()
         except OSError as exc:
             raise OSError(f"Cannot read attachment file '{path}': {exc}") from exc
+        mime_type = guess_mime(p)
+        text = None
+        if mime_type.startswith("text/") or mime_type in ("application/json", "application/xml"):
+            text = raw.decode("utf-8", errors="replace")
         self._collector.attach(
             Attachment(
                 name=name or p.name,
-                mime_type=guess_mime(p),
-                data_base64=data,
+                mime_type=mime_type,
+                data_base64=base64.b64encode(raw).decode("ascii"),
+                text=text,
             )
         )
 
@@ -226,12 +232,12 @@ class ModernHTMLFormatter(Formatter):  # type: ignore[misc,valid-type]
 
         """
         candidate = getattr(stream_opener, "name", None) or getattr(stream_opener, "filename", None)
-        if candidate:
+        if candidate and candidate not in ("<stdout>", "<stderr>", "-"):
             return Path(candidate)
         outputs = getattr(config, "outputs", None) or []
         for output in outputs:
             name = getattr(output, "name", None)
-            if name and name not in ("<stdout>", "<stderr>"):
+            if name and name not in ("<stdout>", "<stderr>", "-"):
                 return Path(name)
         return Path("behave-modern-html-report.html")
 
@@ -248,6 +254,9 @@ class _FakeFinal:
         """
         self.status = getattr(source, "status", None)
         self.duration = getattr(source, "duration", 0.0)
+        self.error_message = getattr(source, "error_message", "")
+        self.exception = getattr(source, "exception", None)
+        self.exc_traceback = getattr(source, "exc_traceback", None)
 
 
 def _parse_bool(value: Any, default: bool = False) -> bool:

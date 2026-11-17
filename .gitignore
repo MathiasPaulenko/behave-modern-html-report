@@ -19,7 +19,10 @@ htmlcov/
 examples/demo-report.html
 report.html
 *.html.bak
+examples/behave_project/report.json
 examples/behave_project/summary.json
+examples/behave_project/steps.html
+examples/behave_project/reports/
 
 # IDE
 .vscode/
